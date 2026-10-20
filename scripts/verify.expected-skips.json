@@ -1,0 +1,4 @@
+{
+  "_comment": "Reconciles AC18 (one complete verify gate) with AC21 (verify must stay green per-slice, including Slice 0 with zero components/stories/themes). Each entry names a verify step allowed to self-report SKIP at the CURRENT slice, and the slice expected to remove it. An unlisted skip fails the gate. This file must shrink to [] by the end of Slice 2.",
+  "skips": []
+}

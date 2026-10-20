@@ -1,0 +1,219 @@
+/* ── Theme tokens ─────────────────────────────────────────────────────────── */
+:root {
+  --bg:           #0f0b17;
+  --surface:      #1a1528;
+  --surface-2:    #251e37;
+  --surface-3:    #302847;
+  --frame-bg:     #2a2245;
+
+  --teal:         #4dd9d0;
+  --teal-dim:     rgba(77,217,208,0.13);
+  --teal-glow:    rgba(77,217,208,0.30);
+
+  --pink:         #f472b6;
+  --pink-dim:     rgba(244,114,182,0.13);
+  --pink-glow:    rgba(244,114,182,0.35);
+
+  --lavender:     #c4b5fd;
+  --lavender-dim: rgba(196,181,253,0.13);
+
+  --text:         #f5f0ff;
+  --text-dim:     #c4b8e0;
+  --text-faint:   #a895d0;
+
+  --border:       rgba(255,255,255,0.15);
+  --radius:       12px;
+
+  --sentry-color:  #fb4226;
+  --jira-color:    #4f8dff;
+  --status-new:    #fb4226;
+  --status-invest: #f6c90e;
+  --status-done:   #4ade80;
+  --status-supp:   #a895d0;
+  --sla-green:     #4ade80;
+  --sla-amber:     #f6c90e;
+  --sla-red:       #f87171;
+}
+
+/* ── Ocean ────────────────────────────────────────────────────────────────── */
+[data-theme="ocean"] {
+  --bg:           #0D1B2A;
+  --surface:      #122233;
+  --surface-2:    #1A2E44;
+  --surface-3:    #213651;
+  --frame-bg:     #091525;
+  --teal:         #29ACEA;
+  --teal-dim:     rgba(41,172,234,0.15);
+  --teal-glow:    rgba(41,172,234,0.35);
+  --pink:         #F5A623;
+  --pink-dim:     rgba(245,166,35,0.15);
+  --pink-glow:    rgba(245,166,35,0.35);
+  --lavender:     #5E9ED6;
+  --lavender-dim: rgba(94,158,214,0.15);
+  --text:         #E4EEF8;
+  --text-dim:     #7FA3CA;
+  --text-faint:   #7aaac0;
+  --border:       rgba(41,172,234,0.14);
+}
+
+/* ── Terminal ─────────────────────────────────────────────────────────────── */
+[data-theme="terminal"] {
+  --bg:           #0d0d0d;
+  --surface:      #161616;
+  --surface-2:    #222222;
+  --surface-3:    #303030;
+  --frame-bg:     #060606;
+  --teal:         #39ff14;
+  --teal-dim:     rgba(57,255,20,0.12);
+  --teal-glow:    rgba(57,255,20,0.30);
+  --pink:         #00ffaa;
+  --pink-dim:     rgba(0,255,170,0.10);
+  --pink-glow:    rgba(0,255,170,0.25);
+  --lavender:     #aaff44;
+  --lavender-dim: rgba(170,255,68,0.12);
+  --text:         #d4ffd0;
+  --text-dim:     #77ee66;
+  --text-faint:   #55bb44;
+  --border:       rgba(57,255,20,0.18);
+}
+
+/* ── Coastal ──────────────────────────────────────────────────────────────── */
+[data-theme="coastal"] {
+  --bg:           #051e30;
+  --surface:      #0a2640;
+  --surface-2:    #0f2f4d;
+  --surface-3:    #153858;
+  --frame-bg:     #031624;
+  --teal:         #7bbfe0;
+  --teal-dim:     rgba(123,191,224,0.15);
+  --teal-glow:    rgba(123,191,224,0.32);
+  --pink:         #ff7744;
+  --pink-dim:     rgba(255,119,68,0.15);
+  --pink-glow:    rgba(255,119,68,0.32);
+  --lavender:     #44dd80;
+  --lavender-dim: rgba(68,221,128,0.15);
+  --text:         #e8f4ff;
+  --text-dim:     #8ab8d8;
+  --text-faint:   #7aafca;
+  --border:       rgba(123,191,224,0.16);
+}
+
+/* ── Dusk ─────────────────────────────────────────────────────────────────── */
+[data-theme="dusk"] {
+  --bg:           #0c2325;
+  --surface:      #113537;
+  --surface-2:    #1b3e41;
+  --surface-3:    #26484c;
+  --frame-bg:     #091c1e;
+  --teal:         #f76f8e;
+  --teal-dim:     rgba(247,111,142,0.15);
+  --teal-glow:    rgba(247,111,142,0.35);
+  --pink:         #ffead0;
+  --pink-dim:     rgba(255,234,208,0.12);
+  --pink-glow:    rgba(255,234,208,0.30);
+  --lavender:     #96616b;
+  --lavender-dim: rgba(150,97,107,0.20);
+  --text:         #ffead0;
+  --text-dim:     #c8a898;
+  --text-faint:   #8a6b72;
+  --border:       rgba(255,234,208,0.10);
+}
+
+/* ── Velvet ───────────────────────────────────────────────────────────────── */
+[data-theme="velvet"] {
+  --bg:           #170015;
+  --surface:      #210124;
+  --surface-2:    #2e0933;
+  --surface-3:    #3c1242;
+  --frame-bg:     #110012;
+  --teal:         #b3dec1;
+  --teal-dim:     rgba(179,222,193,0.14);
+  --teal-glow:    rgba(179,222,193,0.32);
+  --pink:         #750d37;
+  --pink-dim:     rgba(117,13,55,0.25);
+  --pink-glow:    rgba(117,13,55,0.50);
+  --lavender:     #dbf9f0;
+  --lavender-dim: rgba(219,249,240,0.12);
+  --text:         #f7f9f7;
+  --text-dim:     #b3dec1;
+  --text-faint:   #7aaa8a;
+  --border:       rgba(179,222,193,0.12);
+}
+
+/* ── Jade ─────────────────────────────────────────────────────────────────── */
+[data-theme="jade"] {
+  --bg:           #040f11;
+  --surface:      #071e22;
+  --surface-2:    #0d2b2a;
+  --surface-3:    #143633;
+  --frame-bg:     #030d0f;
+  --teal:         #1d7874;
+  --teal-dim:     rgba(29,120,116,0.18);
+  --teal-glow:    rgba(29,120,116,0.40);
+  --pink:         #ee2e31;
+  --pink-dim:     rgba(238,46,49,0.15);
+  --pink-glow:    rgba(238,46,49,0.38);
+  --lavender:     #679289;
+  --lavender-dim: rgba(103,146,137,0.18);
+  --text:         #f4c095;
+  --text-dim:     #c4967a;
+  --text-faint:   #8a6e58;
+  --border:       rgba(29,120,116,0.22);
+}
+
+/* ── Jade AA (WCAG AA contrast ratios) ───────────────────────────────────── */
+[data-theme="jade-aa"] {
+  --bg:           #040f11;
+  --surface:      #071e22;
+  --surface-2:    #0d2b2a;
+  --surface-3:    #143633;
+  --frame-bg:     #030d0f;
+  --teal:         #5ab0aa;
+  --teal-dim:     rgba(90,176,170,0.18);
+  --teal-glow:    rgba(90,176,170,0.40);
+  --pink:         #f05555;
+  --pink-dim:     rgba(240,85,85,0.15);
+  --pink-glow:    rgba(240,85,85,0.38);
+  --lavender:     #88b5ad;
+  --lavender-dim: rgba(136,181,173,0.18);
+  --text:         #f4c095;
+  --text-dim:     #c4967a;
+  --text-faint:   #a08870;
+  --border:       rgba(90,176,170,0.22);
+}
+
+/* ── Grove (light theme) ──────────────────────────────────────────────────── */
+[data-theme="grove"] {
+  --bg:           #c8e8d8;
+  --surface:      #f5fdf8;
+  --surface-2:    #ffffff;
+  --surface-3:    #d5f2e3;
+  --frame-bg:     #b8ddca;
+  --teal:         #155c52;
+  --teal-dim:     rgba(21,92,82,0.12);
+  --teal-glow:    rgba(21,92,82,0.28);
+  --pink:         #a0260a;
+  --pink-dim:     rgba(160,38,10,0.10);
+  --pink-glow:    rgba(160,38,10,0.28);
+  --lavender:     #1e6257;
+  --lavender-dim: rgba(30,98,87,0.12);
+  --text:         #003e1f;
+  --text-dim:     #1a5232;
+  --text-faint:   #286040;
+  --border:       rgba(0,62,31,0.18);
+  --status-new:    #b91c1c;
+  --status-invest: #6e5500;
+  --status-done:   #166534;
+  --status-supp:   #5b4d89;
+  --sla-green:     #166534;
+  --sla-amber:     #6e5500;
+  --sla-red:       #b91c1c;
+  --sentry-color:  #c0300f;
+  --jira-color:    #1d4ed8;
+}
+
+/* Grove — status badge overrides (rgba values don't inherit CSS vars) */
+[data-theme="grove"] .status-new           { background: rgba(185,28,28,0.08);  border-color: rgba(185,28,28,0.30); }
+[data-theme="grove"] .status-investigating { background: rgba(110,85,0,0.08);   border-color: rgba(110,85,0,0.30); }
+[data-theme="grove"] .status-investigated  { background: rgba(22,101,52,0.08);  border-color: rgba(22,101,52,0.30); }
+[data-theme="grove"] .status-suppressed    { background: rgba(91,77,137,0.08);  border-color: rgba(91,77,137,0.30); }

@@ -1,0 +1,77 @@
+{
+  "name": "bobuttons",
+  "version": "0.1.0",
+  "description": "Private React (Tamagui) component library with Storybook as the review and design surface.",
+  "private": true,
+  "license": "UNLICENSED",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "sideEffects": [
+    "*.css"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "build-storybook": "storybook build",
+    "storybook": "storybook dev -p 6006",
+    "lint": "eslint .",
+    "typecheck:bundler": "tsc --noEmit -p tsconfig.typecheck.bundler.json",
+    "typecheck:node16": "tsc --noEmit -p tsconfig.typecheck.node16.json",
+    "generate-themes": "node scripts/generate-themes.mjs",
+    "generate-themes:write": "node scripts/generate-themes.mjs --write",
+    "test": "vitest run",
+    "pack": "npm run build && mkdir -p .verify-out && npm pack --ignore-scripts --pack-destination .verify-out --json",
+    "prepack": "npm run build",
+    "prepublishOnly": "node -e \"console.error('Bobuttons is private and must never be published.'); process.exit(1)\"",
+    "verify": "node scripts/verify.mjs"
+  },
+  "peerDependencies": {
+    "react": ">=19",
+    "react-dom": ">=19"
+  },
+  "devDependencies": {
+    "@tamagui/core": "3.0.18",
+    "@storybook/addon-a11y": "10.6.2",
+    "@storybook/addon-vitest": "10.6.2",
+    "@storybook/react-vite": "10.6.2",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@types/node": "22.20.5",
+    "@typescript-eslint/eslint-plugin": "8.72.0",
+    "@typescript-eslint/parser": "8.72.0",
+    "@vitest/browser": "5.0.5",
+    "@vitest/browser-playwright": "5.0.5",
+    "eslint": "10.13.0",
+    "fast-glob": "3.3.3",
+    "griddy-icons": "0.2.0",
+    "jsdom": "27.0.0",
+    "playwright": "1.64.1",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "storybook": "10.6.2",
+    "tsup": "8.5.0",
+    "typescript": "6.0.3",
+    "vite": "8.3.4",
+    "vitest": "5.0.5"
+  }
+}

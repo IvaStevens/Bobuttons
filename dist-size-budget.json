@@ -1,0 +1,5 @@
+{
+  "_comment": "AC19 budget. Re-baselined once per slice as the component inventory lands; a re-baseline is a reviewed commit, not a silent bump. Floor measured for a bare @tamagui/core re-export (docs/context §B2): 335947 B raw / 81907 B gzip.",
+  "rawBytes": 420000,
+  "gzipBytes": 100000
+}

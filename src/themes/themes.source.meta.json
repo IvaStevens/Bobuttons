@@ -1,0 +1,9 @@
+{
+  "sourcePath": "../oncall-navigator-app/src/styles/themes.css",
+  "sourceRepoCommit": "40e7a35ef41a2a579e9da548ea369b2e7b2be4fd",
+  "fileCommit": "84f3ab993a476d1746f06f099eeee20f638a8d1b",
+  "bytes": 8042,
+  "sha256": "2d53dcd8253716d8cc585448a2a2c0eeb3b7391a884af266c789e1aaa6417bba",
+  "copiedAt": "2026-10-19T00:00:00Z",
+  "refreshCommand": "cp ../oncall-navigator-app/src/styles/themes.css src/themes/themes.source.css && sha256sum src/themes/themes.source.css"
+}

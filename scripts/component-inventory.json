@@ -1,0 +1,11 @@
+{
+  "_comment": "AC1/AC2/AC10. One entry per inventory item (docs/context + TaskSpec component inventory list). Grows across Slice 1/Slice 2; scripts/check-inventory-coverage.mjs only checks entries present here, so the gate stays meaningful per-slice (AC21) rather than being a blanket skip.",
+  "components": [
+    {
+      "name": "Button",
+      "category": "primitives",
+      "sourcePath": "src/components/primitives/Button/Button.tsx",
+      "storiesPath": "src/components/primitives/Button/Button.stories.tsx"
+    }
+  ]
+}
