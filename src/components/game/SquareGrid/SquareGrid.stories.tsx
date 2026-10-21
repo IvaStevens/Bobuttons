@@ -12,6 +12,9 @@ const meta: Meta<typeof SquareGrid> = {
     rows: 4,
     cells: undefined,
     squareSize: 40,
+    aspectRatio: 1,
+    raised: false,
+    shadow: false,
     variant: "filled",
     hover: undefined,
     onSquarePress: undefined,
@@ -95,6 +98,20 @@ export const FilledAndOutlined: Story = {
     columns: 4,
     rows: 1,
     cells: [{ text: "A" }, { variant: "outlined", text: "B" }, { color: "$primary", text: "C" }, { variant: "outlined", color: "$primary", text: "D" }],
+  },
+};
+
+// Wider than tall; text and icons are sized from the shorter side.
+export const Rectangles: Story = {
+  args: {
+    columns: 3,
+    rows: 2,
+    aspectRatio: 1.6,
+    cells: [{ text: "ABC", color: "$primary" }, { icon: Flash, label: "Flash", color: "$secondary" }, { text: "7" }],
+  },
+  play: async ({ canvasElement }) => {
+    const box = within(canvasElement).getAllByRole("cell")[0]!.getBoundingClientRect();
+    await expect(box.width / box.height).toBeCloseTo(1.6, 1);
   },
 };
 
@@ -200,4 +217,72 @@ export const HoverColor: Story = {
 // Without a `hover` config squares don't react at all.
 export const NoHover: Story = {
   args: { columns: 3, rows: 1, cells: [{ color: "$primary" }], onSquarePress: fn() },
+};
+
+const raisedCells: SquareGridCell[] = [
+  { color: "midnightblue", text: "A" },
+  { color: "lightyellow", text: "B" },
+  { color: "$primary", text: "C" },
+  { color: "$secondary", text: "D" },
+  {},
+];
+
+// A bottom edge gives a 3D look: always a darker shade of the fill, including for light fills.
+export const Raised: Story = {
+  args: { columns: 5, rows: 1, raised: true, cells: raisedCells },
+  play: async ({ canvasElement }) => {
+    const cells = within(canvasElement).getAllByRole("cell");
+    const [dark, light, white] = [cells[0], cells[1], cells[4]];
+    // Mean sRGB channel value (0-255) of any CSS colour, via a canvas pixel.
+    const ctx = document.createElement("canvas").getContext("2d", { willReadFrequently: true })!;
+    const brightness = (css: string) => {
+      ctx.clearRect(0, 0, 1, 1);
+      ctx.fillStyle = css;
+      ctx.fillRect(0, 0, 1, 1);
+      const [r = 0, g = 0, b = 0] = ctx.getImageData(0, 0, 1, 1).data;
+      return (r + g + b) / 3;
+    };
+    // The edge is the first colour in the computed box-shadow.
+    const edgeColor = (shadow: string) => shadow.slice(0, shadow.indexOf(")") + 1);
+    const fillOf = (el: HTMLElement) => brightness(getComputedStyle(el).backgroundColor);
+    const edgeOf = (el: HTMLElement) => brightness(edgeColor(getComputedStyle(el).boxShadow));
+
+    await expect(edgeOf(dark!)).toBeLessThan(fillOf(dark!));
+    await expect(edgeOf(light!)).toBeLessThan(fillOf(light!));
+    // Even white gets a visible edge.
+    await expect(edgeOf(white!)).toBeLessThan(fillOf(white!));
+  },
+};
+
+export const Shadow: Story = {
+  args: { columns: 4, rows: 1, shadow: true, cells: raisedCells },
+  play: async ({ canvasElement }) => {
+    const [first] = within(canvasElement).getAllByRole("cell");
+    await expect(getComputedStyle(first!).boxShadow).not.toBe("none");
+  },
+};
+
+export const RaisedWithShadow: Story = {
+  args: { columns: 4, rows: 2, raised: true, shadow: true, cells: raisedCells },
+};
+
+export const RaisedRectangles: Story = {
+  args: { columns: 3, rows: 2, aspectRatio: 1.6, raised: true, shadow: true, squareSize: 48, cells: raisedCells },
+};
+
+// Per-square settings override the grid; outlined squares ignore raised and shadow.
+export const RaisedOverrides: Story = {
+  args: {
+    columns: 4,
+    rows: 1,
+    raised: true,
+    cells: [{ color: "$primary" }, { color: "$primary", raised: false }, { color: "$primary", variant: "outlined" }, { color: "$primary", shadow: true }],
+  },
+  play: async ({ canvasElement }) => {
+    const [raised, flat, outlined, shadowed] = within(canvasElement).getAllByRole("cell");
+    await expect(getComputedStyle(raised!).boxShadow).not.toBe("none");
+    await expect(getComputedStyle(flat!).boxShadow).toBe("none");
+    await expect(getComputedStyle(outlined!).boxShadow).toBe("none");
+    await expect(getComputedStyle(shadowed!).boxShadow).not.toBe("none");
+  },
 };

@@ -236,7 +236,10 @@ export interface SquareGridProps {
   columns: number;
   rows: number;
   cells?: ReadonlyArray<SquareGridCell | undefined>; // row-major; missing = blank white
-  squareSize?: number;                                // px, default 40
+  squareSize?: number;                                // tile height in px, default 40
+  aspectRatio?: number;                               // width / height, default 1; > 1 is horizontal
+  raised?: boolean;                                   // 3D bottom edge on filled squares
+  shadow?: boolean;                                   // soft drop shadow on filled squares
   variant?: SquareVariant;                            // default for squares without their own, "filled"
   hover?: SquareHover;                                // default hover look for filled squares
   onSquarePress?: (row: number, column: number) => void; // zero-based
@@ -244,11 +247,13 @@ export interface SquareGridProps {
 }
 
 export type SquareGridCell =
-  | { color?: SquareColor; variant?: SquareVariant; hover?: SquareHover; label?: string; icon?: undefined; text?: string }
-  | { color?: SquareColor; variant?: SquareVariant; hover?: SquareHover; label?: string; icon: IconSource; text?: undefined };
+  | { color?: SquareColor; variant?: SquareVariant; hover?: SquareHover; raised?: boolean; shadow?: boolean; label?: string; icon?: undefined; text?: string }
+  | { color?: SquareColor; variant?: SquareVariant; hover?: SquareHover; raised?: boolean; shadow?: boolean; label?: string; icon: IconSource; text?: undefined };
 ```
 
-- **Shape:** `columns` x `rows` is fixed. Rows never wrap or shrink, so a parent narrower than the grid
+- **Tile shape:** `squareSize` is the tile height and `aspectRatio` (width / height) sets the width, so
+  `aspectRatio={1.6}` gives horizontal rectangles. Text and icons are sized from the shorter side.
+- **Grid shape:** `columns` x `rows` is fixed. Rows never wrap or shrink, so a parent narrower than the grid
   clips or scrolls it instead of reflowing the squares.
 - **Content:** a square is blank, holds an `icon` centred, or shows `text`. Text is clipped to 3
   characters (counted as characters, so emoji aren't split). `icon` and `text` are mutually exclusive.
@@ -262,6 +267,12 @@ export type SquareGridCell =
 - **Hover:** opt-in and for filled squares only. Pass `hover` on the grid, or on a square to override
   it, with a `color` (replaces the fill), an `outline` (adds an outline), or both. Colours are
   passed in, not themed defaults. Without `hover`, squares don't react to the pointer.
+- **3D and shadow:** both are for filled squares, set on the grid or overridden per square.
+  `raised` draws a solid bottom edge that is always a darker shade of the fill (lightness lowered in
+  OKLCH), computed in CSS so it works for tokens and any colour and follows hover colour changes.
+  `shadow` adds a tight, dark drop shadow (small offset and blur, 65% black). Both draw below the tile,
+  which reserves matching bottom space so nothing overlaps. The edge uses CSS relative colour syntax
+  (Chrome 119+, Safari 16.4+, Firefox 128+); older browsers render the tile flat.
 - **Interaction:** with `onSquarePress` set, every square is focusable and activates on click, Enter or
   Space. Blank squares are then named "Row r, column c" (1-based) unless they have a `label`.
 - **Accessibility:** `role="grid"` > `row` > `cell`. Give icon squares a `label`.

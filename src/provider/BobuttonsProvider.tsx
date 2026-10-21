@@ -15,6 +15,9 @@ export interface BobuttonsProviderProps {
 const BASE_CSS = [
   "[data-bobuttons-icon] svg path { fill: currentColor; }",
   "[data-bobuttons-input]::placeholder { color: var(--textFaint); }",
+  // Tamagui parses `boxShadow` and rejects modern colour syntax, so tile
+  // shadows are passed as a custom property.
+  "[data-bobuttons-tile] { box-shadow: var(--bobuttons-tile-shadow, none); }",
 ].join("\n");
 
 /**
