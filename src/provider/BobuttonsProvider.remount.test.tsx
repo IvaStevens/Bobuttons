@@ -1,10 +1,6 @@
-// AC9 gate (docs/context §N1): proves BobuttonsProvider restyles the tree
-// when the `theme` prop changes WITHOUT remounting anything underneath it.
-// Renders a probe child that increments a counter in useEffect([], ...) on
-// mount only, swaps the theme prop on the same root, and asserts the counter
-// is still 1 (no remount) while the resolved theme class on <body> changed.
-// Catches both a `key={theme}` regression and a future Tamagui release that
-// re-reads `defaultTheme` as initial-only.
+// Changing `theme` must restyle without remounting children. Guards against a
+// `key={theme}` regression and a Tamagui release that treats `defaultTheme`
+// as initial-only.
 import { describe, expect, it } from "vitest";
 import * as React from "react";
 import { createRoot } from "react-dom/client";

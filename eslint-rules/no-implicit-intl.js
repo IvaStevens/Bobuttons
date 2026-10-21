@@ -1,8 +1,6 @@
-// AC17 + docs/context §N4: bans bare `toLocale*(` and `new Intl.*` under
-// src/components. Every date/number format must route through
-// src/internal/formatInstant.ts, whose options require BOTH locale and
-// timeZone explicitly (measured: 32 calls across both source apps, zero with
-// a timeZone — see docs/context §E).
+// Bans bare `toLocale*(` and `Intl.*` under src/components. Formatting must go
+// through src/internal/formatInstant.ts, which requires an explicit locale and
+// timeZone.
 
 /** @type {import('eslint').Rule.RuleModule} */
 const rule = {
@@ -43,10 +41,7 @@ const rule = {
           });
           return;
         }
-        // Review finding (low): `Intl.DateTimeFormat(...)` / `Intl.NumberFormat(...)`
-        // without `new` are valid and return a usable formatter (as does
-        // `.supportedLocalesOf(...)`), but only the `NewExpression` form was
-        // caught. Mirror that check here for the bare-call form.
+        // `Intl.DateTimeFormat(...)` without `new` is also valid.
         if (isIntlMemberCallee(callee)) {
           context.report({
             node,

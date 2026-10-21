@@ -1,14 +1,12 @@
 #!/usr/bin/env node
-// AC14 / AC10. Two modes:
+// Two modes:
 //   (default)   static checks against package.json only.
-//   --tarball   checks against the tarball produced by `npm pack` at step 13
-//               of verify (pack-contents allowlist, exports-encapsulation,
-//               an EXECUTED `npm publish --dry-run` asserted non-zero).
+//   --tarball   checks the `npm pack` tarball: pack-contents allowlist,
+//               exports-encapsulation, and an executed `npm publish --dry-run`
+//               that must exit non-zero.
 //
-// docs/context §G1 (re-verified): `npm publish --dry-run` exits 0 on a
-// private package with no prepublishOnly, and 1 with one — private:true
-// contributes nothing to the exit code, so it must be asserted statically
-// here, separately from the executed dry-run.
+// `private: true` doesn't affect the dry-run exit code (only prepublishOnly
+// does), so it is asserted statically, separately from the executed dry-run.
 import { readFileSync, existsSync, mkdtempSync, rmSync, writeFileSync, mkdirSync, symlinkSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
@@ -61,9 +59,7 @@ function tarballChecks() {
     return;
   }
 
-  // Pack-contents allowlist: only dist/** and the manifest/readme/license may
-  // appear in the tarball ("files" is ignored on file: installs — "exports"
-  // is the real boundary, but the tarball itself must still be minimal).
+  // Only dist/** and the manifest/readme/license may appear in the tarball.
   const allowedTop = new Set(["package.json", "README.md", "LICENSE"]);
   for (const entry of packMeta.files) {
     const rel = entry.path.replace(/^package\//, "");
@@ -73,21 +69,10 @@ function tarballChecks() {
     }
   }
 
-  // Exports-encapsulation: a deep import must fail at runtime AND at
-  // typecheck, going through the package's real "exports" map rather than
-  // an absolute filesystem path.
-  //
-  // Review finding (high): the previous probe imported an absolute path
-  // (".../dist/nonexistent-deep-path.mjs") directly, which bypasses Node's
-  // "exports" resolution entirely and always throws ERR_MODULE_NOT_FOUND
-  // because the file doesn't exist — it "passes" against ANY exports map,
-  // including a wide-open one. The fixed probe places the extracted package
-  // at node_modules/bobuttons under a throwaway root and imports it by BARE
-  // SPECIFIER ("bobuttons/dist/index.mjs"), so Node must consult "exports"
-  // and reject the subpath with ERR_PACKAGE_PATH_NOT_EXPORTED specifically —
-  // the exact error AC10 names. The same bare specifier is also fed to tsc
-  // under both moduleResolution settings and must fail with TS2307 (AC10's
-  // other named failure mode), which the previous version never asserted.
+  // Exports-encapsulation: a deep import must fail at runtime and at typecheck.
+  // Import by bare specifier from a throwaway node_modules, so resolution goes
+  // through the real "exports" map; an absolute path would bypass it and fail
+  // regardless of the map.
   const tmp = mkdtempSync(path.join(os.tmpdir(), "bobuttons-exports-"));
   try {
     execFileSync("tar", ["-xf", tarballPath, "-C", tmp]);
@@ -107,7 +92,7 @@ function tarballChecks() {
       }
     }
 
-    // TS2307 half of the same assertion (AC10).
+    // Typecheck half: must fail with TS2307 under both resolutions.
     const deepImportTs = path.join(tmp, "deep-import.ts");
     writeFileSync(deepImportTs, `import { Button } from "bobuttons/dist/index.mjs";\nexport { Button };\n`);
     const tscBin = path.join(root, "node_modules", "typescript", "bin", "tsc");
@@ -148,11 +133,10 @@ function tarballChecks() {
     rmSync(tmp, { recursive: true, force: true });
   }
 
-  // Publish-blocked: an EXECUTED `npm publish --dry-run` (run against the
-  // project directory, so prepublishOnly actually fires) must exit non-zero.
+  // Run against the project directory so prepublishOnly fires.
   try {
     execFileSync("npm", ["publish", "--dry-run"], { cwd: root, stdio: "pipe" });
-    fail('"npm publish --dry-run" unexpectedly exited 0 — prepublishOnly must block it (AC14).');
+    fail('"npm publish --dry-run" unexpectedly exited 0 — prepublishOnly must block it.');
   } catch {
     // non-zero exit is the required outcome
   }

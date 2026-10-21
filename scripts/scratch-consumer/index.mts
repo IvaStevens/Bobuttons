@@ -1,9 +1,6 @@
-// AC15: ESM entry. Imports BobuttonsProvider, bobuttonsConfig and one
-// component (Button) from the package root, typechecks under both
-// moduleResolution bundler and node16, and renders through
-// react-dom/server's renderToString under plain Node, asserting non-empty
-// markup. Explicit .mts extension (not a bare index.ts) — docs/context §F7:
-// a bare pair silently typechecks the wrong resolution mode under node16.
+// ESM entry: imports the public API from the package root, typechecks under
+// bundler and node16 resolution, and renders to non-empty markup. The explicit
+// .mts extension keeps node16 from typechecking the wrong module mode.
 import * as React from "react";
 import { renderToString } from "react-dom/server";
 import { BobuttonsProvider, bobuttonsConfig, themeNames, Button } from "bobuttons";

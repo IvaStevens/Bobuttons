@@ -8,38 +8,32 @@ export type { BobuttonsFontWeightName } from "./tokens/fontWeights.js";
 export type { BobuttonsThemeName };
 export { themeNames };
 
-// AC7: --radius is declared exactly once, at themes.css:25, inside :root, and
-// no theme overrides it (docs/context §A1) — so it is a config-level token,
-// not a theme token, and lives here rather than in themes.generated.ts.
-// Note: Tamagui reserves a `true` key on every token scale for
-// component-driven defaults, so none of radius/space/size/zIndex below may
-// declare one (verified at runtime: "tokens.<scale>.true is reserved because
-// boolean values select component defaults"). --radius: 12px (themes.css:25)
-// is instead the named step `$5`; components reference it explicitly as
-// `$5` rather than `$true`.
+// --radius is declared once in :root and no theme overrides it, so it is a
+// config-level token rather than a theme token. Tamagui reserves a `true` key
+// on token scales, so none of these may declare one; `--radius: 12px` is `$5`.
 const radius = {
   0: 0,
   1: 4,
   2: 6,
   3: 8,
   4: 10,
-  5: 12, // --radius: 12px (themes.css:25)
+  5: 12,
   6: 16,
   7: 20,
 } as const;
 
-// Space/size scales: a conventional geometric-ish ramp seeded at the radius
-// token. No raw px literal appears outside this file (AC7 / lint rule
-// no-raw-style-literals).
+// Raw px literals are only allowed in this file (see no-raw-style-literals).
 const space = {
   0: 0,
-  0.25: 1, // hairline border width (Button, Card, etc.)
+  0.25: 1, // hairline border
   0.5: 2,
+  0.75: 3,
   1: 4,
   1.5: 6,
   2: 8,
   2.5: 10,
   3: 12,
+  3.5: 14,
   4: 16,
   5: 20,
   6: 24,
@@ -47,15 +41,19 @@ const space = {
   8: 32,
   9: 36,
   10: 40,
+  // App shell dimensions from the source apps. In `space` (and so `size`)
+  // because padding props only resolve space tokens.
+  headerHeight: 38,
+  sidebarWidth: 80,
+  bodyBottomInset: 72, // clears floating controls at the end of a scroll area
 } as const;
 
 const size = {
   ...space,
 } as const;
 
-// docs/context §A5: measured across both apps, the complete z-index set is
-// 1 (x3), 20 (x1), 1000 (x1) — 1000 is the meeting-alert overlay. (`true` is
-// reserved by Tamagui for component defaults, same as radius above.)
+// The complete z-index set used by the source apps; 1000 is the meeting-alert
+// overlay.
 const zIndex = {
   0: 0,
   1: 1,
@@ -71,18 +69,11 @@ const tokens = createTokens({
   size,
 });
 
-// AC7 / docs/context §N8: GenericFont types `size` as total but
-// `lineHeight`/`letterSpacing`/`weight`/`style` as Partial<>, so a font with a
-// hole in one of those constructs and renders with no error. BobuttonsFontSizeKey
-// fixes one union, shared by both families, and every scale below is written
-// as a total map over it so a missing step is a compile error at
-// config-authoring time (re-asserted at runtime by scripts/check-themes.mjs).
-//
-// Measured font-size steps (docs/context §F2): the real set used by both
-// source apps is 8-36px across 18 steps, not AC7's approximate 9-22px —
-// 8px is .status-badge (StatusBadge) and 36px is .empty-icon (EmptyState),
-// both inventory components, and raw px is lint-forbidden outside this file.
-// Human decision at plan approval: ship the full 8-36px range.
+// GenericFont types only `size` as total, so a font with a hole in
+// `lineHeight`/`letterSpacing`/`weight` would build without error. Every scale
+// below is a total map over this key union, so a missing step fails to
+// compile (scripts/check-themes.mjs re-checks at runtime). The 18 steps cover
+// the full 8-36px range used by the source apps.
 export type BobuttonsFontSizeKey =
   | 1 // 8
   | 2 // 9
@@ -128,9 +119,8 @@ const FONT_SIZE_PX: Record<BobuttonsFontSizeKey, number> = {
   18: 36,
 };
 
-// Line heights are a documented derivation, not a transcription (the source
-// CSS declares no line-height for most sizes): round(size * 1.4) for body,
-// round(size * 1.45) for mono. Recorded in docs/api/token-mapping.md.
+// Derived, not transcribed (the source CSS rarely sets line-height); see
+// docs/api/token-mapping.md.
 function buildLineHeights(multiplier: number): Record<BobuttonsFontSizeKey, number> {
   const result = {} as Record<BobuttonsFontSizeKey, number>;
   for (const key of FONT_SIZE_KEYS) {
@@ -139,20 +129,8 @@ function buildLineHeights(multiplier: number): Record<BobuttonsFontSizeKey, numb
   return result;
 }
 
-// Measured weights (docs/context §A5): 300, 400, 450, 500, 600, 700, 800.
-//
-// A per-font-size weight map (Tamagui's `font.weight`, keyed identically to
-// `font.size`) was considered and rejected: grepping both source apps' CSS
-// shows no functional correlation between size and weight — 11px alone
-// appears at weight 500 (shell.css:52), 600 (detail.css:221) and 700
-// (detail.css:33) in different selectors. Forcing a size->weight function
-// would invent a correlation the source data does not have, which AC4's
-// "any deviation ... is a defect" spirit also rules out for tokens generally.
-// Every per-step entry below therefore stays the CSS default, 400, and the
-// measured set is instead exposed as the named `fontWeights` constants below
-// (docs/api/token-mapping.md "Font weight"), which components import and
-// pass as `fontWeight={fontWeights.bold}` — a config-file-only numeric
-// constant, not a raw literal in component source (AC7).
+// Size and weight don't correlate in the source CSS, so every per-step weight
+// stays 400; the measured weights are exposed as named `fontWeights` instead.
 function buildWeights(): Record<BobuttonsFontSizeKey, string> {
   const result = {} as Record<BobuttonsFontSizeKey, string>;
   for (const key of FONT_SIZE_KEYS) {
@@ -160,12 +138,6 @@ function buildWeights(): Record<BobuttonsFontSizeKey, string> {
   }
   return result;
 }
-
-// Named weight tokens: see src/tokens/fontWeights.ts, imported above and
-// re-exported here so component source can `import { fontWeights } from
-// "../../../tamagui.config.js"` OR from the public entry; both resolve to
-// the same object. The only place these seven numbers are allowed to appear
-// as literals is src/tokens/fontWeights.ts.
 
 function buildLetterSpacing(): Record<BobuttonsFontSizeKey, number> {
   const result = {} as Record<BobuttonsFontSizeKey, number>;
@@ -175,10 +147,8 @@ function buildLetterSpacing(): Record<BobuttonsFontSizeKey, number> {
   return result;
 }
 
-// Tamagui also expects a `true` default-size key by convention (docs/context
-// §N8: "a token scale with no true key is accepted; include true anyway").
-// It is appended outside the strict per-step Record so BobuttonsFontSizeKey
-// itself stays a clean 18-step numeric union shared by both families.
+// The `true` default-size key is appended outside the per-step Record so the
+// key union stays a clean 18 steps.
 const DEFAULT_SIZE_KEY: BobuttonsFontSizeKey = 11; // 14px
 
 const bodyFont = createFont({
@@ -198,10 +168,7 @@ const monoFont = createFont({
   letterSpacing: { ...buildLetterSpacing(), true: 0 },
 });
 
-// AC3/AC9: nine themes, each a flattened token set from themes.generated.ts.
-// Tamagui's `theme_<name>` naming convention is used here; BobuttonsProvider
-// (src/provider/BobuttonsProvider.tsx) maps the public `BobuttonsThemeName`
-// 1:1 onto these.
+// Nine themes, each a flattened token set from themes.generated.ts.
 const tamaguiThemes = Object.fromEntries(
   themeNames.map((name) => [name, themes[name]])
 ) as Record<BobuttonsThemeName, (typeof themes)[BobuttonsThemeName]>;

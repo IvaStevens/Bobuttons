@@ -23,8 +23,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Playwright Chromium (AC16 — both Storybook addon-vitest runner options need one)
+      - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Verify (AC18 — the single gate)
+      - name: Verify
         run: npm run verify

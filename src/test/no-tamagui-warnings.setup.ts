@@ -1,11 +1,5 @@
-// Review finding (high, Button.tsx $border): a dead/invalid token reference
-// (e.g. `borderColor: "$border"` when the real token is `$borderColor`) does
-// not throw — Tamagui emits the literal value into the stylesheet and logs
-// `[tamagui] ...` to the console, so a story with a broken token still
-// "renders without throwing" and passes AC16(a) silently. This setup file
-// turns any such console message into a hard test failure across the
-// Storybook/axe Vitest projects, so a token typo like the one that shipped
-// in Button.tsx cannot pass `npm run verify` again.
+// An invalid token reference (e.g. `$border` for `$borderColor`) doesn't throw;
+// Tamagui just logs `[tamagui] ...`. Fail any test that logs one.
 import { afterEach, beforeEach } from "vitest";
 
 const original = { warn: console.warn, error: console.error };

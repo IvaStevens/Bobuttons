@@ -1,13 +1,11 @@
 #!/usr/bin/env node
-// AC18: the single verify gate. docs/context §N9 — 17 ordered steps, cheap
-// static checks first, ONE build, ONE pack, every later step reuses those
-// two artefacts. Aborts on first failure. TZ=UTC + LANG=C.UTF-8 (AC17/AC18).
+// The single verify gate: 17 ordered steps, cheap static checks first, one
+// build and one pack reused by later steps. Aborts on first failure.
+// Runs with TZ=UTC and LANG=C.UTF-8.
 //
-// AC18 vs AC21 reconciliation: a step may legitimately have nothing to check
-// yet at the current slice (e.g. zero themes in Slice 0). Such a step prints
-// a line containing "SKIP" and exits 0. Every SKIP must be pre-declared in
-// scripts/verify.expected-skips.json — an UNDECLARED skip fails the gate.
-// That file must shrink to [] by the end of Slice 2.
+// A step with nothing to check yet prints "SKIP" and exits 0. Every SKIP must
+// be declared in scripts/verify.expected-skips.json or the gate fails; that
+// file must shrink to [] by the end of Slice 2.
 import { execFileSync } from "node:child_process";
 import { readFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -116,18 +114,15 @@ runStep("build-storybook", () => {
   console.log(out.trim());
   return out;
 });
-// 16b — AC16: every story renders without throwing; axe reports zero
-// violations (excluding colour-contrast) on "default"; colour-contrast is
-// additionally gated on jade-aa (docs/context §C3). See vitest.config.ts for
-// the two browser projects and .storybook/preview.tsx for parameters.a11y.
+// 16b — every story renders; axe reports no violations on "default", and
+// colour-contrast is additionally gated on jade (see vitest.config.ts).
 runStep("storybook-a11y", () => {
   try {
     const out = sh("npx", ["vitest", "run"]);
     console.log(out.trim());
     return out;
   } catch (err) {
-    // Surface vitest's own output (it writes failures to stdout/stderr, not
-    // just a bare non-zero exit) before re-throwing to abort the gate.
+    // Print vitest's failure output before aborting.
     console.error(String(err.stdout || ""));
     console.error(String(err.stderr || ""));
     throw err;

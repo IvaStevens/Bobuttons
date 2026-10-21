@@ -1,11 +1,8 @@
 #!/usr/bin/env node
-// AC19: measures dist/index.mjs raw + gzip size against the committed
-// budget (the ESM entry only — matching the measured floor in docs/context
-// §B2 of 335947B raw / 81907B gzip for a bare @tamagui/core re-export; the
-// CJS build is a separate, intentionally near-duplicate artifact for AC15's
-// require() path and is not double-counted here). --write regenerates the
-// README's marker-delimited distsize JSON block from the same measurement,
-// so the two cannot drift (docs/context §N11).
+// Measures dist/index.mjs raw + gzip size against the committed budget (ESM
+// entry only; the CJS build is a near-duplicate and isn't double-counted).
+// --write regenerates the README's distsize JSON block from the same
+// measurement so the two can't drift.
 import { readFileSync, existsSync, writeFileSync } from "node:fs";
 import { gzipSync } from "node:zlib";
 import { fileURLToPath } from "node:url";

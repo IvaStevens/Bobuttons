@@ -6,6 +6,54 @@
       "category": "primitives",
       "sourcePath": "src/components/primitives/Button/Button.tsx",
       "storiesPath": "src/components/primitives/Button/Button.stories.tsx"
+    },
+    {
+      "name": "Icon",
+      "category": "primitives",
+      "sourcePath": "src/components/primitives/Icon/Icon.tsx",
+      "storiesPath": "src/components/primitives/Icon/Icon.stories.tsx"
+    },
+    {
+      "name": "AppHeader",
+      "category": "shell",
+      "sourcePath": "src/components/shell/AppHeader/AppHeader.tsx",
+      "storiesPath": "src/components/shell/AppHeader/AppHeader.stories.tsx"
+    },
+    {
+      "name": "TabBar",
+      "category": "shell",
+      "sourcePath": "src/components/shell/TabBar/TabBar.tsx",
+      "storiesPath": "src/components/shell/TabBar/TabBar.stories.tsx"
+    },
+    {
+      "name": "CollapsibleSection",
+      "category": "shell",
+      "sourcePath": "src/components/shell/CollapsibleSection/CollapsibleSection.tsx",
+      "storiesPath": "src/components/shell/CollapsibleSection/CollapsibleSection.stories.tsx"
+    },
+    {
+      "name": "AppShell",
+      "category": "layout",
+      "sourcePath": "src/components/layout/AppShell/AppShell.tsx",
+      "storiesPath": "src/components/layout/AppShell/AppShell.stories.tsx"
+    },
+    {
+      "name": "ViewPane",
+      "category": "layout",
+      "sourcePath": "src/components/layout/ViewPane/ViewPane.tsx",
+      "storiesPath": "src/components/layout/ViewPane/ViewPane.stories.tsx"
+    },
+    {
+      "name": "ViewToolbar",
+      "category": "layout",
+      "sourcePath": "src/components/layout/ViewToolbar/ViewToolbar.tsx",
+      "storiesPath": "src/components/layout/ViewToolbar/ViewToolbar.stories.tsx"
+    },
+    {
+      "name": "ViewBody",
+      "category": "layout",
+      "sourcePath": "src/components/layout/ViewBody/ViewBody.tsx",
+      "storiesPath": "src/components/layout/ViewBody/ViewBody.stories.tsx"
     }
   ]
 }

@@ -1,7 +1,5 @@
-// AC7: no raw px or colour literal in component source outside src/tamagui.config.ts.
-// AC6: no theme-name literal and no "grove" special case under src/components.
-// Non-colour keywords are whitelisted (docs/context §N2.4) because the Icon
-// component's hand-written CSS override must reference `currentColor`.
+// Forbids raw px/colour literals and theme-name literals in component source.
+// Non-colour keywords are allowed (e.g. `currentColor` for the Icon override).
 const NON_COLOUR_KEYWORDS = new Set([
   "currentColor",
   "transparent",
@@ -16,14 +14,9 @@ const HEX_COLOR = /#[0-9a-fA-F]{3,8}\b/;
 const RGB_FN = /\b(rgba?|hsla?)\s*\(/;
 const RAW_PX = /^-?\d+(\.\d+)?px$/;
 
-// Review finding (medium): Tamagui treats a bare NUMBER on a dimensional
-// style property as px (e.g. `borderWidth: 1` === `borderWidth: "1px"`), so
-// the string-only RAW_PX regex above let `borderWidth: 1` and similar pass
-// silently (reproduced: Button.tsx shipped `borderWidth: 1` through a green
-// lint run). This set names the dimensional properties a raw NUMBER is
-// checked against; anything NOT in this set (e.g. `opacity`, `flex`,
-// `zIndex`, `tabIndex`, `maxLength`, array indices, loop counters) is left
-// alone, because those are genuinely unitless or not style values at all.
+// Tamagui treats a bare number on a dimensional property as px, so these are
+// checked for raw numbers too. Unitless props (`opacity`, `flex`, `zIndex`)
+// are deliberately absent.
 const DIMENSIONAL_NUMERIC_PROPS = new Set([
   "width", "height", "minWidth", "minHeight", "maxWidth", "maxHeight",
   "top", "left", "right", "bottom",
@@ -45,7 +38,6 @@ const THEME_NAMES = [
   "dusk",
   "velvet",
   "jade",
-  "jade-aa",
   "grove",
 ];
 

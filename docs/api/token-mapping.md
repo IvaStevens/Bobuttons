@@ -2,7 +2,7 @@
 
 # Token mapping
 
-CSS variable (from `themes.css`) -> Bobuttons semantic token name. `--teal` -> `primary`, `--pink` -> `secondary` and `--lavender` -> `accent` are fixed by AC5; the remaining names are fixed here. `--radius` is excluded: it is a config-level token (AC7), seeded once in `src/tamagui.config.ts` and not overridden by any theme.
+CSS variable (from `themes.css`) -> Bobuttons semantic token name. `--primary` -> `primary`, `--secondary` -> `secondary` and `--accent` -> `accent` are fixed by AC5; the remaining names are fixed here. `--radius` is excluded: it is a config-level token (AC7), seeded once in `src/tamagui.config.ts` and not overridden by any theme.
 
 ## Colour tokens (26, carried over from `:root`)
 
@@ -13,14 +13,14 @@ CSS variable (from `themes.css`) -> Bobuttons semantic token name. `--teal` -> `
 | `--surface-2` | `surface2` |
 | `--surface-3` | `surface3` |
 | `--frame-bg` | `frameBackground` |
-| `--teal` | `primary` |
-| `--teal-dim` | `primaryDim` |
-| `--teal-glow` | `primaryGlow` |
-| `--pink` | `secondary` |
-| `--pink-dim` | `secondaryDim` |
-| `--pink-glow` | `secondaryGlow` |
-| `--lavender` | `accent` |
-| `--lavender-dim` | `accentDim` |
+| `--primary` | `primary` |
+| `--primary-dim` | `primaryDim` |
+| `--primary-glow` | `primaryGlow` |
+| `--secondary` | `secondary` |
+| `--secondary-dim` | `secondaryDim` |
+| `--secondary-glow` | `secondaryGlow` |
+| `--accent` | `accent` |
+| `--accent-dim` | `accentDim` |
 | `--text` | `color` |
 | `--text-dim` | `textDim` |
 | `--text-faint` | `textFaint` |

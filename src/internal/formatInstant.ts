@@ -1,11 +1,7 @@
-// AC17 + docs/context §N4. The single date/number formatting helper.
-// Measured: 32 `toLocale*`/`new Intl.*` calls across both source apps, ZERO
-// with a `timeZone` — several pass `[]` for locale. `locale` and `timeZone`
-// are both REQUIRED here (no defaults), so no call site can silently format
-// against the host clock's zone. Components that format dates expose their
-// own `locale`/`timeZone` props with explicit defaults ('en-US' / 'UTC') and
-// pass them through; they must never call `toLocale*`/`new Intl.*` directly
-// — enforced by the `no-implicit-intl` ESLint rule under src/components.
+// The single date/number formatting helper. `locale` and `timeZone` are
+// required so nothing silently formats against the host's zone. Components
+// expose their own `locale`/`timeZone` props (defaults 'en-US' / 'UTC') and
+// must not call `toLocale*`/`new Intl.*` directly (`no-implicit-intl` rule).
 export interface FormatInstantOptions extends Intl.DateTimeFormatOptions {
   locale: string;
   timeZone: string;

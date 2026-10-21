@@ -35,7 +35,7 @@ Parsed `oncall-navigator-app/src/styles/themes.css` (219 lines, 8042 bytes) with
 ```
 :root     -> 27 vars
 ocean     -> 17   terminal -> 17   coastal -> 17   dusk -> 17
-velvet    -> 17   jade     -> 17   jade-aa -> 17   grove -> 26
+velvet    -> 17   jade     -> 17   grove -> 26
 ```
 
 Flattening (`:root` first, then the theme's own declarations) yields **9 themes with an identical 27-key set**.
@@ -82,7 +82,7 @@ Note the source files are textually inconsistent about alpha precision: `queue.c
 `themes.css` grove writes `0.30`. Numerically identical. §N6 pins one emit format for the generated tokens.
 
 ### A4. Semantic token mapping (AC5) — the Architect's naming, fixed here
-`--teal -> primary`, `--pink -> secondary`, `--lavender -> accent` are fixed by AC5. The remaining 23 are named
+`--primary -> primary`, `--secondary -> secondary`, `--accent -> accent` are fixed by AC5. The remaining 23 are named
 below. Where a Tamagui conventional key exists (`background`, `color`, `borderColor`) it is used, so `styled()`
 picks the value up automatically instead of every component re-plumbing it.
 
@@ -93,14 +93,14 @@ picks the value up automatically instead of every component re-plumbing it.
 | `--surface-2` | `surface2` | | `--text-faint` | `textFaint` |
 | `--surface-3` | `surface3` | | `--border` | `borderColor` |
 | `--frame-bg` | `frameBackground` | | `--sentry-color` | `sentry` |
-| `--teal` | `primary` *(fixed)* | | `--jira-color` | `jira` |
-| `--teal-dim` | `primaryDim` | | `--status-new` | `statusNew` |
-| `--teal-glow` | `primaryGlow` | | `--status-invest` | `statusInvestigating` |
-| `--pink` | `secondary` *(fixed)* | | `--status-done` | `statusInvestigated` |
-| `--pink-dim` | `secondaryDim` | | `--status-supp` | `statusSuppressed` |
-| `--pink-glow` | `secondaryGlow` | | `--sla-green` | `slaGreen` |
-| `--lavender` | `accent` *(fixed)* | | `--sla-amber` | `slaAmber` |
-| `--lavender-dim` | `accentDim` | | `--sla-red` | `slaRed` |
+| `--primary` | `primary` *(fixed)* | | `--jira-color` | `jira` |
+| `--primary-dim` | `primaryDim` | | `--status-new` | `statusNew` |
+| `--primary-glow` | `primaryGlow` | | `--status-invest` | `statusInvestigating` |
+| `--secondary` | `secondary` *(fixed)* | | `--status-done` | `statusInvestigated` |
+| `--secondary-dim` | `secondaryDim` | | `--status-supp` | `statusSuppressed` |
+| `--secondary-glow` | `secondaryGlow` | | `--sla-green` | `slaGreen` |
+| `--accent` | `accent` *(fixed)* | | `--sla-amber` | `slaAmber` |
+| `--accent-dim` | `accentDim` | | `--sla-red` | `slaRed` |
 
 26 above + 8 derived (`statusNewBg`/`statusNewBorder`, `statusInvestigatingBg`/`Border`,
 `statusInvestigatedBg`/`Border`, `statusSuppressedBg`/`Border`) = **34**. This table is the content of
@@ -117,10 +117,10 @@ picks the value up automatically instead of every component re-plumbing it.
 ### A6. Value shapes in `themes.css` — **VERIFIED, new in rev 5, load-bearing for the generator**
 172 custom-property declarations in total: **117 six-digit hex, 54 `rgba(...)`, one `12px`** (`--radius`).
 No three-digit hex, no `rgb()`, no named colours, no `var()` indirection.
-- Six variables are **always** `rgba(...)`, never hex: `--border`, `--teal-dim`, `--teal-glow`, `--pink-dim`,
-  `--pink-glow`, `--lavender-dim`. No variable mixes shapes across themes.
-- **Seven declarations use uppercase hex** — `--bg #0D1B2A`, `--surface-2 #1A2E44`, `--teal #29ACEA`,
-  `--pink #F5A623`, `--lavender #5E9ED6`, `--text #E4EEF8`, `--text-dim #7FA3CA` (all in `coastal`).
+- Six variables are **always** `rgba(...)`, never hex: `--border`, `--primary-dim`, `--primary-glow`, `--secondary-dim`,
+  `--secondary-glow`, `--accent-dim`. No variable mixes shapes across themes.
+- **Seven declarations use uppercase hex** — `--bg #0D1B2A`, `--surface-2 #1A2E44`, `--primary #29ACEA`,
+  `--secondary #F5A623`, `--accent #5E9ED6`, `--text #E4EEF8`, `--text-dim #7FA3CA` (all in `coastal`).
 - The four `--status-*` variables are six-digit hex in **every** theme, so AC6's hex→rgb derivation is total
   and needs no fallback.
 
@@ -196,7 +196,7 @@ Storybook 10.6.2 + `@storybook/react-vite` + `@storybook/addon-a11y`, with a dec
 `@storybook/addon-vitest` (Storybook 10's native path: stories run as Vitest browser tests, a11y assertions come
 from the a11y addon) over `@storybook/test-runner`; both need Playwright, so CI must run
 `npx playwright install --with-deps chromium`. AC16 needs **two** runs with different globals and rule sets:
-`default` theme with `color-contrast` disabled, `jade-aa` with `color-contrast` enabled. Model them as two
+`default` theme with `color-contrast` disabled, `jade` with `color-contrast` enabled. Model them as two
 Vitest projects differing only in `initialGlobals` and `a11y` parameters.
 
 ### C4. Provider, bundling, peers, publish defence, determinism
@@ -365,7 +365,7 @@ entry `index.mts` → `index.mjs`, CJS entry `index.cts` → `index.cjs`, run as
 ## I. Scope boundaries actively enforced by this plan
 
 Presentational only: props in, callbacks out; no Electron, IPC, SQLite, network or app logic. No new colour
-value. No contrast gating on any theme but `jade-aa`. No modification of either source app. No publish.
+value. No contrast gating on any theme but `jade`. No modification of either source app. No publish.
 No `data-theme` mirror. No react-bootstrap or gluestack dependency. No visual-regression or snapshot testing.
 No React Native target. No `griddy-icons` runtime dependency (§N2).
 

@@ -1,10 +1,7 @@
 #!/usr/bin/env node
-// AC3/AC4/AC5 + docs/context §N6.7 + §N8. Runs the generator into a temp
-// directory and byte-compares against the committed outputs (never writes
-// into the worktree); independently re-derives the AC3 theme-id set from the
-// vendored CSS with the anchored selector parser; asserts all nine themes
-// share an identical 34-key set; asserts the body/mono font families (once
-// src/tamagui.config.ts exists) expose identical key sets at runtime.
+// Runs the generator into a temp directory and byte-compares it with the
+// committed outputs; re-derives the theme-id set from the vendored CSS; and
+// asserts all nine themes share an identical 34-key set.
 import { readFileSync, mkdtempSync, rmSync, existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
@@ -18,7 +15,7 @@ function fail(msg) {
   failed = true;
 }
 
-// --- AC3: themeNames equals the anchored [data-theme=...] block set + "default" ---
+// themeNames equals the [data-theme=...] block set + "default"
 const css = readFileSync(path.join(root, "src/themes/themes.source.css"), "utf8");
 const cleaned = css.replace(/\/\*[\s\S]*?\*\//g, "");
 const blockSelectors = [...cleaned.matchAll(/([^{}]+)\{/g)].map((m) => m[1].trim());
@@ -27,8 +24,7 @@ for (const selector of blockSelectors) {
   const match = /^\[data-theme="([a-z-]+)"\]$/.exec(selector);
   if (match) themeIds.add(match[1]);
 }
-// themes.generated.ts is TypeScript; read it as text and extract the tuple
-// rather than executing TypeScript directly with plain Node.
+// Read the generated .ts as text; plain Node can't execute it.
 const generatedSrc = readFileSync(path.join(root, "src/themes/themes.generated.ts"), "utf8");
 const themeNamesMatch = /export const themeNames = \[([^\]]+)\]/.exec(generatedSrc);
 const themeNames = themeNamesMatch ? JSON.parse(`[${themeNamesMatch[1]}]`) : [];
@@ -41,7 +37,7 @@ if (expected.size !== actual.size || [...expected].some((n) => !actual.has(n))) 
   );
 }
 
-// --- AC4/AC6: generate into a temp dir and byte-compare against committed outputs ---
+// Generated output matches the committed files byte for byte
 const tmp = mkdtempSync(path.join(os.tmpdir(), "bobuttons-themes-"));
 try {
   execFileSync("node", [path.join(root, "scripts/generate-themes.mjs"), "--out", tmp], { stdio: "pipe" });
@@ -56,7 +52,7 @@ try {
   rmSync(tmp, { recursive: true, force: true });
 }
 
-// --- AC5: all nine themes share an identical 34-key set ---
+// All nine themes share an identical 34-key set
 const generatedText = generatedSrc;
 const themeBlockRe = /"([a-z-]+)":\s*\{([^}]*)\}/g;
 let keySets = [];
@@ -81,13 +77,13 @@ for (const { theme, keys } of keySets) {
   }
 }
 
-// --- N8: body/mono font key-set parity (once tamagui.config.ts exists) ---
+// Font scales are total maps, enforced by TypeScript at compile time
 const configPath = path.join(root, "src/tamagui.config.ts");
 if (existsSync(configPath)) {
   const configText = readFileSync(configPath, "utf8");
   const sizeMatch = /size:\s*\{([^}]*)\}/.exec(configText);
   if (sizeMatch) {
-    console.log("[check-themes] tamagui.config.ts font scale present (manual N8 totality is enforced by TypeScript at compile time).");
+    console.log("[check-themes] tamagui.config.ts font scale present.");
   }
 } else {
   console.log("[check-themes] SKIP: src/tamagui.config.ts not found yet — font key-parity check deferred.");

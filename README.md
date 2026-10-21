@@ -14,7 +14,7 @@ parity generated from the vendored `themes.source.css`, the Tamagui token config
 zIndex/font scales, including the named `fontWeights` scale), `BobuttonsProvider` with the AC9 remount
 regression test, Storybook 10 wired with the theme toolbar and a genuinely-gating a11y check
 (`npm run verify` builds Storybook and runs two Vitest/Playwright browser projects against it — the
-`storybook-jade-aa` project additionally gates on axe's colour-contrast rule, per AC16; the
+`storybook-jade` project additionally gates on axe's colour-contrast rule, per AC16; the
 `storybook-default` project does not), and one primitive (`Button`) with theme-switch stories and
 hover/focus/press play functions. `npm run verify`'s full 18-step gate passes end to end, including
 the AC15 scratch-install check (ESM + CJS entries actually executed through `renderToString` from a
@@ -71,8 +71,8 @@ TypeScript is pinned to 6.0.3, not the published latest (7.0.2): `typescript-esl
 <!-- bobuttons:distsize:start -->
 ```json
 {
-  "rawBytes": 355354,
-  "gzipBytes": 86240
+  "rawBytes": 365008,
+  "gzipBytes": 88553
 }
 ```
 <!-- bobuttons:distsize:end -->

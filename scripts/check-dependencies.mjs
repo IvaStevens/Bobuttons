@@ -1,9 +1,8 @@
 #!/usr/bin/env node
-// AC11 / AC12(b) / F6: no runtime `dependencies` at all (so @tamagui/core's
-// transitive, non-optional react-native-web peer never reaches a consumer);
-// no react-bootstrap / bootstrap / gluestack / umbrella `tamagui` dependency;
-// every @tamagui/* pinned at exactly one version in the lockfile; no
-// electron/ipc/sqlite/network package (components are presentational only).
+// No runtime `dependencies` (so @tamagui/core's react-native-web peer never
+// reaches a consumer); no react-bootstrap/bootstrap/gluestack/umbrella
+// `tamagui`; a single @tamagui/* version in the lockfile; no
+// electron/sqlite packages (components are presentational only).
 import { readFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
@@ -19,19 +18,14 @@ function fail(msg) {
 
 if (pkg.dependencies && Object.keys(pkg.dependencies).length > 0) {
   fail(
-    `package.json "dependencies" must be absent or empty, found: ${Object.keys(pkg.dependencies).join(", ")} (docs/context §F6 — @tamagui/core's transitive react-native-web peer is non-optional).`
+    `package.json "dependencies" must be absent or empty, found: ${Object.keys(pkg.dependencies).join(", ")}.`
   );
 }
 
 const forbidden = ["react-bootstrap", "bootstrap", "gluestack", "tamagui"];
 const forbiddenPattern = /^(electron|sqlite3?|better-sqlite3)$/;
-// AppGenerator currently ships gluestack-ui as a scoped family
-// (@gluestack-ui/*, @gluestack-style/*) — the exact-match list above would
-// never catch those (review finding, low). Substring-match "gluestack"
-// specifically, case-insensitively, separately from the exact-match list
-// (an exact-match umbrella check is still correct for "tamagui" itself —
-// substring-matching THAT would false-positive on every legitimate
-// "@tamagui/*" scoped package).
+// gluestack ships as scoped packages (@gluestack-ui/*), so it needs a
+// substring match. "tamagui" can't: that would flag every @tamagui/* package.
 const GLUESTACK_SUBSTRING = /gluestack/i;
 const allDeclared = {
   ...(pkg.dependencies || {}),
@@ -63,11 +57,8 @@ if (existsSync(lockfilePath)) {
       seen.add(meta.version);
       tamaguiVersions.set(name, seen);
     }
-    // Only the PRODUCTION tree matters here (AC12(b) is about the scratch
-    // consumer's installed tree, which never sees this project's own
-    // devDependencies at all). A dev-only transitive package — e.g.
-    // react-native-web pulled in by @tamagui/core's devDependency chain
-    // (docs/context §F6) — is expected and is not what AC12 is checking.
+    // Production tree only: dev-only transitive packages (e.g. react-native-web
+    // via @tamagui/core) never reach consumers.
     if (
       /node_modules\/(react-native)(-|$)/.test(key) &&
       !key.includes("@tamagui/") &&
@@ -81,11 +72,7 @@ if (existsSync(lockfilePath)) {
       fail(`mixed @tamagui/* versions for ${name}: ${[...versions].join(", ")} (AC11).`);
     }
   }
-  // Review finding (low): the per-package check above only catches the same
-  // package name appearing at two versions, not the family as a whole (e.g.
-  // @tamagui/core@3.0.18 alongside @tamagui/helpers@3.1.0 would pass). AC11
-  // says "mixed @tamagui/* versions are not permitted" for the scope, not
-  // per package — assert a single version across the entire @tamagui/* set.
+  // The check above is per package; also require one version across the family.
   const familyVersions = new Set();
   for (const versions of tamaguiVersions.values()) {
     for (const v of versions) familyVersions.add(v);

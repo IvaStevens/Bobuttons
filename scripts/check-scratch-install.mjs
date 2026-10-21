@@ -1,32 +1,13 @@
 #!/usr/bin/env node
-// AC15 + AC12(b) + AC21 (tree-shaking probe). Installs the SAME tarball
-// `npm run pack` just produced into a throwaway fixture directory with
-// `npm install --offline` (docs/context §G4: pre-seeded react/react-dom so
-// an unexpected network fetch fails loudly instead of silently resolving a
-// newer major), typechecks an ESM and a CJS entry under both
-// moduleResolution bundler and node16 (docs/context §F7: explicit .mts/.cts
-// extensions, not a bare .ts pair), compiles and EXECUTES both through
-// react-dom/server renderToString, and scans the installed tree for any
-// unscoped react-native* package.
+// Installs the tarball `npm run pack` produced into a throwaway consumer with
+// `npm install --offline` (react/react-dom are pre-seeded, so an unexpected
+// network fetch fails loudly), typechecks ESM and CJS entries under bundler
+// and node16 resolution, runs both through react-dom/server, and scans the
+// installed tree for unscoped react-native* packages.
 //
-// Review findings (medium), both fixed by moving the run OUTSIDE the repo:
-//   1. The previous version MUTATED the tracked
-//      scripts/scratch-consumer/package.json in place, writing a machine-
-//      specific absolute `file:` path on every run and leaving the working
-//      tree dirty.
-//   2. The fixture lived inside the repo, so Node's and TypeScript's module
-//      resolution could walk UP into Bobuttons' own node_modules (which
-//      does contain @tamagui/*, @types/react, typescript, react-native-web
-//      via @tamagui/core's devDependency chain) — weaker than AC15's
-//      "installing only react, react-dom and the Bobuttons tarball".
-//
-// This version copies the fixture's static template files (index.mts,
-// index.cts, tree-shake.mts, the three tsconfigs) into a fresh directory
-// under the OS temp root (outside this repo entirely, so resolution cannot
-// walk up into Bobuttons' node_modules), writes a generated package.json
-// there (never touching the tracked template), and runs everything from
-// there. The tracked scripts/scratch-consumer/ directory holds only the
-// template source now.
+// The fixture is copied from scripts/scratch-consumer/ into the OS temp dir,
+// outside the repo, so resolution can't walk up into Bobuttons' node_modules;
+// its package.json is generated, so the tracked template stays untouched.
 import { readFileSync, writeFileSync, existsSync, rmSync, mkdtempSync, cpSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
@@ -55,7 +36,7 @@ if (!existsSync(tarballPath)) {
   process.exit(1);
 }
 
-// Fresh, isolated fixture directory OUTSIDE the repo.
+// Fixture directory outside the repo.
 const fixtureDir = mkdtempSync(path.join(os.tmpdir(), "bobuttons-scratch-"));
 
 class ScratchInstallAbort extends Error {}
@@ -65,9 +46,7 @@ try {
     cpSync(path.join(templateDir, file), path.join(fixtureDir, file));
   }
 
-  // Generated package.json (template base + the tarball dep by absolute
-  // path) — written only into the throwaway fixture dir, never back into
-  // the tracked template.
+  // Template package.json plus the tarball dependency.
   const basePkg = JSON.parse(readFileSync(path.join(templateDir, "package.json"), "utf8"));
   basePkg.dependencies = { ...basePkg.dependencies, bobuttons: `file:${tarballPath}` };
   writeFileSync(path.join(fixtureDir, "package.json"), JSON.stringify(basePkg, null, 2) + "\n");
@@ -122,13 +101,8 @@ try {
     }
   }
 
-  // AC21 Slice 1 DoD, review finding (low): "a real bundler measurement is a
-  // follow-up" was left unresolved in tree-shake.mts's own comment. esbuild
-  // is already present transitively (via vite) in THIS project's
-  // node_modules, so bundle the single-`Button`-import fixture entry with it
-  // and log the resulting size — a real measurement, not a typecheck-only
-  // proxy. Not gated against a budget (no prior baseline exists); logged so
-  // a regression is visible in the verify log, same spirit as AC19.
+  // Tree-shake probe: bundle a single-`Button`-import entry with esbuild (here
+  // transitively via vite) and log its size. Logged, not gated on a budget.
   try {
     const esbuildBin = path.join(root, "node_modules/.bin/esbuild");
     const outFile = path.join(fixtureDir, "tree-shake.bundle.mjs");
@@ -143,9 +117,7 @@ try {
     fail(`tree-shake bundle measurement failed: ${String(err.stdout || err.stderr || err.message)}`);
   }
 
-  // AC12(b): no unscoped react-native* package in the installed tree. Now
-  // meaningful (not just "the fixture's own tree is clean") because the
-  // fixture has no Bobuttons ancestor directory for resolution to walk into.
+  // No unscoped react-native* package in the installed tree.
   try {
     const lsOut = execFileSync("npm", ["ls", "--json", "--all"], {
       cwd: fixtureDir,
@@ -157,8 +129,7 @@ try {
       console.log("[check-scratch-install] no unscoped react-native* package in installed tree: PASS");
     }
   } catch (err) {
-    // npm ls exits non-zero on peer-dep warnings even when the tree is fine;
-    // stdout still contains the JSON we need.
+    // npm ls exits non-zero on peer-dep warnings; stdout still has the JSON.
     const out = String(err.stdout || "");
     if (/"react-native(-|")/i.test(out.replace(/@tamagui\/[\w-]*react-native[\w-]*/gi, ""))) {
       fail("an unscoped react-native* package is present in the scratch consumer's installed tree.");

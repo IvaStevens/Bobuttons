@@ -86,7 +86,7 @@ export interface CollapsibleSectionProps {
   children: ReactNode;
   defaultOpen?: boolean; // default true
   headerAction?: ReactNode;
-  accentToken?: BobuttonsThemeTokenName; // replaces colorClass; no default (falls back to borderColor)
+  accentToken?: BobuttonsThemeTokenName; // replaces colorClass; label colour, defaults to textDim
 }
 ```
 
@@ -143,6 +143,42 @@ with a stable existing prop shape to reconcile against — `GithubView`'s per-ap
 `Settings*Tab` components' props will be written up in this same file, in the same format, immediately
 before their Slice 2 implementation, per AC13's "written down first" requirement for *that*
 component's own PR.
+
+## Icon
+
+```ts
+export type IconSource = React.ComponentType<{ size?: number | string; color?: string }>;
+
+export interface IconProps {
+  source: IconSource;
+  size?: number;                   // px, default 20
+  color?: BobuttonsThemeTokenName; // default "color"
+  label?: string;                  // accessible name
+}
+```
+
+Deviation from docs/context §N2: there is no `decorative` flag. An icon with no `label` is hidden
+from assistive tech (`aria-hidden`); one with a `label` is `role="img"`. An interface can't express
+"label required unless decorative", so omitting the label is the one way to mark it decorative.
+
+## Layout components
+
+These follow DailyTracker's page structure: `.app` > header + (`.frame-left` | `.frame-content` >
+`.view` > `.view-card`).
+
+| component | DailyTracker equivalent | props |
+|---|---|---|
+| `AppShell` | `.app`, `.frame-body`, `.frame-left`, `.frame-content` | `header?`, `sidebar?`, `children`, `overlay?` |
+| `ViewPane` | `.view` + `.view-card` (surface card with gradient stripe) | `children` |
+| `ViewToolbar` | `.tab-toolbar` | `title?`, `children?` (used when no title), `actions?` |
+| `ViewBody` | `.list-wrap` (scrolling, padded content area) | `children` |
+
+`AppShell` fills the viewport (`100vh`) and paints `frameBackground`; the sidebar is omitted when no
+`sidebar` is given. `AppHeader` reserves the sidebar's width on its left so the title centres over the
+content area.
+
+New size tokens back these: `headerHeight` (38), `sidebarWidth` (80) and `bodyBottomInset` (72), plus
+space steps `0.75` (3) and `3.5` (14).
 
 ## Type-level parity test (Slice 2)
 

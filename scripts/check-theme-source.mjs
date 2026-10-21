@@ -1,9 +1,8 @@
 #!/usr/bin/env node
-// docs/context §N5 / AC8. (a) ALWAYS assert sha256(themes.source.css) ===
-// meta.sha256 — catches a local edit, runs everywhere including CI.
-// (b) If meta.sourcePath exists on disk, byte-compare against the real file
-// and fail with the refresh command on drift; if absent, SKIP and pass.
-// Never fails for absence — that is the whole point of vendoring.
+// (a) Always asserts sha256(themes.source.css) === meta.sha256, which catches
+// local edits and runs in CI.
+// (b) If meta.sourcePath exists, byte-compares against it and fails with the
+// refresh command on drift. Absence never fails; that is the point of vendoring.
 import { readFileSync, existsSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
@@ -38,13 +37,9 @@ if (existsSync(sourcePath)) {
     console.log("[check-theme-source] drift check against sibling repo: PASS");
   }
 } else {
-  // Deliberately NOT the word "SKIP": verify.mjs treats any step whose
-  // output contains that token as a slice-boundary omission that must be
-  // declared in verify.expected-skips.json and that disappears as the
-  // inventory lands. This is a different, permanent kind of omission — the
-  // sibling oncall-navigator-app checkout is never present in CI (the
-  // workflow checks out only this repo) and is not expected to be. The sha
-  // check above still ran and is the thing that actually gates drift.
+  // Deliberately not "SKIP": verify.mjs treats that token as a temporary
+  // omission that must be declared in verify.expected-skips.json. The sibling
+  // checkout is permanently absent in CI.
   console.log(`[check-theme-source] N/A (sibling repo absent): drift check against ${meta.sourcePath} not applicable on this machine — sha check already verified the vendored copy is untouched.`);
 }
 

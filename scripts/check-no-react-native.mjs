@@ -1,10 +1,7 @@
 #!/usr/bin/env node
-// AC12(a): scan every file emitted into dist (.js/.mjs/.cjs/.d.ts/.d.cts — the
-// Storybook build is explicitly out of scope) for an import/require of
-// exactly `react-native` or `react-native-web`, optionally with a subpath.
-// Specifier-anchored, never substring (docs/context §B3): a scoped package
-// like `@tamagui/react-native-media-driver` contains the string but is not a
-// react-native package and must not trip this check.
+// Scans every file emitted into dist for an import/require of exactly
+// `react-native` or `react-native-web` (optionally with a subpath). Anchored on
+// the specifier, since `@tamagui/react-native-media-driver` must not match.
 import fg from "fast-glob";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -13,17 +10,9 @@ import path from "node:path";
 const root = path.resolve(fileURLToPath(import.meta.url), "../..");
 const distDir = path.join(root, "dist");
 
-// Review finding (low): the previous pattern only matched `from "..."` and
-// `require("...")`, missing a bare side-effect import (`import "react-native-web";`,
-// no "from") and a dynamic `import("...")` — the sibling
-// check-dts-encapsulation.mjs already covers `import(` and the two checks
-// should not disagree on what counts as an import.
+// Also matches side-effect (`import "x"`) and dynamic imports.
 const SPECIFIER = /(?:from\s+|require\(\s*|import\(\s*|\bimport\s+)["']((?:react-native|react-native-web)(?:\/[^"']*)?)["']/g;
 
-// Review finding (low): AC12(a)'s literal list is .js/.mjs/.cjs/.d.ts/.d.cts,
-// but the build also emits dist/index.d.mts (a byte copy of index.d.ts,
-// already walked by the sibling check-dts-encapsulation.mjs); include it so
-// the two checks agree on what "built output" means.
 const files = fg.sync(["**/*.{js,mjs,cjs,d.ts,d.cts,d.mts}"], { cwd: distDir, absolute: true });
 
 if (files.length === 0) {

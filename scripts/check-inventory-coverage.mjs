@@ -1,17 +1,11 @@
 #!/usr/bin/env node
-// AC1/AC2/AC10 + docs/context §N7. For each entry in
-// scripts/component-inventory.json: asserts a *.stories.tsx exists, the
-// component is exported from src/index.ts, the component exports a
-// `<Name>Props` interface, and (N7's mechanical proxy for AC2's second half)
-// every declared prop key is covered by the union of the default story's
-// args and every named story's args. `children` and `aria-*`/`data-*` are
-// exempt; an individual prop may be exempted via a visible
-// `/** @storybook-args-exempt <reason> */` JSDoc tag directly above it.
+// For each entry in scripts/component-inventory.json, asserts a *.stories.tsx
+// exists, the component is exported from src/index.ts with a `<Name>Props`
+// interface, and every declared prop is covered by some story's args.
+// `children` and `aria-*`/`data-*` are exempt, as is any prop with a
+// `/** @storybook-args-exempt <reason> */` tag directly above it.
 //
-// Only checks entries actually present in component-inventory.json, so the
-// gate stays meaningful per-slice (AC21) instead of being a blanket skip —
-// the manifest grows as components land; this script never invents
-// expectations for components that are not yet in it.
+// Only entries present in the manifest are checked; it grows as components land.
 import { readFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";

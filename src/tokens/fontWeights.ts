@@ -1,17 +1,6 @@
-// Named weight tokens for AC7 (docs/api/token-mapping.md "Font weight").
-//
-// This is a standalone, @tamagui/*-free module (no import from
-// tamagui.config.ts) so it can be re-exported from both tamagui.config.ts
-// (which defines the Tamagui font config) and src/index.ts (the public
-// entry) without ever forcing a consumer's type-checker to resolve
-// tamagui.config.d.ts, which transitively references @tamagui/web and is
-// not resolvable outside this repo (review finding, high — see src/index.ts
-// for the full explanation).
-//
-// Measured weight set (docs/context §A5): 300, 400, 450, 500, 600, 700, 800.
-// A per-font-size weight map was considered and rejected — see the comment
-// above `buildWeights()` in tamagui.config.ts — because the source apps show
-// no functional correlation between size and weight.
+// Standalone and @tamagui-free (no import from tamagui.config.ts) so it can be
+// re-exported from the public entry without pulling tamagui.config.d.ts into
+// consumers' type graph. See src/index.ts.
 export const fontWeights = {
   light: 300,
   regular: 400,

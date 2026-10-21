@@ -1,8 +1,7 @@
 #!/usr/bin/env node
-// AC20 + docs/context §N11. Reads marker-delimited fenced JSON blocks from
-// README.md (never prose) and asserts they agree with package.json /
-// dist-size-budget.json. Fails on a missing marker pair or invalid JSON.
-// --write regenerates the human-readable table next to the block.
+// Reads marker-delimited JSON blocks from README.md (never prose) and asserts
+// they agree with package.json and the built dist. Fails on a missing marker
+// pair or invalid JSON. --write regenerates the versions table.
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { gzipSync } from "node:zlib";
 import { fileURLToPath } from "node:url";
@@ -51,12 +50,8 @@ if (versions) {
   if (versions.typescript !== expectedTs) fail(`README typescript=${versions.typescript} != package.json=${expectedTs}`);
 }
 
-// Review finding (low): `distsize` was extracted but never compared against
-// anything, so the README-recorded dist size could drift silently from the
-// real measurement while still passing (it only checked "is this valid
-// JSON?"). This step runs last in verify.mjs (step 17), after the build
-// (step 8), so dist/ is guaranteed to exist — re-measure the same entry
-// check-dist-size.mjs measures and assert the README block still matches.
+// Re-measures the entry check-dist-size.mjs measures. Runs after the build in
+// verify, so dist/ exists.
 if (distsize) {
   const entryPath = path.join(root, "dist/index.mjs");
   if (existsSync(entryPath)) {

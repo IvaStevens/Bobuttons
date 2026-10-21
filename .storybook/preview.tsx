@@ -1,15 +1,13 @@
 import * as React from "react";
 import type { Preview } from "@storybook/react-vite";
+import { View } from "@tamagui/core";
 import { BobuttonsProvider } from "../src/provider/BobuttonsProvider.js";
 import { themeNames } from "../src/tamagui.config.js";
 
-// Vite `define` compile-time constant, set per Vitest project in
-// vitest.config.ts; see the a11y.config.rules usage below.
+// Vite `define` constant set per Vitest project in vitest.config.ts.
 declare const __BOBUTTONS_A11Y_CONTRAST__: boolean | undefined;
 
-// AC9: a toolbar control that can switch every one of the nine themes.
-// AC17: a fixed ISO instant is the global default for any story args that
-// need "now" — no component reads the host clock directly.
+// Fixed "now" for stories; components never read the host clock.
 export const FIXED_NOW = "2026-10-19T12:00:00.000Z";
 
 const preview: Preview = {
@@ -28,17 +26,11 @@ const preview: Preview = {
     theme: "default",
   },
   parameters: {
+    // The decorator paints `$background` edge to edge; padding would leave a frame.
+    layout: "fullscreen",
     a11y: {
-      // AC16: addon-a11y defaults parameters.a11y.test to "todo", which only
-      // WARNS on a violation. "error" is required for a violation to
-      // actually fail the Storybook/Vitest run (scripts/verify.mjs step 16).
       test: "error",
-      // Colour contrast is gated on jade-aa only; every other theme is
-      // exempt (out-of-scope list). `__BOBUTTONS_A11Y_CONTRAST__` is a Vite
-      // `define` constant set per Vitest project in vitest.config.ts (true
-      // only for the "storybook-jade-aa" project); `typeof` guards against
-      // it being unset (e.g. plain `npm run storybook` dev builds), where it
-      // correctly defaults to disabled.
+      // Colour contrast is gated on jade only.
       config: {
         rules: [
           {
@@ -55,7 +47,15 @@ const preview: Preview = {
       return React.createElement(
         BobuttonsProvider,
         { theme },
-        React.createElement(Story)
+        React.createElement(
+          View,
+          {
+            backgroundColor: "$background",
+            minHeight: "100vh",
+            padding: context.parameters.fullBleed ? 0 : "$4",
+          },
+          React.createElement(Story)
+        )
       );
     },
   ],
