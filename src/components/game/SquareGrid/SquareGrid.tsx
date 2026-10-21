@@ -1,5 +1,6 @@
 import * as React from "react";
-import { styled, Text, useTheme, View } from "@tamagui/core";
+import { styled, Text, View } from "@tamagui/core";
+import { useCssColor } from "../../../internal/cssColor.js";
 import { activationKeyHandlers, useHover } from "../../../internal/interaction.js";
 import { fontWeights } from "../../../tokens/fontWeights.js";
 import type { BobuttonsThemeTokenName } from "../../../types/tokens.js";
@@ -138,12 +139,11 @@ interface GridSquareProps {
   onPress?: (row: number, column: number) => void;
 }
 
-type ThemeVars = Record<string, { variable?: string } | undefined>;
 
 function GridSquare(props: GridSquareProps): React.ReactElement {
   const { cell, height, aspectRatio, row, column, onPress } = props;
   const { hovered, hoverHandlers } = useHover();
-  const theme = useTheme() as unknown as ThemeVars;
+  const toCss = useCssColor();
   const width = Math.round(height * aspectRatio);
   // Content is sized from the shorter side so it fits either way.
   const unit = Math.min(width, height);
@@ -168,8 +168,7 @@ function GridSquare(props: GridSquareProps): React.ReactElement {
   const depth = Math.max(2, Math.round(height * 0.08));
   const layers: string[] = [];
   if (raised) {
-    const cssFill = fill.startsWith("$") ? (theme[fill.slice(1)]?.variable ?? fill) : fill;
-    layers.push(`0 ${depth}px 0 ${edgeColor(cssFill)}`);
+    layers.push(`0 ${depth}px 0 ${edgeColor(toCss(fill))}`);
   }
   if (shadow) {
     const offset = depth + Math.max(1, Math.round(height * 0.03));

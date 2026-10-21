@@ -144,6 +144,12 @@
       "category": "game",
       "sourcePath": "src/components/game/SquareGrid/SquareGrid.tsx",
       "storiesPath": "src/components/game/SquareGrid/SquareGrid.stories.tsx"
+    },
+    {
+      "name": "TessellatedBackground",
+      "category": "game",
+      "sourcePath": "src/components/game/TessellatedBackground/TessellatedBackground.tsx",
+      "storiesPath": "src/components/game/TessellatedBackground/TessellatedBackground.stories.tsx"
     }
   ]
 }

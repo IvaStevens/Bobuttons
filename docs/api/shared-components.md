@@ -277,6 +277,39 @@ export type SquareGridCell =
   Space. Blank squares are then named "Row r, column c" (1-based) unless they have a `label`.
 - **Accessibility:** `role="grid"` > `row` > `cell`. Give icon squares a `label`.
 
+### TessellatedBackground
+
+A repeating pattern of icons drawn behind its children, for game backdrops.
+
+```ts
+export interface TessellatedIcon {
+  source: IconSource;
+  size: number; // px; fixed everywhere this icon appears
+}
+
+export interface TessellatedBackgroundProps {
+  icons: ReadonlyArray<TessellatedIcon>; // intended for 3 to 8
+  seed?: number;     // same seed, same pattern; default 1
+  tileSize?: number; // px edge of the repeating tile; default 240
+  copies?: number;   // appearances of each icon per tile; default 2
+  tilt?: number;     // max rotation either way, degrees; default 20 (0 = upright)
+  color?: SquareColor; // "$token" or any CSS colour; default "$color"
+  opacity?: number;  // default 0.12
+  children?: React.ReactNode;
+}
+```
+
+- **How it works:** one square tile is laid out once and the browser repeats it as an SVG `<pattern>`.
+  That is much cheaper than a full-size JPEG: a few KB instead of hundreds, one small tile in memory
+  instead of a decoded full-screen bitmap, sharp at any size, and it follows the active theme.
+- **Layout:** seeded and deterministic. Icons are placed largest first, each where it clears the others
+  by the most, with distances wrapping around the tile edges so the repeat is seamless. If the tile is
+  too small for the icons they end up as far apart as they can; raise `tileSize` or lower `copies`.
+- **Sizing:** it fills its parent, so give the parent a size. Children render above the pattern.
+- **Accessibility:** the pattern is `aria-hidden`.
+- **Cost model:** the layout is memoized on the icon sizes, seed, tile size, copies and tilt, so an
+  inline `icons` array doesn't recompute it. Avoid rendering the pattern as thousands of elements.
+
 ## Type-level parity test (Slice 2)
 
 `src/components/shared-props.test-d.ts` asserts, for `AppHeader`, `CollapsibleSection` and `TabBar`:

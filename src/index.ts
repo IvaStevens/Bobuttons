@@ -84,3 +84,9 @@ export type {
   SquareHover,
   SquareVariant,
 } from "./components/game/SquareGrid/SquareGrid.js";
+
+export { TessellatedBackground } from "./components/game/TessellatedBackground/TessellatedBackground.js";
+export type {
+  TessellatedBackgroundProps,
+  TessellatedIcon,
+} from "./components/game/TessellatedBackground/TessellatedBackground.js";
