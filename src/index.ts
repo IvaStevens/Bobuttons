@@ -77,4 +77,10 @@ export { ThemeOption } from "./components/settings/ThemeOption/ThemeOption.js";
 export type { ThemeOptionProps } from "./components/settings/ThemeOption/ThemeOption.js";
 
 export { SquareGrid } from "./components/game/SquareGrid/SquareGrid.js";
-export type { SquareGridCell, SquareGridProps } from "./components/game/SquareGrid/SquareGrid.js";
+export type {
+  SquareColor,
+  SquareGridCell,
+  SquareGridProps,
+  SquareHover,
+  SquareVariant,
+} from "./components/game/SquareGrid/SquareGrid.js";

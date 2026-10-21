@@ -1,13 +1,13 @@
 import * as React from "react";
 import { styled, Text, View } from "@tamagui/core";
-import { activationKeyHandlers } from "../../../internal/interaction.js";
+import { activationKeyHandlers, useHover } from "../../../internal/interaction.js";
 import { fontWeights } from "../../../tokens/fontWeights.js";
 import type { BobuttonsThemeTokenName } from "../../../types/tokens.js";
 import type { IconSource } from "../../primitives/Icon/Icon.js";
 
-// Placeholder until game colours exist in the theme: squares are white with
-// dark content. Replace with theme tokens once they are defined.
-const PLACEHOLDER_FILL = "white";
+// Placeholder until game colours exist in the theme: squares are white, with
+// dark content on filled squares. Replace with theme tokens once they are defined.
+const PLACEHOLDER_COLOR = "white";
 const PLACEHOLDER_INK = "black";
 
 const MAX_TEXT_LENGTH = 3;
@@ -28,12 +28,16 @@ const Row = styled(View, {
   gap: "$1",
 });
 
+// Every square has a border, transparent unless outlined or hovered, so
+// adding an outline never changes its size.
 const Square = styled(View, {
   flexShrink: 0,
   alignItems: "center",
   justifyContent: "center",
   overflow: "hidden",
   borderRadius: "$2",
+  borderWidth: "$0.5",
+  borderColor: "transparent",
 });
 
 const Content = styled(Text, {
@@ -44,9 +48,26 @@ const Content = styled(Text, {
   fontWeight: fontWeights.bold,
 });
 
+/** A theme token ("$primary") or any CSS colour ("red", "#fff"). */
+export type SquareColor = `$${BobuttonsThemeTokenName}` | (string & {});
+
+export type SquareVariant = "filled" | "outlined";
+
+/** How a filled square looks while hovered. Give either or both. */
+export interface SquareHover {
+  /** Replaces the fill. */
+  color?: SquareColor;
+  /** Adds an outline of this colour. */
+  outline?: SquareColor;
+}
+
 interface SquareGridCellBase {
-  /** Fill colour token. Defaults to white. */
-  color?: BobuttonsThemeTokenName;
+  /** Fill (filled) or outline and content (outlined). Defaults to white. */
+  color?: SquareColor;
+  /** Overrides the grid's `variant` for this square. */
+  variant?: SquareVariant;
+  /** Overrides the grid's `hover` for this square. Ignored when outlined. */
+  hover?: SquareHover;
   /** Accessible name; give icon squares one so they aren't silent. */
   label?: string;
 }
@@ -65,6 +86,10 @@ export interface SquareGridProps {
   cells?: ReadonlyArray<SquareGridCell | undefined>;
   /** Side length of each square, in px. Defaults to 40. */
   squareSize?: number;
+  /** Default for squares without their own `variant`. Defaults to "filled". */
+  variant?: SquareVariant;
+  /** Hover look for filled squares. Without it, squares don't react to hover. */
+  hover?: SquareHover;
   /** Called with the zero-based row and column. Makes the squares focusable. */
   onSquarePress?: (row: number, column: number) => void;
   "aria-label"?: string;
@@ -84,16 +109,27 @@ interface GridSquareProps {
   size: number;
   row: number;
   column: number;
+  variant: SquareVariant;
+  hover?: SquareHover;
   onPress?: (row: number, column: number) => void;
 }
 
 function GridSquare(props: GridSquareProps): React.ReactElement {
   const { cell, size, row, column, onPress } = props;
+  const { hovered, hoverHandlers } = useHover();
   const Icon = cell?.icon;
   const text = cell?.text ? clipText(cell.text) : undefined;
   const press = onPress ? () => onPress(row, column) : undefined;
   // A pressable blank square would otherwise have no name.
   const label = cell?.label ?? (press && !text ? `Row ${row + 1}, column ${column + 1}` : undefined);
+
+  const variant = cell?.variant ?? props.variant;
+  const color = cell?.color ?? PLACEHOLDER_COLOR;
+  // Hover only applies to filled squares.
+  const hover = variant === "filled" && hovered ? (cell?.hover ?? props.hover) : undefined;
+  const fill = variant === "filled" ? (hover?.color ?? color) : "transparent";
+  const outline = variant === "outlined" ? color : (hover?.outline ?? "transparent");
+  const ink = variant === "filled" ? PLACEHOLDER_INK : color;
 
   return (
     <Square
@@ -102,18 +138,20 @@ function GridSquare(props: GridSquareProps): React.ReactElement {
       tabIndex={press ? 0 : undefined}
       cursor={press ? "pointer" : undefined}
       onPress={press}
+      {...hoverHandlers}
       {...(press ? activationKeyHandlers(press) : null)}
       width={size}
       height={size}
-      backgroundColor={cell?.color ? `$${cell.color}` : PLACEHOLDER_FILL}
+      backgroundColor={fill}
+      borderColor={outline}
     >
       {Icon && (
-        <Content data-bobuttons-icon="" color={PLACEHOLDER_INK}>
+        <Content data-bobuttons-icon="" color={ink}>
           <Icon size={Math.round(size * 0.55)} color="currentColor" />
         </Content>
       )}
       {text && (
-        <Content color={PLACEHOLDER_INK} fontSize={Math.round(size * 0.4)}>
+        <Content color={ink} fontSize={Math.round(size * 0.4)}>
           {text}
         </Content>
       )}
@@ -123,7 +161,7 @@ function GridSquare(props: GridSquareProps): React.ReactElement {
 
 /** A fixed-shape grid of small rounded squares, each blank, an icon or a short string. */
 export function SquareGrid(props: SquareGridProps): React.ReactElement {
-  const { cells, squareSize = 40, onSquarePress } = props;
+  const { cells, squareSize = 40, variant = "filled", hover, onSquarePress } = props;
   const columns = toCount(props.columns);
   const rows = toCount(props.rows);
 
@@ -138,6 +176,8 @@ export function SquareGrid(props: SquareGridProps): React.ReactElement {
               size={squareSize}
               row={r}
               column={c}
+              variant={variant}
+              hover={hover}
               onPress={onSquarePress}
             />
           ))}

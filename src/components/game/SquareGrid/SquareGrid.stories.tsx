@@ -12,6 +12,8 @@ const meta: Meta<typeof SquareGrid> = {
     rows: 4,
     cells: undefined,
     squareSize: 40,
+    variant: "filled",
+    hover: undefined,
     onSquarePress: undefined,
     "aria-label": "Game board",
   },
@@ -70,12 +72,29 @@ export const Mixed: Story = {
   },
 };
 
-// Per-square colour comes from theme tokens; the default is white.
+// Colours are theme tokens ("$primary") or any CSS colour; the default is white.
 export const Colors: Story = {
   args: {
     columns: 4,
     rows: 1,
-    cells: [{}, { color: "primary", text: "A" }, { color: "secondary", text: "B" }, { color: "accent", text: "C" }],
+    cells: [{}, { color: "$primary", text: "A" }, { color: "$secondary", text: "B" }, { color: "$accent", text: "C" }],
+  },
+};
+
+export const Outlined: Story = {
+  args: {
+    columns: 4,
+    rows: 2,
+    variant: "outlined",
+    cells: [{ text: "A" }, { icon: Flash, label: "Flash" }, { color: "$primary", text: "B" }, { color: "$secondary", text: "XYZ" }],
+  },
+};
+
+export const FilledAndOutlined: Story = {
+  args: {
+    columns: 4,
+    rows: 1,
+    cells: [{ text: "A" }, { variant: "outlined", text: "B" }, { color: "$primary", text: "C" }, { variant: "outlined", color: "$primary", text: "D" }],
   },
 };
 
@@ -119,4 +138,66 @@ export const Pressable: Story = {
     await userEvent.keyboard("{Enter}");
     await expect(args.onSquarePress).toHaveBeenLastCalledWith(0, 0);
   },
+};
+
+// Hover adds an outline to filled squares. Colours can be tokens or raw CSS colours.
+export const HoverOutline: Story = {
+  args: {
+    columns: 4,
+    rows: 2,
+    hover: { outline: "$accent" },
+    cells: [{ color: "$primary" }, { color: "$secondary" }, {}, { color: "$accent" }],
+    onSquarePress: fn(),
+  },
+};
+
+// Hover can also replace the fill; here with passed-in colours, per grid and per square.
+export const HoverColor: Story = {
+  args: {
+    columns: 4,
+    rows: 1,
+    hover: { color: "gold", outline: "white" },
+    cells: [{ color: "$primary" }, { color: "$secondary" }, { hover: { color: "tomato" } }, { variant: "outlined", color: "$accent" }],
+    onSquarePress: fn(),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const [grid, perSquare, outlined] = [
+      canvas.getByRole("cell", { name: "Row 1, column 1" }),
+      canvas.getByRole("cell", { name: "Row 1, column 3" }),
+      canvas.getByRole("cell", { name: "Row 1, column 4" }),
+    ];
+    const style = (el: HTMLElement) => getComputedStyle(el);
+    // The browser's computed form of a CSS colour name.
+    const resolve = (color: string) => {
+      const probe = document.createElement("div");
+      probe.style.color = color;
+      document.body.append(probe);
+      const resolved = getComputedStyle(probe).color;
+      probe.remove();
+      return resolved;
+    };
+
+    // Grid-level hover: fill and outline change while hovered, and revert after.
+    await userEvent.hover(grid);
+    await expect(style(grid).backgroundColor).toBe(resolve("gold"));
+    await expect(style(grid).borderTopColor).toBe(resolve("white"));
+    await userEvent.unhover(grid);
+    await expect(style(grid).backgroundColor).not.toBe(resolve("gold"));
+
+    // A square's own hover overrides the grid's.
+    await userEvent.hover(perSquare);
+    await expect(style(perSquare).backgroundColor).toBe(resolve("tomato"));
+    await userEvent.unhover(perSquare);
+
+    // Outlined squares ignore hover.
+    const before = style(outlined).backgroundColor;
+    await userEvent.hover(outlined);
+    await expect(style(outlined).backgroundColor).toBe(before);
+  },
+};
+
+// Without a `hover` config squares don't react at all.
+export const NoHover: Story = {
+  args: { columns: 3, rows: 1, cells: [{ color: "$primary" }], onSquarePress: fn() },
 };

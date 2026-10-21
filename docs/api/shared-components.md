@@ -224,27 +224,44 @@ New primitives for apps that aren't derived from the source apps. They live in `
 A fixed-shape grid of small rounded squares.
 
 ```ts
+export type SquareColor = `$${BobuttonsThemeTokenName}` | (string & {}); // "$primary" or any CSS colour
+export type SquareVariant = "filled" | "outlined";
+
+export interface SquareHover {
+  color?: SquareColor;   // replaces the fill
+  outline?: SquareColor; // adds an outline
+}
+
 export interface SquareGridProps {
   columns: number;
   rows: number;
   cells?: ReadonlyArray<SquareGridCell | undefined>; // row-major; missing = blank white
   squareSize?: number;                                // px, default 40
+  variant?: SquareVariant;                            // default for squares without their own, "filled"
+  hover?: SquareHover;                                // default hover look for filled squares
   onSquarePress?: (row: number, column: number) => void; // zero-based
   "aria-label"?: string;
 }
 
 export type SquareGridCell =
-  | { color?: BobuttonsThemeTokenName; label?: string; icon?: undefined; text?: string }
-  | { color?: BobuttonsThemeTokenName; label?: string; icon: IconSource; text?: undefined };
+  | { color?: SquareColor; variant?: SquareVariant; hover?: SquareHover; label?: string; icon?: undefined; text?: string }
+  | { color?: SquareColor; variant?: SquareVariant; hover?: SquareHover; label?: string; icon: IconSource; text?: undefined };
 ```
 
 - **Shape:** `columns` x `rows` is fixed. Rows never wrap or shrink, so a parent narrower than the grid
   clips or scrolls it instead of reflowing the squares.
 - **Content:** a square is blank, holds an `icon` centred, or shows `text`. Text is clipped to 3
   characters (counted as characters, so emoji aren't split). `icon` and `text` are mutually exclusive.
-- **Colour:** `color` is a theme token name, so game colours added to the theme later become valid
-  automatically. Until they exist every square is white (`PLACEHOLDER_FILL`) with black content
-  (`PLACEHOLDER_INK`), the one place raw colours appear; replace them with tokens when the palette lands.
+- **Variants:** a `filled` square is a solid `color` with dark content; an `outlined` square is
+  transparent with a `color` border and `color` content. Every square has a 2px border (transparent
+  when filled), so adding an outline never changes its size.
+- **Colour:** `color` is a theme token written `"$primary"` or any CSS colour, so game colours added to
+  the theme later become valid tokens automatically. Until then the default is white
+  (`PLACEHOLDER_COLOR`) with black content on filled squares (`PLACEHOLDER_INK`), the one place raw
+  colours appear in the component; replace them with tokens when the palette lands.
+- **Hover:** opt-in and for filled squares only. Pass `hover` on the grid, or on a square to override
+  it, with a `color` (replaces the fill), an `outline` (adds an outline), or both. Colours are
+  passed in, not themed defaults. Without `hover`, squares don't react to the pointer.
 - **Interaction:** with `onSquarePress` set, every square is focusable and activates on click, Enter or
   Space. Blank squares are then named "Row r, column c" (1-based) unless they have a `label`.
 - **Accessibility:** `role="grid"` > `row` > `cell`. Give icon squares a `label`.
