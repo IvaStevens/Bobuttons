@@ -9,8 +9,8 @@ installs (see `scripts/scratch-consumer/`), by three internal consumers.
 ## Status (BOBUTTONS-1)
 
 Delivered in this pass: **Slice 0** in full (packaging, build, lint, both typechecks, dist audits,
-pack/integrity checks, dependency checks, CI) and most of **Slice 1** — nine themes with 34-key
-parity generated from the vendored `themes.source.css`, the Tamagui token config (radius/space/size/
+pack/integrity checks, dependency checks, CI) and most of **Slice 1** — eight themes with 34-key
+parity generated from `themes.source.css`, the Tamagui token config (radius/space/size/
 zIndex/font scales, including the named `fontWeights` scale), `BobuttonsProvider` with the AC9 remount
 regression test, Storybook 10 wired with the theme toolbar and a genuinely-gating a11y check
 (`npm run verify` builds Storybook and runs two Vitest/Playwright browser projects against it — the
@@ -107,4 +107,4 @@ fails if it drifts from the committed budget.
   `npx playwright install chromium`). See `scripts/verify.expected-skips.json` for which steps are
   allowed to self-report SKIP at the current slice (AC21); it is currently empty.
 - `npm run generate-themes:write` — regenerates `src/themes/themes.generated.ts` and
-  `docs/api/token-mapping.md` from the vendored `src/themes/themes.source.css`.
+  `docs/api/token-mapping.md` from `src/themes/themes.source.css`.

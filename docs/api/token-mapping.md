@@ -2,7 +2,7 @@
 
 # Token mapping
 
-CSS variable (from `themes.css`) -> Bobuttons semantic token name. `--primary` -> `primary`, `--secondary` -> `secondary` and `--accent` -> `accent` are fixed by AC5; the remaining names are fixed here. `--radius` is excluded: it is a config-level token (AC7), seeded once in `src/tamagui.config.ts` and not overridden by any theme.
+CSS variable (from `themes.source.css`) -> Bobuttons semantic token name. `--primary` -> `primary`, `--secondary` -> `secondary` and `--accent` -> `accent` are fixed by AC5; the remaining names are fixed here. `--radius` is excluded: it is a config-level token (AC7), seeded once in `src/tamagui.config.ts` and not overridden by any theme.
 
 ## Colour tokens (26, carried over from `:root`)
 
@@ -50,11 +50,11 @@ For each status, a background and a border token computed from that theme's own 
 | `statusSuppressedBg` | `--status-supp` |
 | `statusSuppressedBorder` | `--status-supp` |
 
-Total: 26 colour tokens + 8 derived = 34 keys per theme, 9 themes.
+Total: 26 colour tokens + 8 derived = 34 keys per theme, 8 themes.
 
-## Reconciliation direction (AC8)
+## Source of truth
 
-`oncall-navigator-app/src/styles/themes.css` is the single source of truth. `DailyTracker/src/styles/global.css` declares only `:root` (18 vars, no status/sla/sentry/jira tokens) and `ocean`/`terminal`/`coastal` with values byte-identical to `themes.css`; it contributes no theme and no token. Should the two ever diverge, `themes.css` wins.
+`src/themes/themes.source.css` is owned by Bobuttons. Edit it, then run `npm run generate-themes:write`.
 
 ## Non-colour scales (AC7)
 

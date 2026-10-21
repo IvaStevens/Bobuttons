@@ -80,29 +80,7 @@ manufacture a diff.
 
 ---
 
-## 4. Two-tier integrity check on vendored source
-
-*What we did:* `themes.source.css` is a byte-identical vendored copy with a sidecar
-`themes.source.meta.json`. `check-theme-source.mjs` **always** asserts `sha256(copy) ===
-meta.sha256`, and **conditionally** byte-compares against the sibling repo when that path exists.
-
-*What it is:* Two different failure modes get two different gates. Local tampering with the copy
-is always detectable (content-addressing, zero environmental dependency). Upstream drift is only
-detectable where upstream is checked out, so that half degrades to a logged no-op instead of a
-failure.
-
-*Why this over alternatives:* A single hard check against the sibling repo reddens CI for everyone
-without that checkout; dropping the drift check entirely loses the only signal that upstream
-moved. Splitting by what each environment can actually observe is the general move. Note the
-deliberate wording detail: the absent-sibling branch logs `N/A (sibling repo absent)` rather than
-`SKIP`, because `verify.mjs` treats the token `SKIP` as a slice-boundary omission requiring a
-ledger entry (see entry 7) — two kinds of "didn't run" that must not collide in one namespace.
-
-*Where:* `/home/ivana/Desktop/Code/Bobuttons/scripts/check-theme-source.mjs:22`, `:40`
-
----
-
-## 5. Behavioural pin on an undocumented upstream contract
+## 4. Behavioural pin on an undocumented upstream contract
 
 *What we did:* `BobuttonsProvider` renders `<TamaguiProvider defaultTheme={theme}>` with no inner
 `<Theme>` and no `key`, and ships `BobuttonsProvider.remount.test.tsx`, which swaps the theme prop
@@ -125,7 +103,7 @@ cost visible.
 
 ---
 
-## 6. Hermetic verification of the shipped artifact
+## 5. Hermetic verification of the shipped artifact
 
 *What we did:* `verify.mjs` builds once and packs once
 (`npm pack --ignore-scripts --pack-destination .verify-out --json`); every later gate consumes
@@ -152,7 +130,7 @@ my tooling", the test environment must share none of your tooling.
 
 ---
 
-## 7. Expiring-exemption ledger (a ratchet)
+## 6. Expiring-exemption ledger (a ratchet)
 
 *What we did:* Any verify step with no inputs prints `SKIP`; `verify.mjs` fails on any skip not
 listed in `scripts/verify.expected-skips.json`, and that file is specified to shrink to `[]` by the
@@ -176,7 +154,7 @@ naming the slice that removes it.
 
 ---
 
-## 8. Grammar-anchored matching instead of substring matching
+## 7. Grammar-anchored matching instead of substring matching
 
 *What we did:* The dist scanner matches import/require **specifiers** anchored to
 `react-native` / `react-native-web` plus an optional subpath; the CSS parser anchors theme blocks
@@ -202,7 +180,7 @@ disagree on what counts as an import.
 
 ---
 
-## 9. Strengthening an upstream `Partial<>` into a compile-time total
+## 8. Strengthening an upstream `Partial<>` into a compile-time total
 
 *What we did:* One `BobuttonsFontSizeKey` union drives
 `Record<BobuttonsFontSizeKey, …>` for `size`, `lineHeight`, `weight` *and* `letterSpacing` on both
@@ -225,7 +203,7 @@ total.
 
 ---
 
-## 10. On-colour token pairing, and why contrast is a property of the composite
+## 9. On-colour token pairing, and why contrast is a property of the composite
 
 *What we did:* `ButtonLabel` uses `$background` as its text colour on filled variants (and `$color`
 only on `ghost`); hover/press feedback on filled variants moves the **border**, never the fill; and

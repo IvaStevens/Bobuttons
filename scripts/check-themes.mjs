@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Runs the generator into a temp directory and byte-compares it with the
-// committed outputs; re-derives the theme-id set from the vendored CSS; and
-// asserts all nine themes share an identical 34-key set.
+// committed outputs; re-derives the theme-id set from the source CSS; and
+// asserts all themes share an identical 34-key set.
 import { readFileSync, mkdtempSync, rmSync, existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
@@ -52,7 +52,7 @@ try {
   rmSync(tmp, { recursive: true, force: true });
 }
 
-// All nine themes share an identical 34-key set
+// All themes share an identical 34-key set
 const generatedText = generatedSrc;
 const themeBlockRe = /"([a-z-]+)":\s*\{([^}]*)\}/g;
 let keySets = [];
@@ -61,8 +61,8 @@ while ((m2 = themeBlockRe.exec(generatedText))) {
   const keys = [...m2[2].matchAll(/^\s*(\w+):/gm)].map((x) => x[1]);
   keySets.push({ theme: m2[1], keys });
 }
-if (keySets.length !== 9) {
-  fail(`expected 9 theme blocks in themes.generated.ts, found ${keySets.length}`);
+if (keySets.length !== themeNames.length) {
+  fail(`expected ${themeNames.length} theme blocks in themes.generated.ts, found ${keySets.length}`);
 }
 const refKeys = new Set(keySets[0]?.keys ?? []);
 if (refKeys.size !== 34) {

@@ -48,7 +48,7 @@ function tarballChecks() {
   const outDir = path.join(root, ".verify-out");
   const metaPath = path.join(outDir, "pack.json");
   if (!existsSync(metaPath)) {
-    fail(`expected ${metaPath} — run "npm run pack" (step 13 of verify) before --tarball checks.`);
+    fail(`expected ${metaPath} — run "npm run pack" (step 12 of verify) before --tarball checks.`);
     return;
   }
   const packMeta = JSON.parse(readFileSync(metaPath, "utf8"))[0];

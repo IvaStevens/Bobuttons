@@ -62,51 +62,49 @@ runStep("check-dependencies", () => node("scripts/check-dependencies.mjs"));
 // 2
 runStep("check-package-integrity-static", () => node("scripts/check-package-integrity.mjs"));
 // 3
-runStep("check-theme-source", () => node("scripts/check-theme-source.mjs"));
-// 4
 runStep("check-themes", () => node("scripts/check-themes.mjs"));
-// 5
+// 4
 runStep("lint", () => {
   const out = sh("npx", ["eslint", "."]);
   console.log(out.trim());
   return out;
 });
-// 6
+// 5
 runStep("typecheck-bundler", () => {
   const out = sh("npx", ["tsc", "--noEmit", "-p", "tsconfig.typecheck.bundler.json"]);
   console.log(out.trim());
   return out;
 });
-// 7
+// 6
 runStep("typecheck-node16", () => {
   const out = sh("npx", ["tsc", "--noEmit", "-p", "tsconfig.typecheck.node16.json"]);
   console.log(out.trim());
   return out;
 });
-// 8
+// 7
 runStep("build", () => {
   const out = sh("node", [path.join(root, "scripts/build.mjs")]);
   console.log(out.trim());
   return out;
 });
-// 9
+// 8
 runStep("check-no-react-native", () => node("scripts/check-no-react-native.mjs"));
-// 10
+// 9
 runStep("check-dts-encapsulation", () => node("scripts/check-dts-encapsulation.mjs"));
-// 11
+// 10
 runStep("check-dist-size", () => node("scripts/check-dist-size.mjs"));
-// 12
+// 11
 runStep("check-inventory-coverage", () => node("scripts/check-inventory-coverage.mjs"));
-// 13
+// 12
 runStep("pack", () => {
   mkdirSync(path.join(root, ".verify-out"), { recursive: true });
   const out = sh("npm", ["pack", "--ignore-scripts", "--pack-destination", ".verify-out", "--json"]);
   writeFileSync(path.join(root, ".verify-out/pack.json"), out, "utf8");
   return out;
 });
-// 14
+// 13
 runStep("check-package-integrity-tarball", () => node("scripts/check-package-integrity.mjs", ["--tarball"]));
-// 15
+// 14
 runStep("check-scratch-install", () => node("scripts/check-scratch-install.mjs"));
 // 16a
 runStep("build-storybook", () => {
@@ -128,7 +126,7 @@ runStep("storybook-a11y", () => {
     throw err;
   }
 });
-// 17
+// 16
 runStep("check-version-consistency", () => node("scripts/check-version-consistency.mjs"));
 
 console.log("\n=== [verify] summary ===");

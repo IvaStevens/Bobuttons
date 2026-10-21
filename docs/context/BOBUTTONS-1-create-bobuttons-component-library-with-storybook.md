@@ -504,23 +504,10 @@ Measured: **32 locale-sensitive formatting calls across both apps, zero with a `
 
 Storybook and the Vitest projects set `TZ=UTC` too, so a missed call fails in CI rather than only in review.
 
-### N5. [MEDIUM, concern upheld] Vendoring: sidecar provenance + a real drift check
-"Byte-identical copy with a provenance header" was self-contradictory. Corrected:
-- `src/themes/themes.source.css` — **byte-identical, no header, nothing added**.
-- `src/themes/themes.source.meta.json` — the sidecar, carrying
-  `sourcePath` (`../oncall-navigator-app/src/styles/themes.css`), `sourceRepoCommit`, `fileCommit`, `bytes`,
-  `sha256`, `copiedAt`, and the one-line refresh command.
-- **Measured now, so the Developer can assert it without re-deriving:**
-  `sha256 = 2d53dcd8253716d8cc585448a2a2c0eeb3b7391a884af266c789e1aaa6417bba`, `bytes = 8042`,
-  oncall repo `HEAD = 40e7a35ef41a2a579e9da548ea369b2e7b2be4fd`, last commit touching the file
-  `84f3ab993a476d1746f06f099eeee20f638a8d1b` (2026-09-14).
-  (`queue.css` sha256 `8afe0548addd70a1f989f4759869ad901435e694603135ea0b17567eb78d7054` — recorded for the
-  AC6 alphas, not vendored.)
-- `scripts/check-theme-source.mjs`, in `npm run verify`:
-  **(a)** always assert `sha256(themes.source.css) === meta.sha256` — catches a local edit, runs everywhere
-  including CI; **(b)** if `meta.sourcePath` **exists** on disk, assert byte equality and fail with the refresh
-  command on drift; if it does not exist (CI, or a clone without the sibling repo), **log a skip notice and
-  pass**. Never fail for absence — that is the whole reason the file is vendored.
+### N5. Vendoring — superseded
+`src/themes/themes.source.css` began as a copy of `oncall-navigator-app`'s `themes.css`, guarded by a
+sidecar (`themes.source.meta.json`) and `check-theme-source.mjs`. Bobuttons now owns the file, so the
+sidecar, the check and its verify step were removed. Edit the CSS and run `npm run generate-themes:write`.
 
 ### N6. [MEDIUM, concern upheld] The generator's output must be byte-stable by construction
 Generate-and-diff is only a drift gate if the generator is a pure function of its input. Pinned contract for
@@ -597,27 +584,26 @@ reuse. Sixteen steps, in this order, aborting on first failure:
 |---|---|---|---|
 | 1 | `check-dependencies` (incl. empty `dependencies`, §F6) | manifest + lockfile | AC11, AC12 |
 | 2 | `check-package-integrity` — static `private === true`, `prepublishOnly` present & non-zero, `prepack === "npm run build"` | manifest | AC14 |
-| 3 | `check-theme-source` (sha + skip-if-absent drift) | vendored css + sidecar | AC8 |
-| 4 | `check-themes` (generate to temp, byte-diff; `themeNames`; 34-key parity; font key parity) | src | AC3–AC6, AC7 |
-| 5 | `eslint .` | src | AC7, AC17 |
-| 6 | `tsc --noEmit -p tsconfig.typecheck.bundler.json` | src | AC18 |
-| 7 | `tsc --noEmit -p tsconfig.typecheck.node16.json` | src | AC18 |
-| 8 | **`npm run build`** — the single build; produces `dist/` | src | AC18 |
-| 9 | `check-no-react-native` | `dist/` | AC12(a) |
-| 10 | `check-dts-encapsulation` | `dist/` | F1 |
-| 11 | `check-dist-size` vs `dist-size-budget.json` | `dist/` | AC19 |
-| 12 | `check-inventory-coverage` (incl. the N7 args proxy) | src + stories | AC1, AC2, AC10 |
-| 13 | **`mkdir -p .verify-out && npm pack --ignore-scripts --pack-destination .verify-out --json`** — the single tarball | `dist/` | AC14 |
-| 14 | `check-package-integrity --tarball` — pack-contents allowlist (from step 13's JSON), exports-encapsulation (deep import → `ERR_PACKAGE_PATH_NOT_EXPORTED` + TS2307), and an executed `npm publish --dry-run` asserted non-zero | the tarball | AC10, AC14 |
-| 15 | `check-scratch-install` — cache-warm, `npm install --offline <tgz>`, bundler + node16 typecheck, ESM `.mjs` and CJS `.cjs` `renderToString`, `npm ls` tree scan, tree-shaking size | the **same** tarball | AC15, AC12(b), AC21 |
-| 16 | `build-storybook` then the Storybook/Vitest run (two projects) | src | AC16 |
-| 17 | `check-version-consistency` | README + manifest | AC20 |
+| 3 | `check-themes` (generate to temp, byte-diff; `themeNames`; 34-key parity; font key parity) | src | AC3–AC6, AC7 |
+| 4 | `eslint .` | src | AC7, AC17 |
+| 5 | `tsc --noEmit -p tsconfig.typecheck.bundler.json` | src | AC18 |
+| 6 | `tsc --noEmit -p tsconfig.typecheck.node16.json` | src | AC18 |
+| 7 | **`npm run build`** — the single build; produces `dist/` | src | AC18 |
+| 8 | `check-no-react-native` | `dist/` | AC12(a) |
+| 9 | `check-dts-encapsulation` | `dist/` | F1 |
+| 10 | `check-dist-size` vs `dist-size-budget.json` | `dist/` | AC19 |
+| 11 | `check-inventory-coverage` (incl. the N7 args proxy) | src + stories | AC1, AC2, AC10 |
+| 12 | **`mkdir -p .verify-out && npm pack --ignore-scripts --pack-destination .verify-out --json`** — the single tarball | `dist/` | AC14 |
+| 13 | `check-package-integrity --tarball` — pack-contents allowlist (from step 12's JSON), exports-encapsulation (deep import → `ERR_PACKAGE_PATH_NOT_EXPORTED` + TS2307), and an executed `npm publish --dry-run` asserted non-zero | the tarball | AC10, AC14 |
+| 14 | `check-scratch-install` — cache-warm, `npm install --offline <tgz>`, bundler + node16 typecheck, ESM `.mjs` and CJS `.cjs` `renderToString`, `npm ls` tree scan, tree-shaking size | the **same** tarball | AC15, AC12(b), AC21 |
+| 15 | `build-storybook` then the Storybook/Vitest run (two projects) | src | AC16 |
+| 16 | `check-version-consistency` | README + manifest | AC20 |
 
-Notes that make this work: `--ignore-scripts` at step 13 is deliberate — it stops `prepack` re-running the
-build, so the tarball contains exactly the `dist/` that steps 9–11 just audited (**verified** that
+Notes that make this work: `--ignore-scripts` at step 12 is deliberate — it stops `prepack` re-running the
+build, so the tarball contains exactly the `dist/` that steps 8–10 just audited (**verified** that
 `--ignore-scripts` does skip `prepack`); `prepack`'s *existence and content* are asserted statically at step 2
 instead. `.verify-out/` must be created first — **verified** that `npm pack --pack-destination` fails with
-`ENOENT` rather than creating it. `.verify-out/` is git-ignored. Steps 1–7 are cheap and run before the
+`ENOENT` rather than creating it. `.verify-out/` is git-ignored. Steps 1–6 are cheap and run before the
 expensive build so a typo fails in seconds. Storybook is last because it is the slowest.
 
 ### N10. [LOW, concern upheld] Pin CI's Node
