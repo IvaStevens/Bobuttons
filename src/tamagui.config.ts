@@ -41,11 +41,15 @@ const space = {
   8: 32,
   9: 36,
   10: 40,
+  12: 48,
   // App shell dimensions from the source apps. In `space` (and so `size`)
   // because padding props only resolve space tokens.
   headerHeight: 38,
   sidebarWidth: 80,
   bodyBottomInset: 72, // clears floating controls at the end of a scroll area
+  inputWidth: 200,
+  inputWidthCompact: 72,
+  swatch: 13,
 } as const;
 
 const size = {

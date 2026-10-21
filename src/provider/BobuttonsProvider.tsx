@@ -9,10 +9,13 @@ export interface BobuttonsProviderProps {
   children: React.ReactNode;
 }
 
-// Many griddy-icons hardcode `<path fill="black">`, which no root <svg> prop
-// can reach. Scoped to the Icon wrapper, so no !important is needed.
-const ICON_FILL_OVERRIDE_CSS =
-  "[data-bobuttons-icon] svg path { fill: currentColor; }";
+// Rules no style prop can express, scoped to Bobuttons' own data attributes so
+// no !important is needed. Many griddy-icons hardcode `<path fill="black">`,
+// which no root <svg> prop can reach; placeholders need a pseudo-element.
+const BASE_CSS = [
+  "[data-bobuttons-icon] svg path { fill: currentColor; }",
+  "[data-bobuttons-input]::placeholder { color: var(--textFaint); }",
+].join("\n");
 
 /**
  * Themes the whole document via `TamaguiProvider`. Deliberately no inner
@@ -31,7 +34,7 @@ export function BobuttonsProvider(props: BobuttonsProviderProps): React.ReactEle
   const { theme = "default", children } = props;
   return (
     <TamaguiProvider config={bobuttonsConfig} defaultTheme={theme}>
-      <style data-bobuttons-icon-style="" dangerouslySetInnerHTML={{ __html: ICON_FILL_OVERRIDE_CSS }} />
+      <style data-bobuttons-style="" dangerouslySetInnerHTML={{ __html: BASE_CSS }} />
       <View backgroundColor="$background" minHeight="100%">
         {children}
       </View>

@@ -54,6 +54,90 @@
       "category": "layout",
       "sourcePath": "src/components/layout/ViewBody/ViewBody.tsx",
       "storiesPath": "src/components/layout/ViewBody/ViewBody.stories.tsx"
+    },
+    {
+      "name": "TextInput",
+      "category": "primitives",
+      "sourcePath": "src/components/primitives/TextInput/TextInput.tsx",
+      "storiesPath": "src/components/primitives/TextInput/TextInput.stories.tsx"
+    },
+    {
+      "name": "Badge",
+      "category": "primitives",
+      "sourcePath": "src/components/primitives/Badge/Badge.tsx",
+      "storiesPath": "src/components/primitives/Badge/Badge.stories.tsx"
+    },
+    {
+      "name": "IconButton",
+      "category": "primitives",
+      "sourcePath": "src/components/primitives/IconButton/IconButton.tsx",
+      "storiesPath": "src/components/primitives/IconButton/IconButton.stories.tsx"
+    },
+    {
+      "name": "Checkbox",
+      "category": "primitives",
+      "sourcePath": "src/components/primitives/Checkbox/Checkbox.tsx",
+      "storiesPath": "src/components/primitives/Checkbox/Checkbox.stories.tsx"
+    },
+    {
+      "name": "Radio",
+      "category": "primitives",
+      "sourcePath": "src/components/primitives/Radio/Radio.tsx",
+      "storiesPath": "src/components/primitives/Radio/Radio.stories.tsx"
+    },
+    {
+      "name": "RadioGroup",
+      "category": "primitives",
+      "sourcePath": "src/components/primitives/RadioGroup/RadioGroup.tsx",
+      "storiesPath": "src/components/primitives/RadioGroup/RadioGroup.stories.tsx"
+    },
+    {
+      "name": "Tabs",
+      "category": "primitives",
+      "sourcePath": "src/components/primitives/Tabs/Tabs.tsx",
+      "storiesPath": "src/components/primitives/Tabs/Tabs.stories.tsx"
+    },
+    {
+      "name": "SettingsLayout",
+      "category": "settings",
+      "sourcePath": "src/components/settings/SettingsLayout/SettingsLayout.tsx",
+      "storiesPath": "src/components/settings/SettingsLayout/SettingsLayout.stories.tsx"
+    },
+    {
+      "name": "SettingsSection",
+      "category": "settings",
+      "sourcePath": "src/components/settings/SettingsSection/SettingsSection.tsx",
+      "storiesPath": "src/components/settings/SettingsSection/SettingsSection.stories.tsx"
+    },
+    {
+      "name": "SettingsRow",
+      "category": "settings",
+      "sourcePath": "src/components/settings/SettingsRow/SettingsRow.tsx",
+      "storiesPath": "src/components/settings/SettingsRow/SettingsRow.stories.tsx"
+    },
+    {
+      "name": "SettingsHint",
+      "category": "settings",
+      "sourcePath": "src/components/settings/SettingsHint/SettingsHint.tsx",
+      "storiesPath": "src/components/settings/SettingsHint/SettingsHint.stories.tsx"
+    },
+    {
+      "name": "AddRow",
+      "category": "settings",
+      "sourcePath": "src/components/settings/AddRow/AddRow.tsx",
+      "storiesPath": "src/components/settings/AddRow/AddRow.stories.tsx"
+    },
+    {
+      "name": "ListRow",
+      "category": "settings",
+      "sourcePath": "src/components/settings/ListRow/ListRow.tsx",
+      "storiesPath": "src/components/settings/ListRow/ListRow.stories.tsx"
+    },
+    {
+      "name": "ThemeOption",
+      "category": "settings",
+      "sourcePath": "src/components/settings/ThemeOption/ThemeOption.tsx",
+      "storiesPath": "src/components/settings/ThemeOption/ThemeOption.stories.tsx"
     }
   ]
 }

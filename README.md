@@ -71,8 +71,8 @@ TypeScript is pinned to 6.0.3, not the published latest (7.0.2): `typescript-esl
 <!-- bobuttons:distsize:start -->
 ```json
 {
-  "rawBytes": 365008,
-  "gzipBytes": 88553
+  "rawBytes": 380761,
+  "gzipBytes": 91081
 }
 ```
 <!-- bobuttons:distsize:end -->
@@ -90,11 +90,11 @@ fails if it drifts from the committed budget.
   react-native* package") would fail through no fault of the build. This package therefore ships
   **no `dependencies` field at all** — only `peerDependencies` on `react`/`react-dom` (`>=19`).
 - `griddy-icons` is a story-only devDependency, never imported from `src/`. It never reaches `dist/`.
-- The library injects exactly one hand-written CSS rule, in `BobuttonsProvider`:
-  `[data-bobuttons-icon] svg path { fill: currentColor; }` — a direct port of
-  `DailyTracker/src/styles/global.css:261`'s existing workaround for griddy-icons that hardcode
-  `fill="black"` on an inner `<path>`. This is the only hand-written stylesheet in the library;
-  everything else comes from Tamagui's token system.
+- The library injects two hand-written CSS rules, in `BobuttonsProvider`, both scoped to data attributes:
+  `[data-bobuttons-icon] svg path { fill: currentColor; }` — a port of
+  `DailyTracker/src/styles/global.css:261`'s workaround for griddy-icons that hardcode `fill="black"` on
+  an inner `<path>` — and `[data-bobuttons-input]::placeholder { color: var(--textFaint); }`, because a
+  placeholder colour can't be set through a style prop. Everything else comes from Tamagui's token system.
 - `exports` exposes exactly `"."` and `"./package.json"`. Deep imports fail by design (AC10).
 
 ## Scripts

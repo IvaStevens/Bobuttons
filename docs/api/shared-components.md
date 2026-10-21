@@ -180,6 +180,41 @@ content area.
 New size tokens back these: `headerHeight` (38), `sidebarWidth` (80) and `bodyBottomInset` (72), plus
 space steps `0.75` (3) and `3.5` (14).
 
+## Settings primitives and structures
+
+Extracted from the Settings views of both source apps (DailyTracker's `SettingsView`, oncall's five
+`Settings*Tab` components), which repeat the same controls and structures.
+
+Primitives:
+
+| component | source | notes |
+|---|---|---|
+| `TextInput` | `.settings-input` | `value`/`onChange(value)`, `type`, `fill`, `compact`, `mono`, `saved`, `onEnter`, `min`/`max`. A native `<input>` inside a token-styled frame |
+| `Badge` | `.settings-cal-badge` | `label`, `tone`, `mono`, optional `onRemove` (adds an accessible remove button) |
+| `IconButton` | `.sentry-preset-remove`, `.btn-remove-monitor` | `label` is the accessible name; `children` is the glyph or an `Icon` |
+| `Checkbox` | `.settings-toggle` | native checkbox, label text toggles it |
+| `Radio` / `RadioGroup` | `.settings-radio-label` / `.settings-radio-group` | option card with title and description; `RadioGroup` takes an accessible `label` |
+| `Tabs` | `.settings-inner-tabs` | underlined horizontal tabs, generic over the tab id |
+
+Settings structures (`src/components/settings/`):
+
+| component | source | props |
+|---|---|---|
+| `SettingsLayout` | `.settings-inner-tabs` + `.settings-scroll` | `tabs?`, `children` |
+| `SettingsSection` | `.settings-section` + `.settings-section-title` | `title`, `titleAction?`, `children` |
+| `SettingsRow` | `.settings-row` / `.settings-jira-field` | `label`, `children`, `stacked?`, `divider?` |
+| `SettingsHint` | `.settings-hint` | `children` |
+| `AddRow` | `.settings-ics-add`, `.sentry-preset-add` | `children` (inputs), `onAdd`, `actionLabel?` |
+| `ListRow` | `.sentry-preset-row` | `title`, `detail?`, `selected?`/`onSelect?` (radio dot), `children` (actions) |
+| `ThemeOption` | `.settings-theme-btn` / `.theme-btn` | `label`, `swatches`, `selected`, `onSelect` |
+
+Not extracted: the Jira monitor editor and oncall's workflow-step config rows are one-off layouts built
+from these pieces; `Select` and `Switch` are not used in either Settings view.
+
+The provider's injected stylesheet gains a second rule, `[data-bobuttons-input]::placeholder`, because
+a placeholder colour can't be set through a style prop. New tokens: `inputWidth` (200),
+`inputWidthCompact` (72), `swatch` (13) and space step `12` (48).
+
 ## Type-level parity test (Slice 2)
 
 `src/components/shared-props.test-d.ts` asserts, for `AppHeader`, `CollapsibleSection` and `TabBar`:
