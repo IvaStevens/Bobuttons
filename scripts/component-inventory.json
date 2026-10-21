@@ -138,6 +138,12 @@
       "category": "settings",
       "sourcePath": "src/components/settings/ThemeOption/ThemeOption.tsx",
       "storiesPath": "src/components/settings/ThemeOption/ThemeOption.stories.tsx"
+    },
+    {
+      "name": "SquareGrid",
+      "category": "game",
+      "sourcePath": "src/components/game/SquareGrid/SquareGrid.tsx",
+      "storiesPath": "src/components/game/SquareGrid/SquareGrid.stories.tsx"
     }
   ]
 }

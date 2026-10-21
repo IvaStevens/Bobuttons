@@ -215,6 +215,40 @@ The provider's injected stylesheet gains a second rule, `[data-bobuttons-input]:
 a placeholder colour can't be set through a style prop. New tokens: `inputWidth` (200),
 `inputWidthCompact` (72), `swatch` (13) and space step `12` (48).
 
+## Game primitives
+
+New primitives for apps that aren't derived from the source apps. They live in `src/components/game/`.
+
+### SquareGrid
+
+A fixed-shape grid of small rounded squares.
+
+```ts
+export interface SquareGridProps {
+  columns: number;
+  rows: number;
+  cells?: ReadonlyArray<SquareGridCell | undefined>; // row-major; missing = blank white
+  squareSize?: number;                                // px, default 40
+  onSquarePress?: (row: number, column: number) => void; // zero-based
+  "aria-label"?: string;
+}
+
+export type SquareGridCell =
+  | { color?: BobuttonsThemeTokenName; label?: string; icon?: undefined; text?: string }
+  | { color?: BobuttonsThemeTokenName; label?: string; icon: IconSource; text?: undefined };
+```
+
+- **Shape:** `columns` x `rows` is fixed. Rows never wrap or shrink, so a parent narrower than the grid
+  clips or scrolls it instead of reflowing the squares.
+- **Content:** a square is blank, holds an `icon` centred, or shows `text`. Text is clipped to 3
+  characters (counted as characters, so emoji aren't split). `icon` and `text` are mutually exclusive.
+- **Colour:** `color` is a theme token name, so game colours added to the theme later become valid
+  automatically. Until they exist every square is white (`PLACEHOLDER_FILL`) with black content
+  (`PLACEHOLDER_INK`), the one place raw colours appear; replace them with tokens when the palette lands.
+- **Interaction:** with `onSquarePress` set, every square is focusable and activates on click, Enter or
+  Space. Blank squares are then named "Row r, column c" (1-based) unless they have a `label`.
+- **Accessibility:** `role="grid"` > `row` > `cell`. Give icon squares a `label`.
+
 ## Type-level parity test (Slice 2)
 
 `src/components/shared-props.test-d.ts` asserts, for `AppHeader`, `CollapsibleSection` and `TabBar`:

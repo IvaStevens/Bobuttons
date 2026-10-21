@@ -75,3 +75,6 @@ export { ListRow } from "./components/settings/ListRow/ListRow.js";
 export type { ListRowProps } from "./components/settings/ListRow/ListRow.js";
 export { ThemeOption } from "./components/settings/ThemeOption/ThemeOption.js";
 export type { ThemeOptionProps } from "./components/settings/ThemeOption/ThemeOption.js";
+
+export { SquareGrid } from "./components/game/SquareGrid/SquareGrid.js";
+export type { SquareGridCell, SquareGridProps } from "./components/game/SquareGrid/SquareGrid.js";
