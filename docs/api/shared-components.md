@@ -223,7 +223,7 @@ Primitives:
 | `TextInput` | `.settings-input` | `value`/`onChange(value)`, `type`, `fill`, `compact`, `mono`, `saved`, `onEnter`, `min`/`max`. A native `<input>` inside a token-styled frame |
 | `Badge` | `.settings-cal-badge` | `label`, `tone`, `mono`, optional `onRemove` (adds an accessible remove button) |
 | `IconButton` | `.sentry-preset-remove`, `.btn-remove-monitor` | `label` is the accessible name; `children` is the glyph or an `Icon` |
-| `Checkbox` | `.settings-toggle` | native checkbox, label text toggles it |
+| `Checkbox` | `.settings-toggle` | box drawn in theme colours and centred on the label's capitals, measured from its baseline rather than its line box (centring on the line box put text 1-2px high in some fonts; a native checkbox is also painted off-centre and differently per platform), over a real invisible `<input type="checkbox">` so keyboard and screen-reader behaviour stay native; the label text toggles it |
 | `Radio` / `RadioGroup` | `.settings-radio-label` / `.settings-radio-group` | option card with title and description; `RadioGroup` takes an accessible `label` |
 | `Tabs` | `.settings-inner-tabs` | underlined horizontal tabs, generic over the tab id |
 
