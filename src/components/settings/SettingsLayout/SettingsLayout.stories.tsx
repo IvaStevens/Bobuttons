@@ -61,9 +61,7 @@ function SentryTab(): React.ReactElement {
             selected={active === name}
             onSelect={() => setActive(name)}
           >
-            <IconButton label={`Remove ${name}`} tone="danger">
-              ×
-            </IconButton>
+            <IconButton label={`Remove ${name}`} tone="danger" />
           </ListRow>
         ))}
       </SettingsSection>

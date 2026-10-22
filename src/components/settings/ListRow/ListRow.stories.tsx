@@ -12,9 +12,7 @@ const meta: Meta<typeof ListRow> = {
     selected: false,
     onSelect: undefined,
     children: (
-      <IconButton label="Remove Unresolved this week" tone="danger">
-        ×
-      </IconButton>
+      <IconButton label="Remove Unresolved this week" tone="danger" />
     ),
   },
 };

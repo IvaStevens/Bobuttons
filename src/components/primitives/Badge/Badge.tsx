@@ -42,9 +42,7 @@ export function Badge(props: BadgeProps): React.ReactElement {
         {label}
       </Label>
       {onRemove && (
-        <IconButton label={`Remove ${label}`} onPress={onRemove}>
-          ×
-        </IconButton>
+        <IconButton label={`Remove ${label}`} onPress={onRemove} />
       )}
     </Frame>
   );

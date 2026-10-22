@@ -1,5 +1,6 @@
 import * as React from "react";
 import { styled, Text } from "@tamagui/core";
+import { CloseGlyph } from "../../../internal/CloseGlyph.js";
 import { activationKeyHandlers, useHover } from "../../../internal/interaction.js";
 
 const Frame = styled(Text, {
@@ -16,8 +17,8 @@ const Frame = styled(Text, {
 export interface IconButtonProps {
   /** Accessible name; the visual is icon-only. */
   label: string;
-  /** The glyph or Icon to show. */
-  children: React.ReactNode;
+  /** The glyph or Icon to show. Defaults to a close "x". */
+  children?: React.ReactNode;
   onPress?: () => void;
   /** "danger" highlights on hover, for destructive actions. */
   tone?: "neutral" | "danger";
@@ -44,7 +45,7 @@ export function IconButton(props: IconButtonProps): React.ReactElement {
       {...hoverHandlers}
       {...activationKeyHandlers(fire)}
     >
-      {children}
+      {children ?? <CloseGlyph />}
     </Frame>
   );
 }

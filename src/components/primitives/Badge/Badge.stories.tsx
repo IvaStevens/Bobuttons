@@ -29,7 +29,18 @@ export const Accent: Story = {
 export const Removable: Story = {
   args: { onRemove: fn() },
   play: async ({ canvasElement, args }) => {
-    await userEvent.click(within(canvasElement).getByRole("button", { name: "Remove acme/widgets" }));
+    const remove = within(canvasElement).getByRole("button", { name: "Remove acme/widgets" });
+
+    // The x is drawn, not a text glyph, so it sits on the badge's vertical centre next to the label.
+    const middle = (el: Element) => {
+      const box = el.getBoundingClientRect();
+      return (box.top + box.bottom) / 2;
+    };
+    const badge = remove.parentElement!;
+    await expect(remove.textContent).toBe("");
+    await expect(Math.abs(middle(remove.querySelector("svg")!) - middle(badge))).toBeLessThan(0.5);
+
+    await userEvent.click(remove);
     await expect(args.onRemove).toHaveBeenCalled();
   },
 };
