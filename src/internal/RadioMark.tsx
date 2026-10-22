@@ -20,5 +20,9 @@ const Dot = styled(View, {
 
 /** The circular radio indicator, shared by Radio and ListRow. */
 export function RadioMark(props: { checked: boolean }): React.ReactElement {
-  return <Ring borderColor={props.checked ? "$primary" : "$textFaint"}>{props.checked && <Dot />}</Ring>;
+  return (
+    <Ring data-bobuttons-radio-mark="" borderColor={props.checked ? "$primary" : "$textFaint"}>
+      {props.checked && <Dot />}
+    </Ring>
+  );
 }
