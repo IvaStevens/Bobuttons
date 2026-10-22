@@ -124,8 +124,8 @@ const FONT_SIZE_PX: Record<BobuttonsFontSizeKey, number> = {
   18: 36,
 };
 
-// Derived, not transcribed (the source CSS rarely sets line-height); see
-// docs/api/token-mapping.md.
+// Derived, not transcribed (the source CSS rarely sets line-height): the size
+// times 1.4 for body and 1.45 for mono, rounded.
 function buildLineHeights(multiplier: number): Record<BobuttonsFontSizeKey, number> {
   const result = {} as Record<BobuttonsFontSizeKey, number>;
   for (const key of FONT_SIZE_KEYS) {

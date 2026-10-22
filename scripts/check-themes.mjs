@@ -37,11 +37,11 @@ if (expected.size !== actual.size || [...expected].some((n) => !actual.has(n))) 
   );
 }
 
-// Generated output matches the committed files byte for byte
+// Generated output matches the committed file byte for byte
 const tmp = mkdtempSync(path.join(os.tmpdir(), "bobuttons-themes-"));
 try {
   execFileSync("node", [path.join(root, "scripts/generate-themes.mjs"), "--out", tmp], { stdio: "pipe" });
-  for (const rel of ["src/themes/themes.generated.ts", "docs/api/token-mapping.md"]) {
+  for (const rel of ["src/themes/themes.generated.ts"]) {
     const committed = readFileSync(path.join(root, rel), "utf8");
     const generated = readFileSync(path.join(tmp, rel), "utf8");
     if (committed !== generated) {

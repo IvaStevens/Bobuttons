@@ -10,3 +10,6 @@ scripts/scratch-consumer/package-lock.json
 scripts/scratch-consumer/*.tgz
 *.log
 .DS_Store
+
+# Local notes and reference docs; not part of the package
+docs/

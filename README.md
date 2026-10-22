@@ -114,8 +114,8 @@ fails if it drifts from the committed budget.
   `build-storybook`, and the Storybook a11y Vitest run (requires a Playwright Chromium browser —
   `npx playwright install chromium`). See `scripts/verify.expected-skips.json` for which steps are
   allowed to self-report SKIP at the current slice (AC21); it is currently empty.
-- `npm run generate-themes:write` — regenerates `src/themes/themes.generated.ts` and
-  `docs/api/token-mapping.md` from `src/themes/themes.source.css`.
+- `npm run generate-themes:write` — regenerates `src/themes/themes.generated.ts` from
+  `src/themes/themes.source.css`.
   Colours are defined once, by name, in the `:root` palette of `themes.source.css` (`--color-deep-sea`);
   the themes refer to them with `var(--color-deep-sea)`. The palette is a config-level colour token set
   (`$deepSea`), is exported as `palette`, and is listed in Storybook under Primitives / Colors. To add a
