@@ -74,8 +74,9 @@ export const Mobile: Story = {
     const tablist = canvas.getByRole("tablist");
     const arrow = (end: "start" | "end") => canvasElement.querySelector(`[data-bobuttons-scroll-arrow="${end}"]`);
 
-    await expect(tablist).toHaveAttribute("aria-orientation", "horizontal");
-    await expect(tablist.scrollWidth).toBeGreaterThan(tablist.clientWidth);
+    // The viewport is applied after the first render, so wait for the mobile layout.
+    await waitFor(() => expect(tablist).toHaveAttribute("aria-orientation", "horizontal"));
+    await waitFor(() => expect(tablist.scrollWidth).toBeGreaterThan(tablist.clientWidth));
 
     // Icons only, but each tab keeps its accessible name.
     await expect(canvas.queryByText("Calendar")).toBeNull();

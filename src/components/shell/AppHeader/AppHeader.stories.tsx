@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { expect, within } from "storybook/test";
+import { expect, waitFor, within } from "storybook/test";
 import { AppHeader } from "./AppHeader.js";
 
 const meta: Meta<typeof AppHeader> = {
@@ -32,6 +32,7 @@ export const Mobile: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByRole("heading", { name: "Daily Tracker" })).toBeInTheDocument();
-    await expect(canvas.queryByText(/October/)).toBeNull();
+    // The viewport is applied after the first render, so wait for the mobile layout.
+    await waitFor(() => expect(canvas.queryByText(/October/)).toBeNull());
   },
 };

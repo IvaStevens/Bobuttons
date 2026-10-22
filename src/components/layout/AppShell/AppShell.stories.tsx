@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Text } from "@tamagui/core";
-import { expect, userEvent, within } from "storybook/test";
+import { expect, userEvent, waitFor, within } from "storybook/test";
 import { AlertTriangle, Calendar, CheckCircle, Github, Settings, StickyNote, Ticket } from "griddy-icons";
 import { breakpoints } from "../../../tokens/breakpoints.js";
 import { Button } from "../../primitives/Button/Button.js";
@@ -67,10 +67,14 @@ async function expectLayout(canvasElement: HTMLElement, layout: "desktop" | "tab
   const mobile = layout === "mobile";
   const tablist = canvas.getByRole("tablist");
 
-  await expect(window.matchMedia(`(max-width: ${breakpoints.mobile}px)`).matches).toBe(mobile);
-  await expect(window.matchMedia(`(max-width: ${breakpoints.tablet}px)`).matches).toBe(layout !== "desktop");
-  await expect(tablist).toHaveAttribute("aria-orientation", mobile ? "horizontal" : "vertical");
-  await expect(getComputedStyle(tablist).flexDirection).toBe(mobile ? "row" : "column");
+  // The story's viewport is applied after the first render and the layout follows it, so wait
+  // for the layout to settle rather than asserting on the first frame.
+  await waitFor(async () => {
+    await expect(window.matchMedia(`(max-width: ${breakpoints.mobile}px)`).matches).toBe(mobile);
+    await expect(window.matchMedia(`(max-width: ${breakpoints.tablet}px)`).matches).toBe(layout !== "desktop");
+    await expect(tablist).toHaveAttribute("aria-orientation", mobile ? "horizontal" : "vertical");
+    await expect(getComputedStyle(tablist).flexDirection).toBe(mobile ? "row" : "column");
+  });
   if (!mobile) return;
 
   // Above the content, scrolling sideways because the tabs don't all fit.
