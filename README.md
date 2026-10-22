@@ -10,7 +10,7 @@ installs (see `scripts/scratch-consumer/`), by three internal consumers.
 
 Delivered in this pass: **Slice 0** in full (packaging, build, lint, both typechecks, dist audits,
 pack/integrity checks, dependency checks, CI) and most of **Slice 1** — eight themes with 34-key
-parity generated from `themes.source.css`, the Tamagui token config (radius/space/size/
+parity and a named colour palette, generated from `themes.source.css`, the Tamagui token config (radius/space/size/
 zIndex/font scales, including the named `fontWeights` scale), `BobuttonsProvider` with the AC9 remount
 regression test, Storybook 10 wired with the theme toolbar and a genuinely-gating a11y check
 (`npm run verify` builds Storybook and runs two Vitest/Playwright browser projects against it — the
@@ -71,8 +71,8 @@ TypeScript is pinned to 6.0.3, not the published latest (7.0.2): `typescript-esl
 <!-- bobuttons:distsize:start -->
 ```json
 {
-  "rawBytes": 399934,
-  "gzipBytes": 96364
+  "rawBytes": 402570,
+  "gzipBytes": 97392
 }
 ```
 <!-- bobuttons:distsize:end -->
@@ -116,3 +116,7 @@ fails if it drifts from the committed budget.
   allowed to self-report SKIP at the current slice (AC21); it is currently empty.
 - `npm run generate-themes:write` — regenerates `src/themes/themes.generated.ts` and
   `docs/api/token-mapping.md` from `src/themes/themes.source.css`.
+  Colours are defined once, by name, in the `:root` palette of `themes.source.css` (`--color-deep-sea`);
+  the themes refer to them with `var(--color-deep-sea)`. The palette is a config-level colour token set
+  (`$deepSea`), is exported as `palette`, and is listed in Storybook under Primitives / Colors. To add a
+  colour, add a `--color-<name>` line to `:root` and regenerate.

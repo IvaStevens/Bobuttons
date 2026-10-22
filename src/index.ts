@@ -46,7 +46,10 @@ export type { ViewToolbarProps } from "./components/layout/ViewToolbar/ViewToolb
 export { ViewBody } from "./components/layout/ViewBody/ViewBody.js";
 export type { ViewBodyProps } from "./components/layout/ViewBody/ViewBody.js";
 
-export type { BobuttonsThemeTokenName } from "./types/tokens.js";
+export type { BobuttonsColorToken, BobuttonsPaletteName, BobuttonsThemeTokenName } from "./types/tokens.js";
+
+// The named colour palette: name -> hex. Theme-independent; also usable in styles as `$name`.
+export { palette } from "./themes/themes.generated.js";
 
 export { TextInput } from "./components/primitives/TextInput/TextInput.js";
 export type { TextInputProps } from "./components/primitives/TextInput/TextInput.js";

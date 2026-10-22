@@ -3,7 +3,7 @@ import { styled, Text, View } from "@tamagui/core";
 import { useCssColor } from "../../../internal/cssColor.js";
 import { activationKeyHandlers, useHover } from "../../../internal/interaction.js";
 import { fontWeights } from "../../../tokens/fontWeights.js";
-import type { BobuttonsThemeTokenName } from "../../../types/tokens.js";
+import type { BobuttonsColorToken } from "../../../types/tokens.js";
 import type { IconSource } from "../../primitives/Icon/Icon.js";
 
 // Placeholder until game colours exist in the theme: squares are white, with
@@ -60,8 +60,8 @@ const Content = styled(Text, {
   fontWeight: fontWeights.bold,
 });
 
-/** A theme token ("$primary") or any CSS colour ("red", "#fff"). */
-export type SquareColor = `$${BobuttonsThemeTokenName}` | (string & {});
+/** A semantic or palette token ("$primary", "$jade") or any CSS colour ("red", "#fff"). */
+export type SquareColor = `$${BobuttonsColorToken}` | (string & {});
 
 export type SquareVariant = "filled" | "outlined";
 

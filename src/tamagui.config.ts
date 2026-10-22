@@ -1,5 +1,5 @@
 import { createTamagui, createTokens, createFont } from "@tamagui/core";
-import { themeNames, themes, type BobuttonsThemeName } from "./themes/themes.generated.js";
+import { palette, themeNames, themes, type BobuttonsThemeName } from "./themes/themes.generated.js";
 import { breakpoints } from "./tokens/breakpoints.js";
 import { fontWeights } from "./tokens/fontWeights.js";
 
@@ -67,7 +67,7 @@ const zIndex = {
 } as const;
 
 const tokens = createTokens({
-  color: {}, // colour tokens are per-theme (themes.generated.ts), not global
+  color: palette, // the named palette: theme-independent. Semantic colours are per-theme (themes.generated.ts)
   radius,
   zIndex,
   space,

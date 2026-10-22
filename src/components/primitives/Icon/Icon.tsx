@@ -1,6 +1,6 @@
 import * as React from "react";
 import { styled, Text } from "@tamagui/core";
-import type { BobuttonsThemeTokenName } from "../../../types/tokens.js";
+import type { BobuttonsColorToken } from "../../../types/tokens.js";
 
 /** Any icon component taking `size` and `color`, e.g. a griddy-icons icon. */
 export type IconSource = React.ComponentType<{ size?: number | string; color?: string }>;
@@ -19,7 +19,7 @@ export interface IconProps {
   /** Pixel size of the icon. */
   size?: number;
   /** Colour token the icon is painted with. Defaults to the text colour. */
-  color?: BobuttonsThemeTokenName;
+  color?: BobuttonsColorToken;
   /** Accessible name. Without one the icon is hidden from assistive tech. */
   label?: string;
 }

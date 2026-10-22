@@ -2,7 +2,7 @@ import * as React from "react";
 import { styled, Text, View } from "@tamagui/core";
 import { activationKeyHandlers, useHover } from "../../../internal/interaction.js";
 import { fontWeights } from "../../../tokens/fontWeights.js";
-import type { BobuttonsThemeTokenName } from "../../../types/tokens.js";
+import type { BobuttonsColorToken } from "../../../types/tokens.js";
 
 const Header = styled(View, {
   flexDirection: "row",
@@ -59,7 +59,7 @@ export interface CollapsibleSectionProps {
   /** Control rendered in the header; clicking it does not toggle the section. */
   headerAction?: React.ReactNode;
   /** Colour token for the label. Defaults to the dim text colour. */
-  accentToken?: BobuttonsThemeTokenName;
+  accentToken?: BobuttonsColorToken;
 }
 
 export function CollapsibleSection(props: CollapsibleSectionProps): React.ReactElement {
