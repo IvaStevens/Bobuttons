@@ -49,14 +49,14 @@ export interface AppHeaderProps {
 export function AppHeader(props: AppHeaderProps): React.ReactElement {
   const { title, now = Date.now(), locale = "en-US", timeZone = "UTC" } = props;
   const gradient = useAccentGradient("135deg");
-  // Without a sidebar column on mobile, the title moves left and the date sits beside it.
+  // On mobile there is no sidebar column to centre against, so the title moves left, and the date is dropped.
   const mobile = useMedia().mobile;
   const dateLabel = formatInstant(now, { locale, timeZone, weekday: "long", month: "long", day: "numeric" });
 
   return (
     <HeaderFrame
       role="banner"
-      {...(mobile ? { paddingLeft: "$4", justifyContent: "space-between" } : null)}
+      {...(mobile ? { paddingLeft: "$4", justifyContent: "flex-start" } : null)}
     >
       <Title
         role="heading"
@@ -66,7 +66,7 @@ export function AppHeader(props: AppHeaderProps): React.ReactElement {
       >
         {title}
       </Title>
-      <DateLabel {...(mobile ? { position: "relative", right: 0 } : null)}>{dateLabel}</DateLabel>
+      {!mobile && <DateLabel>{dateLabel}</DateLabel>}
     </HeaderFrame>
   );
 }

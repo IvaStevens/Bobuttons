@@ -71,8 +71,8 @@ TypeScript is pinned to 6.0.3, not the published latest (7.0.2): `typescript-esl
 <!-- bobuttons:distsize:start -->
 ```json
 {
-  "rawBytes": 392223,
-  "gzipBytes": 94379
+  "rawBytes": 395126,
+  "gzipBytes": 95016
 }
 ```
 <!-- bobuttons:distsize:end -->

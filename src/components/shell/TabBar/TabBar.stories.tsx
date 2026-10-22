@@ -1,6 +1,6 @@
 import * as React from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { expect, fn, userEvent, within } from "storybook/test";
+import { expect, fn, userEvent, waitFor, within } from "storybook/test";
 import { useMedia, View } from "@tamagui/core";
 import { AlertTriangle, Calendar, CheckCircle, Github, Settings, StickyNote, Ticket } from "griddy-icons";
 import { TabBar, type BobuttonsTab } from "./TabBar.js";
@@ -64,12 +64,35 @@ export const Interactive: Story = {
   },
 };
 
-// On mobile the tabs form a horizontal bar that scrolls sideways.
+// On mobile the tabs are icons only in a horizontal bar that scrolls sideways, with arrows at
+// whichever end has more to scroll to.
 export const Mobile: Story = {
-  globals: { viewport: { value: "mobile2", isRotated: false } },
+  // The narrowest preset (320px), where the seven tabs don't all fit.
+  globals: { viewport: { value: "mobile1", isRotated: false } },
   play: async ({ canvasElement }) => {
-    const tablist = within(canvasElement).getByRole("tablist");
+    const canvas = within(canvasElement);
+    const tablist = canvas.getByRole("tablist");
+    const arrow = (end: "start" | "end") => canvasElement.querySelector(`[data-bobuttons-scroll-arrow="${end}"]`);
+
     await expect(tablist).toHaveAttribute("aria-orientation", "horizontal");
     await expect(tablist.scrollWidth).toBeGreaterThan(tablist.clientWidth);
+
+    // Icons only, but each tab keeps its accessible name.
+    await expect(canvas.queryByText("Calendar")).toBeNull();
+    await expect(canvas.getByRole("tab", { name: "Calendar" })).toBeInTheDocument();
+
+    // At the start there is more to the right only.
+    await waitFor(() => expect(arrow("end")).not.toBeNull());
+    await expect(arrow("start")).toBeNull();
+
+    // The arrow scrolls the bar.
+    await userEvent.click(arrow("end")!);
+    await waitFor(() => expect(tablist.scrollLeft).toBeGreaterThan(0));
+    await waitFor(() => expect(arrow("start")).not.toBeNull());
+
+    // At the far end the arrows swap.
+    tablist.scrollLeft = tablist.scrollWidth;
+    await waitFor(() => expect(arrow("end")).toBeNull());
+    await expect(arrow("start")).not.toBeNull();
   },
 };

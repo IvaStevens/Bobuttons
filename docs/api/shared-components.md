@@ -33,8 +33,8 @@ How components respond:
 | component | tablet | mobile |
 |---|---|---|
 | `AppShell` | - | sidebar moves above the content and spans the full width |
-| `TabBar` | - | tabs run in a row and scroll sideways with the scrollbar hidden; the selected tab scrolls into view; the active indicator moves to the bottom edge; `aria-orientation` becomes horizontal |
-| `AppHeader` | - | the title moves left with the date beside it, since there is no sidebar column to centre against |
+| `TabBar` | - | tabs show their icon only (each keeps its label as `aria-label`) in a row that scrolls sideways with the scrollbar hidden; an arrow with a fade appears over whichever end has more to scroll to and scrolls the bar when clicked; the selected tab scrolls into view clear of the arrows; the active indicator moves to the bottom edge; `aria-orientation` becomes horizontal |
+| `AppHeader` | - | the title moves left, since there is no sidebar column to centre against, and the date is hidden |
 | `ViewToolbar`, `ViewBody`, `SettingsLayout` | content inset `$5` | content inset `$4` (desktop: `$7`, `$6` for settings) |
 
 Writing responsive components:
