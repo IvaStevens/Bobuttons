@@ -71,8 +71,8 @@ TypeScript is pinned to 6.0.3, not the published latest (7.0.2): `typescript-esl
 <!-- bobuttons:distsize:start -->
 ```json
 {
-  "rawBytes": 395126,
-  "gzipBytes": 95016
+  "rawBytes": 395859,
+  "gzipBytes": 95347
 }
 ```
 <!-- bobuttons:distsize:end -->
@@ -90,12 +90,19 @@ fails if it drifts from the committed budget.
   react-native* package") would fail through no fault of the build. This package therefore ships
   **no `dependencies` field at all** — only `peerDependencies` on `react`/`react-dom` (`>=19`).
 - `griddy-icons` is a story-only devDependency, never imported from `src/`. It never reaches `dist/`.
-- The library injects three hand-written CSS rules, in `BobuttonsProvider`, both scoped to data attributes:
-  `[data-bobuttons-icon] svg path { fill: currentColor; }` — a port of
-  `DailyTracker/src/styles/global.css:261`'s workaround for griddy-icons that hardcode `fill="black"` on
-  an inner `<path>` — and `[data-bobuttons-input]::placeholder { color: var(--textFaint); }`, because a
-  placeholder colour can't be set through a style prop — and `[data-bobuttons-tile] { box-shadow: var(--bobuttons-tile-shadow, none); }`,
-  because Tamagui parses `boxShadow` and rejects modern colour syntax. Everything else comes from Tamagui's token system.
+- The library injects a small hand-written stylesheet in `BobuttonsProvider`, scoped to its own data
+  attributes, for the things no style prop can express. Everything else comes from Tamagui's token system.
+  - `[data-bobuttons-icon] svg path { fill: currentColor; }` — a port of
+    `DailyTracker/src/styles/global.css:261`'s workaround for griddy-icons that hardcode `fill="black"`
+    on an inner `<path>`.
+  - `[data-bobuttons-input]::placeholder { color: var(--textFaint); }` — a placeholder colour can't be set
+    through a style prop.
+  - `[data-bobuttons-input]::-webkit-inner-spin-button` — restyles the browser's own number spinner:
+    its box is removed and its arrows are redrawn as chevrons in theme colours. It stays the native
+    control, so stepping and keyboard behaviour are unchanged. Firefox can't style its spinner, so
+    `-moz-appearance: textfield` hides it there (the arrow keys and mouse wheel still step).
+  - `[data-bobuttons-tile] { box-shadow: var(--bobuttons-tile-shadow, none); }` — Tamagui parses
+    `boxShadow` and rejects modern colour syntax.
 - `exports` exposes exactly `"."` and `"./package.json"`. Deep imports fail by design (AC10).
 
 ## Scripts

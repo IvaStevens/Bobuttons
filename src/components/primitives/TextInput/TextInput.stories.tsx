@@ -60,3 +60,21 @@ export const Interactive: Story = {
     await expect(args.onEnter).toHaveBeenCalled();
   },
 };
+
+// Number inputs keep the browser's own spinner, restyled by the provider: no box, chevrons in
+// theme colours. Firefox can't style its spinner, so there it is hidden.
+export const NumberSpinner: Story = {
+  args: { type: "number", compact: true, min: 0, max: 10, "aria-label": "Interval" },
+  render: (args) => {
+    const [value, setValue] = React.useState("5");
+    return <TextInput {...args} value={value} onChange={setValue} />;
+  },
+  play: async ({ canvasElement }) => {
+    // A native control's internals aren't readable through getComputedStyle, so this guards that
+    // the restyling rules are present.
+    const rules = document.querySelector("style[data-bobuttons-style]")?.textContent ?? "";
+    await expect(rules).toContain("[data-bobuttons-input]::-webkit-inner-spin-button");
+    await expect(rules).toContain("-moz-appearance: textfield");
+    await expect(within(canvasElement).getByRole("spinbutton", { name: "Interval" })).toHaveValue(5);
+  },
+};
