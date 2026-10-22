@@ -29,3 +29,8 @@ export const CustomContent: Story = {
     actions: undefined,
   },
 };
+
+// Content insets tighten on smaller screens.
+export const Mobile: Story = {
+  globals: { viewport: { value: "mobile2", isRotated: false } },
+};

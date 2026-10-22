@@ -16,6 +16,37 @@ call sites keep compiling.
 it as a documented-deprecated optional). It is dropped entirely; the merged `CollapsibleSection` only
 exposes `accentToken` for styling.
 
+## Breakpoints
+
+Layouts are desktop-first. Desktop is the base; two max-width breakpoints override it, and `mobile` is the
+more specific of the two. Both are exported as `breakpoints` (a standalone constant, so it doesn't pull
+Tamagui types into consumers) and registered as Tamagui media queries.
+
+| name | applies at | layout |
+|---|---|---|
+| desktop | wider than 1023px | the base layout |
+| `tablet` | up to 1023px | tighter content insets |
+| `mobile` | up to 599px | the sidebar becomes a horizontally scrolling bar above the content |
+
+How components respond:
+
+| component | tablet | mobile |
+|---|---|---|
+| `AppShell` | - | sidebar moves above the content and spans the full width |
+| `TabBar` | - | tabs run in a row and scroll sideways with the scrollbar hidden; the selected tab scrolls into view; the active indicator moves to the bottom edge; `aria-orientation` becomes horizontal |
+| `AppHeader` | - | the title moves left with the date beside it, since there is no sidebar column to centre against |
+| `ViewToolbar`, `ViewBody`, `SettingsLayout` | content inset `$5` | content inset `$4` (desktop: `$7`, `$6` for settings) |
+
+Writing responsive components:
+- Use `useMedia()` from `@tamagui/core` (`media.mobile`, `media.tablet`). In this Tamagui build, `$mobile`
+  style props and media keys inside `styled()` are not typed, so don't use them.
+- Prefer one shared hook for repeated values; `src/internal/useContentInset.ts` is the model.
+- Add a story with `globals: { viewport: { value: "mobile2" } }` (`"tablet"` for tablet). The viewport is
+  applied both in the Storybook toolbar and in the test run, so axe and any play assertions run at that
+  width. `AppShell`'s `Desktop`, `Tablet` and `Mobile` stories assert the layout at each breakpoint.
+- `AppShell` is `100vh` tall, as in the source apps; on mobile browsers with a collapsing address bar
+  that can extend past the visible area.
+
 ## AppHeader
 
 | | oncall-navigator-app | DailyTracker |

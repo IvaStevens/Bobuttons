@@ -1,5 +1,6 @@
 import * as React from "react";
 import { styled, View } from "@tamagui/core";
+import { useContentInset } from "../../../internal/useContentInset.js";
 
 const Frame = styled(View, {
   flex: 1,
@@ -23,10 +24,11 @@ export interface SettingsLayoutProps {
 
 /** A tab bar over a scrolling area for stacked SettingsSections. */
 export function SettingsLayout(props: SettingsLayoutProps): React.ReactElement {
+  const inset = useContentInset("$6");
   return (
     <Frame>
       {props.tabs}
-      <Scroller tabIndex={0} style={{ overflowY: "auto" }}>
+      <Scroller tabIndex={0} paddingHorizontal={inset} style={{ overflowY: "auto" }}>
         {props.children}
       </Scroller>
     </Frame>

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { styled, View } from "@tamagui/core";
+import { styled, useMedia, View } from "@tamagui/core";
 
 // Fills the viewport: header on top, sidebar and content below.
 const Frame = styled(View, {
@@ -43,11 +43,13 @@ export interface AppShellProps {
 
 export function AppShell(props: AppShellProps): React.ReactElement {
   const { header, sidebar, children, overlay } = props;
+  const media = useMedia();
+  // On mobile the sidebar moves above the content and spans the full width.
   return (
     <Frame>
       {header}
-      <Body>
-        {sidebar && <Sidebar>{sidebar}</Sidebar>}
+      <Body flexDirection={media.mobile ? "column" : "row"}>
+        {sidebar && <Sidebar width={media.mobile ? "100%" : "$sidebarWidth"}>{sidebar}</Sidebar>}
         <Content>{children}</Content>
       </Body>
       {overlay}

@@ -24,6 +24,8 @@ export type { ButtonProps } from "./components/primitives/Button/Button.js";
 // Sourced from the @tamagui-free fontWeights.js for the same reason as above.
 export { fontWeights } from "./tokens/fontWeights.js";
 export type { BobuttonsFontWeightName } from "./tokens/fontWeights.js";
+export { breakpoints } from "./tokens/breakpoints.js";
+export type { BobuttonsBreakpointName } from "./tokens/breakpoints.js";
 
 export { Icon } from "./components/primitives/Icon/Icon.js";
 export type { IconProps, IconSource } from "./components/primitives/Icon/Icon.js";

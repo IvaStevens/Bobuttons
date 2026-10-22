@@ -139,3 +139,7 @@ export const WithTabs: Story = {
     );
   },
 };
+
+export const Mobile: Story = {
+  globals: { viewport: { value: "mobile2", isRotated: false } },
+};

@@ -1,5 +1,6 @@
 import * as React from "react";
 import { styled, Text, View } from "@tamagui/core";
+import { useContentInset } from "../../../internal/useContentInset.js";
 import { fontWeights } from "../../../tokens/fontWeights.js";
 
 const Bar = styled(View, {
@@ -30,8 +31,9 @@ export interface ViewToolbarProps {
 
 export function ViewToolbar(props: ViewToolbarProps): React.ReactElement {
   const { title, children, actions } = props;
+  const inset = useContentInset();
   return (
-    <Bar>
+    <Bar paddingHorizontal={inset}>
       {title ? <Title role="heading" aria-level={2}>{title}</Title> : children}
       {actions}
     </Bar>

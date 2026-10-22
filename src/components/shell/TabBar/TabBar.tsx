@@ -1,5 +1,5 @@
 import * as React from "react";
-import { styled, Text, View } from "@tamagui/core";
+import { styled, Text, useMedia, View } from "@tamagui/core";
 import { activationKeyHandlers, useHover } from "../../../internal/interaction.js";
 import { fontWeights } from "../../../tokens/fontWeights.js";
 import { Icon, type IconSource } from "../../primitives/Icon/Icon.js";
@@ -26,7 +26,7 @@ const TabButton = styled(View, {
   cursor: "pointer",
 });
 
-// Left-edge bar marking the active tab.
+// Left-edge bar marking the active tab; along the bottom edge in a horizontal bar.
 const ActiveIndicator = styled(View, {
   position: "absolute",
   left: 0,
@@ -69,26 +69,57 @@ interface TabItemProps {
   icon: IconSource;
   iconSize: number;
   active: boolean;
+  /** Tabs run in a horizontal row instead of a column. */
+  horizontal: boolean;
   onSelect: () => void;
 }
 
+const HORIZONTAL_INDICATOR = {
+  top: "auto",
+  bottom: 0,
+  left: "$2",
+  right: "$2",
+  width: "auto",
+  height: "$0.75",
+  borderTopLeftRadius: "$7",
+  borderTopRightRadius: "$7",
+  borderBottomLeftRadius: 0,
+  borderBottomRightRadius: 0,
+} as const;
+
+const HORIZONTAL_LIST = { flexDirection: "row", flexGrow: 0, flexBasis: "auto" } as const;
+
+// Scrolls sideways; the scrollbar is hidden since touch scrolling is the norm here.
+const HORIZONTAL_SCROLL: React.CSSProperties = { overflowX: "auto", overflowY: "hidden", scrollbarWidth: "none" };
+
+// In a horizontal bar each tab is as wide as its content, not shrunk to fit.
+const HORIZONTAL_TAB = { width: "auto", minWidth: "$sidebarWidth", flexShrink: 0 } as const;
+
 function TabItem(props: TabItemProps): React.ReactElement {
-  const { id, label, icon, iconSize, active, onSelect } = props;
+  const { id, label, icon, iconSize, active, horizontal, onSelect } = props;
   const { hovered, hoverHandlers } = useHover();
+  const ref = React.useRef<React.ComponentRef<typeof TabButton>>(null);
+
+  // Keep the selected tab visible when the bar scrolls.
+  React.useEffect(() => {
+    if (active && horizontal) (ref.current as HTMLElement | null)?.scrollIntoView?.({ block: "nearest", inline: "nearest" });
+  }, [active, horizontal]);
   const backgroundColor = active ? "$surface2" : hovered ? "$surface" : "transparent";
 
   return (
     <TabButton
+      ref={ref}
       id={`tab-${id}`}
       role="tab"
       tabIndex={0}
       aria-selected={active}
       backgroundColor={backgroundColor}
+      {...(horizontal ? HORIZONTAL_TAB : null)}
       onPress={onSelect}
       {...hoverHandlers}
       {...activationKeyHandlers(onSelect)}
     >
-      {active && <ActiveIndicator />}
+      {active && <ActiveIndicator {...(horizontal ? HORIZONTAL_INDICATOR : null)} />}
       <View opacity={active ? 1 : 0.65}>
         <Icon source={icon} size={iconSize} color={active ? "primary" : "textDim"} />
       </View>
@@ -100,9 +131,17 @@ function TabItem(props: TabItemProps): React.ReactElement {
 export function TabBar<Id extends string = string>(props: TabBarProps<Id>): React.ReactElement {
   const { tabs, current, onChange, visibleTabs, iconSize = 28 } = props;
   const shown = visibleTabs ? tabs.filter((t) => t.pinned || visibleTabs.has(t.id)) : tabs;
+  // On mobile the bar sits above the content and scrolls sideways.
+  const horizontal = useMedia().mobile;
 
   return (
-    <TabList role="tablist" aria-orientation="vertical" aria-label={props["aria-label"]}>
+    <TabList
+      role="tablist"
+      aria-orientation={horizontal ? "horizontal" : "vertical"}
+      aria-label={props["aria-label"]}
+      {...(horizontal ? HORIZONTAL_LIST : null)}
+      style={horizontal ? HORIZONTAL_SCROLL : undefined}
+    >
       {shown.map(({ id, label, icon }) => (
         <TabItem
           key={id}
@@ -111,6 +150,7 @@ export function TabBar<Id extends string = string>(props: TabBarProps<Id>): Reac
           icon={icon}
           iconSize={iconSize}
           active={current === id}
+          horizontal={horizontal}
           onSelect={() => onChange(id)}
         />
       ))}

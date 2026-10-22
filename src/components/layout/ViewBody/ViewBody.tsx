@@ -1,5 +1,6 @@
 import * as React from "react";
 import { styled, View } from "@tamagui/core";
+import { useContentInset } from "../../../internal/useContentInset.js";
 
 const Scroller = styled(View, {
   flex: 1,
@@ -12,5 +13,10 @@ export interface ViewBodyProps {
 }
 
 export function ViewBody(props: ViewBodyProps): React.ReactElement {
-  return <Scroller tabIndex={0} style={{ overflowY: "auto" }}>{props.children}</Scroller>;
+  const inset = useContentInset();
+  return (
+    <Scroller tabIndex={0} paddingHorizontal={inset} style={{ overflowY: "auto" }}>
+      {props.children}
+    </Scroller>
+  );
 }

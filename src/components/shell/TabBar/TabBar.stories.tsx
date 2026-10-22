@@ -1,6 +1,7 @@
+import * as React from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect, fn, userEvent, within } from "storybook/test";
-import { View } from "@tamagui/core";
+import { useMedia, View } from "@tamagui/core";
 import { AlertTriangle, Calendar, CheckCircle, Github, Settings, StickyNote, Ticket } from "griddy-icons";
 import { TabBar, type BobuttonsTab } from "./TabBar.js";
 
@@ -14,14 +15,20 @@ const tabs: BobuttonsTab[] = [
   { id: "settings", label: "Settings", icon: Settings, pinned: true },
 ];
 
+// The bar is a sidebar-width column, or full width as a horizontal bar on mobile.
+function SidebarFrame(props: { children: React.ReactNode }): React.ReactElement {
+  const mobile = useMedia().mobile;
+  return <View width={mobile ? "100%" : "$sidebarWidth"}>{props.children}</View>;
+}
+
 const meta: Meta<typeof TabBar> = {
   title: "Shell/TabBar",
   component: TabBar,
   decorators: [
     (Story) => (
-      <View width="$sidebarWidth">
+      <SidebarFrame>
         <Story />
-      </View>
+      </SidebarFrame>
     ),
   ],
   args: {
@@ -54,5 +61,15 @@ export const Interactive: Story = {
     await userEvent.click(canvas.getByRole("tab", { name: "Calendar" }));
     await expect(args.onChange).toHaveBeenCalledWith("calendar");
     await expect(canvas.getByRole("tab", { name: "Today" })).toHaveAttribute("aria-selected", "true");
+  },
+};
+
+// On mobile the tabs form a horizontal bar that scrolls sideways.
+export const Mobile: Story = {
+  globals: { viewport: { value: "mobile2", isRotated: false } },
+  play: async ({ canvasElement }) => {
+    const tablist = within(canvasElement).getByRole("tablist");
+    await expect(tablist).toHaveAttribute("aria-orientation", "horizontal");
+    await expect(tablist.scrollWidth).toBeGreaterThan(tablist.clientWidth);
   },
 };

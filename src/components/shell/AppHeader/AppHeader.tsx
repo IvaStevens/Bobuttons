@@ -1,5 +1,5 @@
 import * as React from "react";
-import { styled, Text, View } from "@tamagui/core";
+import { styled, Text, useMedia, View } from "@tamagui/core";
 import { formatInstant } from "../../../internal/formatInstant.js";
 import { useAccentGradient } from "../../../internal/useAccentGradient.js";
 import { fontWeights } from "../../../tokens/fontWeights.js";
@@ -49,10 +49,15 @@ export interface AppHeaderProps {
 export function AppHeader(props: AppHeaderProps): React.ReactElement {
   const { title, now = Date.now(), locale = "en-US", timeZone = "UTC" } = props;
   const gradient = useAccentGradient("135deg");
+  // Without a sidebar column on mobile, the title moves left and the date sits beside it.
+  const mobile = useMedia().mobile;
   const dateLabel = formatInstant(now, { locale, timeZone, weekday: "long", month: "long", day: "numeric" });
 
   return (
-    <HeaderFrame role="banner">
+    <HeaderFrame
+      role="banner"
+      {...(mobile ? { paddingLeft: "$4", justifyContent: "space-between" } : null)}
+    >
       <Title
         role="heading"
         aria-level={1}
@@ -61,7 +66,7 @@ export function AppHeader(props: AppHeaderProps): React.ReactElement {
       >
         {title}
       </Title>
-      <DateLabel>{dateLabel}</DateLabel>
+      <DateLabel {...(mobile ? { position: "relative", right: 0 } : null)}>{dateLabel}</DateLabel>
     </HeaderFrame>
   );
 }

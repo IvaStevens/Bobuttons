@@ -1,8 +1,9 @@
 import { createTamagui, createTokens, createFont } from "@tamagui/core";
 import { themeNames, themes, type BobuttonsThemeName } from "./themes/themes.generated.js";
+import { breakpoints } from "./tokens/breakpoints.js";
 import { fontWeights } from "./tokens/fontWeights.js";
 
-export { fontWeights };
+export { fontWeights, breakpoints };
 export type { BobuttonsFontWeightName } from "./tokens/fontWeights.js";
 
 export type { BobuttonsThemeName };
@@ -187,6 +188,11 @@ export const bobuttonsConfig = createTamagui({
   },
   defaultFont: "body",
   shorthands: {},
+  // Declared in increasing priority: `mobile` overrides `tablet` where both match.
+  media: {
+    tablet: { maxWidth: breakpoints.tablet },
+    mobile: { maxWidth: breakpoints.mobile },
+  },
 });
 
 export type BobuttonsConfig = typeof bobuttonsConfig;
