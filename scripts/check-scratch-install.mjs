@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Installs the tarball `npm run pack` produced into a throwaway consumer with
-// `npm install --offline` (react/react-dom are pre-seeded, so an unexpected
+// `npm install --offline` (react/react-dom are cache-warmed first, so an unexpected
 // network fetch fails loudly), typechecks ESM and CJS entries under bundler
 // and node16 resolution, runs both through react-dom/server, and scans the
 // installed tree for unscoped react-native* packages.
@@ -50,6 +50,21 @@ try {
   const basePkg = JSON.parse(readFileSync(path.join(templateDir, "package.json"), "utf8"));
   basePkg.dependencies = { ...basePkg.dependencies, bobuttons: `file:${tarballPath}` };
   writeFileSync(path.join(fixtureDir, "package.json"), JSON.stringify(basePkg, null, 2) + "\n");
+
+  // Warm npm's cache with the fixture's own pinned dependencies, online, in a throwaway
+  // directory. Without this the offline install below only works where the cache already
+  // holds React's metadata, i.e. not on a fresh CI runner. The real install stays offline,
+  // so anything beyond these pinned versions still fails loudly.
+  const warmDir = mkdtempSync(path.join(os.tmpdir(), "bobuttons-scratch-warm-"));
+  try {
+    cpSync(path.join(templateDir, "package.json"), path.join(warmDir, "package.json"));
+    execFileSync("npm", ["install", "--no-audit", "--no-fund", "--ignore-scripts"], { cwd: warmDir, stdio: "pipe" });
+  } catch (err) {
+    fail(`cache warm-up failed (it needs the network once): ${String(err.stderr || err.message).slice(0, 2000)}`);
+    throw new ScratchInstallAbort();
+  } finally {
+    rmSync(warmDir, { recursive: true, force: true });
+  }
 
   try {
     execFileSync("npm", ["install", "--offline", "--no-audit", "--no-fund"], {
