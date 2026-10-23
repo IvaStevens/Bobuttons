@@ -1,0 +1,329 @@
+/* ── Theme tokens ─────────────────────────────────────────────────────────── */
+:root {
+  /* ── Named palette ────────────────────────────────────────────────────────── */
+  /* Every colour the themes use, defined once. Themes refer to these by name.   */
+  /* Hex values only; the translucent dim/glow/border tokens stay in the themes. */
+
+  /* Reds and oranges */
+  --color-crimson:         #b91c1c;
+  --color-coral-red:       #f05555;
+  --color-salmon:          #f87171;
+  --color-sunset-coral:    #ff8070;
+  --color-vermilion:       #fb4226;
+  --color-rust:            #a0260a;
+  --color-brick-red:       #c0300f;
+  --color-tangerine:       #ff7744;
+  --color-tangerine-dream: #ffad7e;
+
+  /* Warm neutrals */
+  --color-dusty-blush:     #c8a898;
+  --color-clay:            #c4967a;
+  --color-apricot:         #f4c095;
+  --color-taupe:           #a08870;
+  --color-almond:          #ffead0;
+  --color-beige:           #ffffe8;
+  --color-cream:           #f4ffc3;
+  --color-vanilla-custard: #fceaa2;
+  --color-apricot-cream:   #ffd392;
+  --color-peach-sorbet:    #f9d3c2;
+
+  /* Golds */
+  --color-amber:     #f5a623;
+  --color-bronze:    #6e5500;
+  --color-sunflower: #f6c90e;
+
+  /* Greens and mints */
+  --color-lime:          #aaff44;
+  --color-fern:          #55bb44;
+  --color-neon-green:    #39ff14;
+  --color-pistachio:     #77ee66;
+  --color-honeydew:      #d4ffd0;
+  --color-pearl:         #f7f9f7;
+  --color-sage:          #7aaa8a;
+  --color-celadon:       #b3dec1;
+  --color-emerald:       #4ade80;
+  --color-mint-cream:    #f5fdf8;
+  --color-forest:        #166534;
+  --color-shamrock:      #44dd80;
+  --color-pine:          #1a5232;
+  --color-evergreen:     #286040;
+  --color-seafoam:       #b8ddca;
+  --color-pale-mint:     #d5f2e3;
+  --color-deep-forest:   #003e1f;
+  --color-frosted-mint:  #c8e8d8;
+  --color-electric-mint: #00ffaa;
+  --color-ice-mint:      #dbf9f0;
+  --color-eucalyptus:    #88b5ad;
+
+  /* Teals */
+  --color-viridian:     #1e6257;
+  --color-spruce:       #155c52;
+  --color-bottle-green: #143633;
+  --color-jade:         #5ab0aa;
+  --color-turquoise:    #4dd9d0;
+  --color-deep-sea:     #0d2b2a;
+  --color-lagoon:       #113537;
+  --color-abyss:        #0c2325;
+  --color-harbor:       #1b3e41;
+  --color-trench:       #091c1e;
+  --color-deep-lagoon:  #26484c;
+  --color-night-teal:   #040f11;
+  --color-ink-teal:     #071e22;
+  --color-void-teal:    #030d0f;
+
+  /* Blues */
+  --color-azure:         #29acea;
+  --color-fog-blue:      #7aaac0;
+  --color-powder-blue:   #7aafca;
+  --color-sky-blue:      #7bbfe0;
+  --color-abyss-blue:    #031624;
+  --color-deep-water:    #051e30;
+  --color-baby-blue:     #8ab8d8;
+  --color-cerulean:      #5e9ed6;
+  --color-deep-marine:   #0a2640;
+  --color-navy:          #0f2f4d;
+  --color-oxford-blue:   #153858;
+  --color-ice-blue:      #e8f4ff;
+  --color-mist-blue:     #e4eef8;
+  --color-night-sky:     #0d1b2a;
+  --color-twilight-blue: #122233;
+  --color-gunmetal-blue: #1a2e44;
+  --color-dusty-blue:    #7fa3ca;
+  --color-midnight-blue: #091525;
+  --color-storm-blue:    #213651;
+  --color-royal-blue:    #4f8dff;
+  --color-sapphire:      #1d4ed8;
+
+  /* Purples */
+  --color-lavender:      #c4b5fd;
+  --color-mauve-magic:   #d972ff;
+  --color-deep-violet:   #2a2245;
+  --color-amethyst:      #5b4d89;
+  --color-shadow-violet: #302847;
+  --color-eclipse:       #1a1528;
+  --color-twilight:      #251e37;
+  --color-wisteria:      #c4b8e0;
+  --color-heather:       #a895d0;
+  --color-obsidian:      #0f0b17;
+  --color-lavender-mist: #f5f0ff;
+
+  /* Magentas and pinks */
+  --color-aubergine:     #3c1242;
+  --color-deep-grape:    #2e0933;
+  --color-blackberry:    #210124;
+  --color-void-plum:     #110012;
+  --color-dark-mulberry: #170015;
+  --color-rose-pink:     #f472b6;
+  --color-blush-pop:     #ffb2e6;
+  --color-cotton-candy:  #fa97bf;
+  --color-orchid-bloom:  #f896ef;
+  --color-claret:        #750d37;
+  --color-mauve:         #8a6b72;
+  --color-watermelon:    #f76f8e;
+  --color-rosewood:      #96616b;
+
+  /* Neutrals */
+  --color-jet:      #060606;
+  --color-carbon:   #0d0d0d;
+  --color-graphite: #161616;
+  --color-onyx:     #222222;
+  --color-ash:      #303030;
+  --color-white:    #ffffff;
+
+  /* ── Semantic tokens ─────────────────────────────────────────────────────────── */
+  --bg:           var(--color-obsidian);
+  --surface:      var(--color-eclipse);
+  --surface-2:    var(--color-twilight);
+  --surface-3:    var(--color-shadow-violet);
+  --frame-bg:     var(--color-deep-violet);
+
+  --primary:         var(--color-turquoise);
+  --primary-dim:     rgba(77,217,208,0.13);
+  --primary-glow:    rgba(77,217,208,0.30);
+
+  --secondary:         var(--color-rose-pink);
+  --secondary-dim:     rgba(244,114,182,0.13);
+  --secondary-glow:    rgba(244,114,182,0.35);
+
+  --accent:     var(--color-lavender);
+  --accent-dim: rgba(196,181,253,0.13);
+
+  --text:         var(--color-lavender-mist);
+  --text-dim:     var(--color-wisteria);
+  --text-faint:   var(--color-heather);
+
+  --border:       rgba(255,255,255,0.15);
+  --radius:       12px;
+
+  --sentry-color:  var(--color-vermilion);
+  --jira-color:    var(--color-royal-blue);
+  --status-new:    var(--color-vermilion);
+  --status-invest: var(--color-sunflower);
+  --status-done:   var(--color-emerald);
+  --status-supp:   var(--color-heather);
+  --sla-green:     var(--color-emerald);
+  --sla-amber:     var(--color-sunflower);
+  --sla-red:       var(--color-salmon);
+}
+
+/* ── Ocean ────────────────────────────────────────────────────────────────── */
+[data-theme="ocean"] {
+  --bg:           var(--color-night-sky);
+  --surface:      var(--color-twilight-blue);
+  --surface-2:    var(--color-gunmetal-blue);
+  --surface-3:    var(--color-storm-blue);
+  --frame-bg:     var(--color-midnight-blue);
+  --primary:         var(--color-azure);
+  --primary-dim:     rgba(41,172,234,0.15);
+  --primary-glow:    rgba(41,172,234,0.35);
+  --secondary:         var(--color-amber);
+  --secondary-dim:     rgba(245,166,35,0.15);
+  --secondary-glow:    rgba(245,166,35,0.35);
+  --accent:     var(--color-cerulean);
+  --accent-dim: rgba(94,158,214,0.15);
+  --text:         var(--color-mist-blue);
+  --text-dim:     var(--color-dusty-blue);
+  --text-faint:   var(--color-fog-blue);
+  --border:       rgba(41,172,234,0.14);
+}
+
+/* ── Terminal ─────────────────────────────────────────────────────────────── */
+[data-theme="terminal"] {
+  --bg:           var(--color-carbon);
+  --surface:      var(--color-graphite);
+  --surface-2:    var(--color-onyx);
+  --surface-3:    var(--color-ash);
+  --frame-bg:     var(--color-jet);
+  --primary:         var(--color-neon-green);
+  --primary-dim:     rgba(57,255,20,0.12);
+  --primary-glow:    rgba(57,255,20,0.30);
+  --secondary:         var(--color-electric-mint);
+  --secondary-dim:     rgba(0,255,170,0.10);
+  --secondary-glow:    rgba(0,255,170,0.25);
+  --accent:     var(--color-lime);
+  --accent-dim: rgba(170,255,68,0.12);
+  --text:         var(--color-honeydew);
+  --text-dim:     var(--color-pistachio);
+  --text-faint:   var(--color-fern);
+  --border:       rgba(57,255,20,0.18);
+}
+
+/* ── Coastal ──────────────────────────────────────────────────────────────── */
+[data-theme="coastal"] {
+  --bg:           var(--color-deep-water);
+  --surface:      var(--color-deep-marine);
+  --surface-2:    var(--color-navy);
+  --surface-3:    var(--color-oxford-blue);
+  --frame-bg:     var(--color-abyss-blue);
+  --primary:         var(--color-sky-blue);
+  --primary-dim:     rgba(123,191,224,0.15);
+  --primary-glow:    rgba(123,191,224,0.32);
+  --secondary:         var(--color-tangerine);
+  --secondary-dim:     rgba(255,119,68,0.15);
+  --secondary-glow:    rgba(255,119,68,0.32);
+  --accent:     var(--color-shamrock);
+  --accent-dim: rgba(68,221,128,0.15);
+  --text:         var(--color-ice-blue);
+  --text-dim:     var(--color-baby-blue);
+  --text-faint:   var(--color-powder-blue);
+  --border:       rgba(123,191,224,0.16);
+}
+
+/* ── Dusk ─────────────────────────────────────────────────────────────────── */
+[data-theme="dusk"] {
+  --bg:           var(--color-abyss);
+  --surface:      var(--color-lagoon);
+  --surface-2:    var(--color-harbor);
+  --surface-3:    var(--color-deep-lagoon);
+  --frame-bg:     var(--color-trench);
+  --primary:         var(--color-watermelon);
+  --primary-dim:     rgba(247,111,142,0.15);
+  --primary-glow:    rgba(247,111,142,0.35);
+  --secondary:         var(--color-almond);
+  --secondary-dim:     rgba(255,234,208,0.12);
+  --secondary-glow:    rgba(255,234,208,0.30);
+  --accent:     var(--color-rosewood);
+  --accent-dim: rgba(150,97,107,0.20);
+  --text:         var(--color-almond);
+  --text-dim:     var(--color-dusty-blush);
+  --text-faint:   var(--color-mauve);
+  --border:       rgba(255,234,208,0.10);
+}
+
+/* ── Velvet ───────────────────────────────────────────────────────────────── */
+[data-theme="velvet"] {
+  --bg:           var(--color-dark-mulberry);
+  --surface:      var(--color-blackberry);
+  --surface-2:    var(--color-deep-grape);
+  --surface-3:    var(--color-aubergine);
+  --frame-bg:     var(--color-void-plum);
+  --primary:         var(--color-celadon);
+  --primary-dim:     rgba(179,222,193,0.14);
+  --primary-glow:    rgba(179,222,193,0.32);
+  --secondary:         var(--color-claret);
+  --secondary-dim:     rgba(117,13,55,0.25);
+  --secondary-glow:    rgba(117,13,55,0.50);
+  --accent:     var(--color-ice-mint);
+  --accent-dim: rgba(219,249,240,0.12);
+  --text:         var(--color-pearl);
+  --text-dim:     var(--color-celadon);
+  --text-faint:   var(--color-sage);
+  --border:       rgba(179,222,193,0.12);
+}
+
+/* ── Jade ───────────────────────────────────── */
+[data-theme="jade"] {
+  --bg:           var(--color-night-teal);
+  --surface:      var(--color-ink-teal);
+  --surface-2:    var(--color-deep-sea);
+  --surface-3:    var(--color-bottle-green);
+  --frame-bg:     var(--color-void-teal);
+  --primary:         var(--color-jade);
+  --primary-dim:     rgba(90,176,170,0.18);
+  --primary-glow:    rgba(90,176,170,0.40);
+  --secondary:         var(--color-coral-red);
+  --secondary-dim:     rgba(240,85,85,0.15);
+  --secondary-glow:    rgba(240,85,85,0.38);
+  --accent:     var(--color-eucalyptus);
+  --accent-dim: rgba(136,181,173,0.18);
+  --text:         var(--color-apricot);
+  --text-dim:     var(--color-clay);
+  --text-faint:   var(--color-taupe);
+  --border:       rgba(90,176,170,0.22);
+}
+
+/* ── Grove (light theme) ──────────────────────────────────────────────────── */
+[data-theme="grove"] {
+  --bg:           var(--color-frosted-mint);
+  --surface:      var(--color-mint-cream);
+  --surface-2:    var(--color-white);
+  --surface-3:    var(--color-pale-mint);
+  --frame-bg:     var(--color-seafoam);
+  --primary:         var(--color-spruce);
+  --primary-dim:     rgba(21,92,82,0.12);
+  --primary-glow:    rgba(21,92,82,0.28);
+  --secondary:         var(--color-rust);
+  --secondary-dim:     rgba(160,38,10,0.10);
+  --secondary-glow:    rgba(160,38,10,0.28);
+  --accent:     var(--color-viridian);
+  --accent-dim: rgba(30,98,87,0.12);
+  --text:         var(--color-deep-forest);
+  --text-dim:     var(--color-pine);
+  --text-faint:   var(--color-evergreen);
+  --border:       rgba(0,62,31,0.18);
+  --status-new:    var(--color-crimson);
+  --status-invest: var(--color-bronze);
+  --status-done:   var(--color-forest);
+  --status-supp:   var(--color-amethyst);
+  --sla-green:     var(--color-forest);
+  --sla-amber:     var(--color-bronze);
+  --sla-red:       var(--color-crimson);
+  --sentry-color:  var(--color-brick-red);
+  --jira-color:    var(--color-sapphire);
+}
+
+/* Grove — status badge overrides (rgba values don't inherit CSS vars) */
+[data-theme="grove"] .status-new           { background: rgba(185,28,28,0.08);  border-color: rgba(185,28,28,0.30); }
+[data-theme="grove"] .status-investigating { background: rgba(110,85,0,0.08);   border-color: rgba(110,85,0,0.30); }
+[data-theme="grove"] .status-investigated  { background: rgba(22,101,52,0.08);  border-color: rgba(22,101,52,0.30); }
+[data-theme="grove"] .status-suppressed    { background: rgba(91,77,137,0.08);  border-color: rgba(91,77,137,0.30); }

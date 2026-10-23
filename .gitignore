@@ -1,0 +1,15 @@
+node_modules/
+dist/
+storybook-static/
+*.tgz
+.verify-out/
+coverage/
+scripts/scratch-consumer/node_modules/
+scripts/scratch-consumer/dist-run/
+scripts/scratch-consumer/package-lock.json
+scripts/scratch-consumer/*.tgz
+*.log
+.DS_Store
+
+# Local notes and reference docs; not part of the package
+docs/

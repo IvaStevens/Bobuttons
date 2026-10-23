@@ -1,0 +1,9 @@
+<!--
+  @tamagui/core reads `process.env.TAMAGUI_*` at module load, which throws in
+  the preview iframe (Vite only replaces NODE_ENV). An empty env leaves every
+  flag unset. Not done via `viteFinal`/`define`: addon-vitest merges those over
+  the per-project Vitest `define`s.
+-->
+<script>
+  window.process = window.process || { env: {} };
+</script>

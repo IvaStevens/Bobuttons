@@ -1,0 +1,155 @@
+{
+  "_comment": "AC1/AC2/AC10. One entry per inventory item (docs/context + TaskSpec component inventory list). Grows across Slice 1/Slice 2; scripts/check-inventory-coverage.mjs only checks entries present here, so the gate stays meaningful per-slice (AC21) rather than being a blanket skip.",
+  "components": [
+    {
+      "name": "Button",
+      "category": "primitives",
+      "sourcePath": "src/components/primitives/Button/Button.tsx",
+      "storiesPath": "src/components/primitives/Button/Button.stories.tsx"
+    },
+    {
+      "name": "Icon",
+      "category": "primitives",
+      "sourcePath": "src/components/primitives/Icon/Icon.tsx",
+      "storiesPath": "src/components/primitives/Icon/Icon.stories.tsx"
+    },
+    {
+      "name": "AppHeader",
+      "category": "shell",
+      "sourcePath": "src/components/shell/AppHeader/AppHeader.tsx",
+      "storiesPath": "src/components/shell/AppHeader/AppHeader.stories.tsx"
+    },
+    {
+      "name": "TabBar",
+      "category": "shell",
+      "sourcePath": "src/components/shell/TabBar/TabBar.tsx",
+      "storiesPath": "src/components/shell/TabBar/TabBar.stories.tsx"
+    },
+    {
+      "name": "CollapsibleSection",
+      "category": "shell",
+      "sourcePath": "src/components/shell/CollapsibleSection/CollapsibleSection.tsx",
+      "storiesPath": "src/components/shell/CollapsibleSection/CollapsibleSection.stories.tsx"
+    },
+    {
+      "name": "AppShell",
+      "category": "layout",
+      "sourcePath": "src/components/layout/AppShell/AppShell.tsx",
+      "storiesPath": "src/components/layout/AppShell/AppShell.stories.tsx"
+    },
+    {
+      "name": "ViewPane",
+      "category": "layout",
+      "sourcePath": "src/components/layout/ViewPane/ViewPane.tsx",
+      "storiesPath": "src/components/layout/ViewPane/ViewPane.stories.tsx"
+    },
+    {
+      "name": "ViewToolbar",
+      "category": "layout",
+      "sourcePath": "src/components/layout/ViewToolbar/ViewToolbar.tsx",
+      "storiesPath": "src/components/layout/ViewToolbar/ViewToolbar.stories.tsx"
+    },
+    {
+      "name": "ViewBody",
+      "category": "layout",
+      "sourcePath": "src/components/layout/ViewBody/ViewBody.tsx",
+      "storiesPath": "src/components/layout/ViewBody/ViewBody.stories.tsx"
+    },
+    {
+      "name": "TextInput",
+      "category": "primitives",
+      "sourcePath": "src/components/primitives/TextInput/TextInput.tsx",
+      "storiesPath": "src/components/primitives/TextInput/TextInput.stories.tsx"
+    },
+    {
+      "name": "Badge",
+      "category": "primitives",
+      "sourcePath": "src/components/primitives/Badge/Badge.tsx",
+      "storiesPath": "src/components/primitives/Badge/Badge.stories.tsx"
+    },
+    {
+      "name": "IconButton",
+      "category": "primitives",
+      "sourcePath": "src/components/primitives/IconButton/IconButton.tsx",
+      "storiesPath": "src/components/primitives/IconButton/IconButton.stories.tsx"
+    },
+    {
+      "name": "Checkbox",
+      "category": "primitives",
+      "sourcePath": "src/components/primitives/Checkbox/Checkbox.tsx",
+      "storiesPath": "src/components/primitives/Checkbox/Checkbox.stories.tsx"
+    },
+    {
+      "name": "Radio",
+      "category": "primitives",
+      "sourcePath": "src/components/primitives/Radio/Radio.tsx",
+      "storiesPath": "src/components/primitives/Radio/Radio.stories.tsx"
+    },
+    {
+      "name": "RadioGroup",
+      "category": "primitives",
+      "sourcePath": "src/components/primitives/RadioGroup/RadioGroup.tsx",
+      "storiesPath": "src/components/primitives/RadioGroup/RadioGroup.stories.tsx"
+    },
+    {
+      "name": "Tabs",
+      "category": "primitives",
+      "sourcePath": "src/components/primitives/Tabs/Tabs.tsx",
+      "storiesPath": "src/components/primitives/Tabs/Tabs.stories.tsx"
+    },
+    {
+      "name": "SettingsLayout",
+      "category": "settings",
+      "sourcePath": "src/components/settings/SettingsLayout/SettingsLayout.tsx",
+      "storiesPath": "src/components/settings/SettingsLayout/SettingsLayout.stories.tsx"
+    },
+    {
+      "name": "SettingsSection",
+      "category": "settings",
+      "sourcePath": "src/components/settings/SettingsSection/SettingsSection.tsx",
+      "storiesPath": "src/components/settings/SettingsSection/SettingsSection.stories.tsx"
+    },
+    {
+      "name": "SettingsRow",
+      "category": "settings",
+      "sourcePath": "src/components/settings/SettingsRow/SettingsRow.tsx",
+      "storiesPath": "src/components/settings/SettingsRow/SettingsRow.stories.tsx"
+    },
+    {
+      "name": "SettingsHint",
+      "category": "settings",
+      "sourcePath": "src/components/settings/SettingsHint/SettingsHint.tsx",
+      "storiesPath": "src/components/settings/SettingsHint/SettingsHint.stories.tsx"
+    },
+    {
+      "name": "AddRow",
+      "category": "settings",
+      "sourcePath": "src/components/settings/AddRow/AddRow.tsx",
+      "storiesPath": "src/components/settings/AddRow/AddRow.stories.tsx"
+    },
+    {
+      "name": "ListRow",
+      "category": "settings",
+      "sourcePath": "src/components/settings/ListRow/ListRow.tsx",
+      "storiesPath": "src/components/settings/ListRow/ListRow.stories.tsx"
+    },
+    {
+      "name": "ThemeOption",
+      "category": "settings",
+      "sourcePath": "src/components/settings/ThemeOption/ThemeOption.tsx",
+      "storiesPath": "src/components/settings/ThemeOption/ThemeOption.stories.tsx"
+    },
+    {
+      "name": "SquareGrid",
+      "category": "game",
+      "sourcePath": "src/components/game/SquareGrid/SquareGrid.tsx",
+      "storiesPath": "src/components/game/SquareGrid/SquareGrid.stories.tsx"
+    },
+    {
+      "name": "TessellatedBackground",
+      "category": "game",
+      "sourcePath": "src/components/game/TessellatedBackground/TessellatedBackground.tsx",
+      "storiesPath": "src/components/game/TessellatedBackground/TessellatedBackground.stories.tsx"
+    }
+  ]
+}

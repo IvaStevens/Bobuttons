@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "module": "node16",
+    "moduleResolution": "node16",
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": false,
+    "noEmit": true
+  },
+  "include": ["index.mts", "index.cts", "tree-shake.mts"]
+}
