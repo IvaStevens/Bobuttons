@@ -1,5 +1,6 @@
 import * as React from "react";
 import { styled, View } from "@tamagui/core";
+import { dataAttrs } from "./platformStyles.js";
 
 const Ring = styled(View, {
   alignItems: "center",
@@ -21,7 +22,7 @@ const Dot = styled(View, {
 /** The circular radio indicator, shared by Radio and ListRow. */
 export function RadioMark(props: { checked: boolean }): React.ReactElement {
   return (
-    <Ring data-bobuttons-radio-mark="" borderColor={props.checked ? "$primary" : "$textFaint"}>
+    <Ring {...dataAttrs("radio-mark")} borderColor={props.checked ? "$primary" : "$textFaint"}>
       {props.checked && <Dot />}
     </Ring>
   );

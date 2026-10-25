@@ -61,6 +61,19 @@ export const Interactive: Story = {
     await userEvent.click(canvas.getByRole("tab", { name: "Calendar" }));
     await expect(args.onChange).toHaveBeenCalledWith("calendar");
     await expect(canvas.getByRole("tab", { name: "Today" })).toHaveAttribute("aria-selected", "true");
+
+    // Keyboard activation (Enter and Space) must keep working on web — a tab
+    // is focusable (role="tab", tabIndex=0), so it must stay activatable
+    // without a pointer. B2-AC10/B2-AC20: existing web a11y coverage must not
+    // regress when the native seam is added.
+    const github = canvas.getByRole("tab", { name: "GitHub" });
+    github.focus();
+    await userEvent.keyboard("{Enter}");
+    await expect(args.onChange).toHaveBeenCalledWith("github");
+    const sentry = canvas.getByRole("tab", { name: "Sentry" });
+    sentry.focus();
+    await userEvent.keyboard(" ");
+    await expect(args.onChange).toHaveBeenCalledWith("sentry");
   },
 };
 

@@ -37,7 +37,11 @@ export default [
       bobuttons: bobuttonsRules,
     },
     rules: {
-      "@typescript-eslint/no-unused-vars": "error",
+      // argsIgnorePattern: unused parameters deliberately kept (named, not
+      // omitted) for API-shape documentation — several native seam halves
+      // (e.g. useCapOffset.native.ts) intentionally ignore arguments the
+      // web half uses, to keep both halves' call sites identical.
+      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
       "@typescript-eslint/no-explicit-any": "warn",
     },
   },
@@ -51,6 +55,29 @@ export default [
     rules: {
       "bobuttons/no-raw-style-literals": "error",
       "bobuttons/no-implicit-intl": "error",
+    },
+  },
+  {
+    // STRENGTHENING, not weakening (B2-AC10 permits tightening a gate):
+    // src/internal/** and src/tokens/** now hold the platform seams'
+    // formerly-inline raw style values (platformStyles.ts, fontFamilies.ts,
+    // space.ts, etc.) — without this, moving those values out of
+    // src/components/** would have moved them OUT of no-raw-style-literals'
+    // reach too. Measured against this tree with tests included: zero
+    // findings in both directories. Deliberately NOT src/provider/** (3
+    // pre-existing theme-name findings there predate this ticket and
+    // re-litigating them is out of scope) and NOT extended to
+    // no-implicit-intl (it would flag src/internal/formatInstant.ts/
+    // .native.ts, the module that rule exists to funnel Intl usage into —
+    // scripts/check-native-audit.mjs enforces that rule's intent there
+    // instead, since the rule itself can't be scoped to include-but-exempt
+    // one file).
+    files: ["src/internal/**/*.{ts,tsx}", "src/tokens/**/*.{ts,tsx}"],
+    plugins: {
+      bobuttons: bobuttonsRules,
+    },
+    rules: {
+      "bobuttons/no-raw-style-literals": "error",
     },
   },
   {

@@ -7,6 +7,7 @@ import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import os from "node:os";
 import path from "node:path";
+import fg from "fast-glob";
 
 const root = path.resolve(fileURLToPath(import.meta.url), "../..");
 let failed = false;
@@ -87,6 +88,20 @@ if (existsSync(configPath)) {
   }
 } else {
   console.log("[check-themes] SKIP: src/tamagui.config.ts not found yet — font key-parity check deferred.");
+}
+
+// B2-AC14: the theme/token/palette pipeline is already platform-neutral
+// (no .css import anywhere under src/, confirmed when this check was
+// written); this guard keeps that true so a second, native-only token or
+// theme path can't appear later without this check catching it.
+const cssImports = fg.sync(["**/*.{ts,tsx}"], { cwd: path.join(root, "src") }).filter((rel) => {
+  const text = readFileSync(path.join(root, "src", rel), "utf8");
+  return /from\s+["'][^"']+\.css["']|import\s+["'][^"']+\.css["']/.test(text);
+});
+if (cssImports.length > 0) {
+  fail(`src/ imports a .css file (a second, native-incompatible token/theme path): ${cssImports.join(", ")}`);
+} else {
+  console.log("[check-themes] no .css import anywhere under src/ (B2-AC14).");
 }
 
 if (failed) process.exit(1);

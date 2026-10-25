@@ -1,7 +1,8 @@
 import * as React from "react";
 import { styled, Text, useMedia, View } from "@tamagui/core";
 import { formatInstant } from "../../../internal/formatInstant.js";
-import { useAccentGradient } from "../../../internal/useAccentGradient.js";
+import { useAccentTextStyle } from "../../../internal/useAccentGradient.js";
+import { SINGLE_LINE } from "../../../internal/singleLineText.js";
 import { fontWeights } from "../../../tokens/fontWeights.js";
 
 // Left padding matches the sidebar so the title centres over the content area.
@@ -48,7 +49,11 @@ export interface AppHeaderProps {
 
 export function AppHeader(props: AppHeaderProps): React.ReactElement {
   const { title, now = Date.now(), locale = "en-US", timeZone = "UTC" } = props;
-  const gradient = useAccentGradient("135deg");
+  // D4 (flat-colour fallback everywhere on native): the seam owns `color`
+  // too, not just the gradient — AppHeader pairs the web gradient with
+  // `color="transparent"`, so a gradient-only seam would render an
+  // invisible title on a platform whose seam returns no colour at all.
+  const accentText = useAccentTextStyle("135deg");
   // On mobile there is no sidebar column to centre against, so the title moves left, and the date is dropped.
   const mobile = useMedia().mobile;
   const dateLabel = formatInstant(now, { locale, timeZone, weekday: "long", month: "long", day: "numeric" });
@@ -58,15 +63,15 @@ export function AppHeader(props: AppHeaderProps): React.ReactElement {
       role="banner"
       {...(mobile ? { paddingLeft: "$4", justifyContent: "flex-start" } : null)}
     >
-      <Title
-        role="heading"
-        aria-level={1}
-        color="transparent"
-        style={{ background: gradient, backgroundClip: "text" }}
-      >
+      <Title role="heading" aria-level={1} color={accentText.color} style={accentText.style} {...SINGLE_LINE}>
         {title}
       </Title>
-      {!mobile && <DateLabel>{dateLabel}</DateLabel>}
+      {/* AppHeader drops the date label on the mobile branch — the harness/manual
+          check must mount this at a non-mobile width or the B2-AC26 Intl check
+          passes vacuously. */}
+      {!mobile && (
+        <DateLabel {...SINGLE_LINE}>{dateLabel}</DateLabel>
+      )}
     </HeaderFrame>
   );
 }

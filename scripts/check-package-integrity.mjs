@@ -34,17 +34,67 @@ function staticChecks() {
     fail(`package.json "scripts.prepack" must be "npm run build", got: ${JSON.stringify(pkg.scripts && pkg.scripts.prepack)}`);
   }
   if (!pkg.exports || !pkg.exports["."] || !pkg.exports["./package.json"]) {
-    fail(`package.json "exports" must expose exactly "." and "./package.json" (AC10).`);
+    fail(`package.json "exports" must expose exactly "." and "./package.json" (B1-AC10).`);
   } else {
     const keys = Object.keys(pkg.exports);
     const extra = keys.filter((k) => k !== "." && k !== "./package.json");
     if (extra.length > 0) {
-      fail(`package.json "exports" has extra entries beyond "." and "./package.json": ${extra.join(", ")}`);
+      fail(`package.json "exports" has extra entries beyond "." and "./package.json": ${extra.join(", ")} (B2-AC21: a "./native" subpath is forbidden — the react-native condition must live INSIDE exports["."]).`);
+    }
+  }
+  checkReactNativeCondition();
+}
+
+// B2-AC21/B2-AC7/B2-AC9: the "react-native" condition must exist inside
+// exports["."], be declared FIRST (conditions match in object order, and a
+// React Native Jest environment activates both "require" and "react-native"
+// at once — putting "require" first would hand a native test environment
+// the web CJS bundle). This structural check needs only package.json, so it
+// runs in staticChecks(); whether ".default"/".types" actually resolve to
+// shipped files needs `dist/`, which does not exist yet at static-check time
+// (verify.mjs runs this step BEFORE `npm run build`, and dist/ is
+// git-ignored) — that resolution check is deferred to
+// checkReactNativeConditionResolves(), called from tarballChecks() where a
+// build has already happened.
+function checkReactNativeCondition() {
+  const dot = pkg.exports && pkg.exports["."];
+  if (!dot || typeof dot !== "object") {
+    fail(`package.json exports["."] must be a conditions object (got ${JSON.stringify(dot)}).`);
+    return;
+  }
+  const conditionKeys = Object.keys(dot);
+  if (conditionKeys[0] !== "react-native") {
+    fail(`package.json exports["."]'s "react-native" condition must be declared FIRST, found order: ${conditionKeys.join(", ")}.`);
+  }
+  const rn = dot["react-native"];
+  if (!rn || typeof rn !== "object" || !rn.default || !rn.types) {
+    fail(`package.json exports["."]["react-native"] must be an object with "default" and "types", got ${JSON.stringify(rn)}.`);
+    return;
+  }
+  if (pkg["react-native"] !== rn.default) {
+    fail(`package.json top-level "react-native" field ("${pkg["react-native"]}") must match exports["."]["react-native"].default ("${rn.default}").`);
+  }
+}
+
+// Build-output half of the react-native condition check: `default`/`types`
+// must resolve to files that are actually shipped. Only meaningful once
+// `dist/` exists (after `npm run build`), so this is called from
+// tarballChecks(), never from staticChecks().
+function checkReactNativeConditionResolves() {
+  const dot = pkg.exports && pkg.exports["."];
+  const rn = dot && dot["react-native"];
+  if (!rn || typeof rn !== "object") return; // already reported by checkReactNativeCondition()
+  for (const [key, value] of [["default", rn.default], ["types", rn.types]]) {
+    if (!value) continue;
+    const rel = value.replace(/^\.\//, "");
+    if (!existsSync(path.join(root, rel))) {
+      fail(`package.json exports["."]["react-native"].${key} ("${value}") does not resolve to a shipped file (run \`npm run build\` first if this is unexpected).`);
     }
   }
 }
 
 function tarballChecks() {
+  checkReactNativeConditionResolves();
   const outDir = path.join(root, ".verify-out");
   const metaPath = path.join(outDir, "pack.json");
   if (!existsSync(metaPath)) {

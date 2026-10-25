@@ -1,6 +1,6 @@
 import * as React from "react";
 import { styled, Text, View } from "@tamagui/core";
-import { activationKeyHandlers, useHover } from "../../../internal/interaction.js";
+import { activationKeyHandlers, useInteractive } from "../../../internal/interaction.js";
 import { fontWeights } from "../../../tokens/fontWeights.js";
 
 const Card = styled(View, {
@@ -45,7 +45,8 @@ export interface ThemeOptionProps {
 /** A selectable theme preview card. */
 export function ThemeOption(props: ThemeOptionProps): React.ReactElement {
   const { label, swatches, selected, onSelect } = props;
-  const { hovered, hoverHandlers } = useHover();
+  const { hovered, pressed, handlers } = useInteractive();
+  const highlighted = hovered || pressed;
 
   return (
     <Card
@@ -54,9 +55,9 @@ export function ThemeOption(props: ThemeOptionProps): React.ReactElement {
       aria-label={`Theme: ${label}`}
       aria-pressed={selected}
       borderColor={selected ? "$primary" : "$borderColor"}
-      backgroundColor={selected ? "$primaryDim" : hovered ? "$surface3" : "$surface2"}
+      backgroundColor={selected ? "$primaryDim" : highlighted ? "$surface3" : "$surface2"}
       onPress={onSelect}
-      {...hoverHandlers}
+      {...handlers}
       {...activationKeyHandlers(onSelect)}
     >
       <Swatches>

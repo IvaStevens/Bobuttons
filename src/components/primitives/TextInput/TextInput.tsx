@@ -1,10 +1,12 @@
 import * as React from "react";
 import { styled, Text } from "@tamagui/core";
+import { INLINE_FLEX } from "../../../internal/platformStyles.js";
+import { TextField } from "../../../internal/TextField.js";
 
-// The frame carries the visuals; the native <input> inside is stripped bare so
-// it inherits the frame's font and colour.
+// The frame carries the visuals; the web `<input>` inside is stripped bare so
+// it inherits the frame's font and colour (B2-AC12: the shared path never
+// sees that `React.CSSProperties` bag — it now lives in TextField.tsx).
 const Frame = styled(Text, {
-  display: "inline-flex",
   alignItems: "center",
   width: "$inputWidth",
   paddingVertical: "$1.5",
@@ -23,18 +25,6 @@ const Frame = styled(Text, {
     mono: { true: { fontFamily: "mono" } },
   } as const,
 });
-
-const BARE_INPUT: React.CSSProperties = {
-  flex: 1,
-  minWidth: 0,
-  width: "100%",
-  padding: 0,
-  border: 0,
-  outline: "none",
-  background: "transparent",
-  color: "inherit",
-  font: "inherit",
-};
 
 export interface TextInputProps {
   value: string;
@@ -62,28 +52,22 @@ export function TextInput(props: TextInputProps): React.ReactElement {
 
   return (
     <Frame
+      {...INLINE_FLEX}
       fill={fill}
       compact={compact}
       mono={mono}
       borderColor={focused ? "$primary" : saved ? "$statusInvestigated" : "$borderColor"}
     >
-      <input
-        data-bobuttons-input=""
-        style={BARE_INPUT}
+      <TextField
         type={type}
         value={value}
         placeholder={placeholder}
         min={min}
         max={max}
         aria-label={props["aria-label"]}
-        autoComplete={type === "password" ? "new-password" : "off"}
-        spellCheck={false}
-        onChange={(e) => onChange(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") onEnter?.();
-        }}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
+        onChangeText={onChange}
+        onSubmitEditing={onEnter}
+        onFocusChange={(f) => setFocused(f)}
       />
     </Frame>
   );

@@ -8,6 +8,25 @@
 // The fixture is copied from scripts/scratch-consumer/ into the OS temp dir,
 // outside the repo, so resolution can't walk up into Bobuttons' node_modules;
 // its package.json is generated, so the tracked template stays untouched.
+//
+// AUTHORISED EDIT under B2-AC10(ii)/B2-AC23, four enumerated changes:
+//   1. the unscoped-react-native* scan now walks the PARSED `npm ls --json
+//      --all` tree instead of matching raw text, and fails only on a node
+//      that is actually installed (has a "version") or reports a
+//      missing/problem — VERIFIED NECESSARY: once `react-native` is a
+//      declared peer (optional or not), npm prints an empty placeholder
+//      `"react-native": {}` for it even when nothing is installed, which the
+//      old raw-text regex matched, so this web scenario would otherwise
+//      fail on a perfectly clean tree;
+//   2. ADDS an assertion that `react-dom` IS installed — decision D6 demoted
+//      it to an optional peer so a native consumer's tree stays free of it
+//      (B2-AC8), which means this WEB scenario must now install it
+//      explicitly (`basePkg.dependencies` below) or npm would not auto-
+//      install it either, and this assertion is what proves that didn't
+//      silently regress;
+//   3. this header comment;
+//   4. nothing else changes — the offline install, both typechecks, the
+//      react-dom/server execution and the tree-shake probe are untouched.
 import { readFileSync, writeFileSync, existsSync, rmSync, mkdtempSync, cpSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
@@ -132,22 +151,56 @@ try {
     fail(`tree-shake bundle measurement failed: ${String(err.stdout || err.stderr || err.message)}`);
   }
 
-  // No unscoped react-native* package in the installed tree.
+  // No unscoped react-native* package ACTUALLY INSTALLED in the tree, and
+  // react-dom IS installed (B2-AC8/B2-AC23/B2-AC10(ii)). Walks the PARSED
+  // tree rather than matching raw text: npm ls prints an empty placeholder
+  // `"react-native": {}` for a declared-but-absent peer (optional or not),
+  // which a text regex would incorrectly flag on a perfectly clean tree
+  // now that `react-native` is a peer at all — verified by probe.
+  let lsJson;
   try {
-    const lsOut = execFileSync("npm", ["ls", "--json", "--all"], {
-      cwd: fixtureDir,
-      stdio: "pipe",
-    }).toString();
-    if (/"react-native(-|")/i.test(lsOut.replace(/@tamagui\/[\w-]*react-native[\w-]*/gi, ""))) {
-      fail("an unscoped react-native* package is present in the scratch consumer's installed tree.");
-    } else {
-      console.log("[check-scratch-install] no unscoped react-native* package in installed tree: PASS");
-    }
+    const lsOut = execFileSync("npm", ["ls", "--json", "--all"], { cwd: fixtureDir, stdio: "pipe" }).toString();
+    lsJson = JSON.parse(lsOut);
   } catch (err) {
     // npm ls exits non-zero on peer-dep warnings; stdout still has the JSON.
-    const out = String(err.stdout || "");
-    if (/"react-native(-|")/i.test(out.replace(/@tamagui\/[\w-]*react-native[\w-]*/gi, ""))) {
-      fail("an unscoped react-native* package is present in the scratch consumer's installed tree.");
+    try {
+      lsJson = JSON.parse(String(err.stdout || "{}"));
+    } catch {
+      fail(`npm ls --json --all produced unparseable output: ${String(err.stdout || err.stderr || err.message).slice(0, 500)}`);
+    }
+  }
+
+  if (lsJson) {
+    const unscopedReactNativeHits = [];
+    let reactDomInstalled = false;
+
+    function walk(name, node, scopePath) {
+      if (!node || typeof node !== "object") return;
+      const isUnscopedReactNative = /^react-native(-|$)/.test(name);
+      const isActuallyInstalled = typeof node.version === "string";
+      const hasProblem = node.missing === true || (Array.isArray(node.problems) && node.problems.length > 0);
+      if (isUnscopedReactNative && (isActuallyInstalled || hasProblem)) {
+        unscopedReactNativeHits.push(`${scopePath}${name}@${node.version ?? "(missing/problem)"}`);
+      }
+      if (name === "react-dom" && isActuallyInstalled) reactDomInstalled = true;
+      for (const [depName, depNode] of Object.entries(node.dependencies || {})) {
+        walk(depName, depNode, `${scopePath}${name} > `);
+      }
+    }
+    for (const [name, node] of Object.entries(lsJson.dependencies || {})) {
+      walk(name, node, "");
+    }
+
+    if (unscopedReactNativeHits.length > 0) {
+      fail(`an unscoped react-native* package is actually installed in the scratch consumer's tree: ${unscopedReactNativeHits.join(", ")}`);
+    } else {
+      console.log("[check-scratch-install] no unscoped react-native* package is actually installed in the tree: PASS");
+    }
+
+    if (!reactDomInstalled) {
+      fail("react-dom is NOT installed in the web scratch consumer's tree (B2-AC23: react-dom is now an optional peer, so a web consumer must install it explicitly — this scenario's package.json should already declare it as a dependency).");
+    } else {
+      console.log("[check-scratch-install] react-dom is installed in the web scratch consumer's tree: PASS");
     }
   }
 } catch (err) {

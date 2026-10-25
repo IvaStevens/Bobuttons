@@ -2,6 +2,8 @@ import * as React from "react";
 import { styled, Text, View } from "@tamagui/core";
 import { RadioMark } from "../../../internal/RadioMark.js";
 import { activationKeyHandlers } from "../../../internal/interaction.js";
+import { touchHitSlop } from "../../../internal/platformStyles.js";
+import { SINGLE_LINE } from "../../../internal/singleLineText.js";
 import { fontWeights } from "../../../tokens/fontWeights.js";
 
 const Row = styled(View, {
@@ -52,6 +54,16 @@ export interface ListRowProps {
   children?: React.ReactNode;
 }
 
+// B2-AC20/D7 touch-target seam (review round 3, finding 2 — see the
+// `hitSlop` prop below): RadioMark's painted size is its Ring token,
+// width/height "$5" (20px, space.ts) with borderWidth "$0.5" (2px,
+// box-sizing includes the border) -> 20x20. Unlike Checkbox's inner
+// Pressable (review finding 5), this View's immediate parent is `Row`
+// above — the whole list item, not a tightly-sized wrapper — so Android's
+// ancestor-bounds touch dispatch (ReactAndroid's TouchTargetHelper) has
+// room to honour the full growth without being clipped to a tiny parent.
+const RADIO_MARK_SIZE = 20;
+
 export function ListRow(props: ListRowProps): React.ReactElement {
   const { title, detail, selected = false, onSelect, children } = props;
   return (
@@ -63,6 +75,7 @@ export function ListRow(props: ListRowProps): React.ReactElement {
           aria-checked={selected}
           aria-label={`Select ${title}`}
           cursor="pointer"
+          hitSlop={touchHitSlop(RADIO_MARK_SIZE, RADIO_MARK_SIZE)}
           onPress={onSelect}
           {...activationKeyHandlers(onSelect)}
         >
@@ -71,7 +84,7 @@ export function ListRow(props: ListRowProps): React.ReactElement {
       )}
       <Info>
         <Title>{title}</Title>
-        {detail && <Detail>{detail}</Detail>}
+        {detail && <Detail {...SINGLE_LINE}>{detail}</Detail>}
       </Info>
       {children}
     </Row>
