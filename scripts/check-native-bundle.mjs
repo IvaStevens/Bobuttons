@@ -68,12 +68,31 @@ function checkBundleSpecifiers() {
   const SPECIFIER = /(?:from\s+|require\(\s*|import\(\s*)["']([^"'.][^"']*)["']/g;
   let m;
   while ((m = SPECIFIER.exec(src))) specs.add(m[1]);
-  const allowed = new Set(["react", "react/jsx-runtime", "react-native"]);
+  // The one deep import is react-native's internal usePressability, which
+  // @tamagui/web calls and react-native's public index does not export (see
+  // scripts/esbuild-native-resolve.ts). It is allow-listed by exact path, so
+  // any OTHER react-native/... deep import still fails this gate.
+  const allowed = new Set([
+    "react",
+    "react/jsx-runtime",
+    "react-native",
+    "react-native/Libraries/Pressability/usePressability",
+  ]);
   const extra = [...specs].filter((s) => !allowed.has(s));
   if (extra.length > 0) {
     fail(`dist/index.native.js imports unexpected bare specifiers: ${extra.join(", ")} (expected only ${[...allowed].join(", ")}).`);
   } else {
     ok(`dist/index.native.js imports only ${[...specs].sort().join(", ")} (scanned ${src.length}B).`);
+  }
+  // esbuild's `__require("x")` shim is what a bare, non-static require() in a
+  // bundled dependency turns into. Metro cannot resolve it at build time, so it
+  // throws `Unknown named module` on a device even though the bundle builds and
+  // the specifier above looks allowed. A static `import` never produces it.
+  const dynamicRequires = [...src.matchAll(/\b__require\(\s*["']([^"']+)["']/g)].map((d) => d[1]);
+  if (dynamicRequires.length > 0) {
+    fail(`dist/index.native.js contains non-static require() calls Metro cannot resolve: ${[...new Set(dynamicRequires)].join(", ")}.`);
+  } else {
+    ok("dist/index.native.js has no non-static __require(\"...\") calls.");
   }
   if (/\breact-dom\b/.test(src) === false && /react-native-web/.test(src) === false) {
     ok("no react-dom/react-native-web text occurrence in dist/index.native.js.");

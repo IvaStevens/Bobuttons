@@ -80,8 +80,8 @@ TypeScript is pinned to 6.0.3, not the published latest (7.0.2): `typescript-esl
     "gzipBytes": 99391
   },
   "index.native.js": {
-    "rawBytes": 577810,
-    "gzipBytes": 125344
+    "rawBytes": 577523,
+    "gzipBytes": 125238
   }
 }
 ```
@@ -161,6 +161,13 @@ historical fact about the packaging slice, not a currently-checked invariant.
   react-native* package") would fail through no fault of the build. This package therefore ships
   **no `dependencies` field at all** — only `peerDependencies`: `react`/`react-dom` (`>=19`, **`react-dom`
   optional** — see "React Native (Android) support" below) and `react-native` (`>=0.79 <1.0`, **optional**).
+- The native bundle imports one React Native **internal** module,
+  `react-native/Libraries/Pressability/usePressability`. `@tamagui/web` calls
+  `require("react-native").usePressability`, which Metro cannot resolve as written, and React Native's
+  public index does not export it (0.83). `scripts/esbuild-native-resolve.ts` rewrites that one
+  expression into a static import of the internal module, and `scripts/check-native-bundle.mjs`
+  allow-lists exactly that path and fails on any non-static `__require("...")` call. If a React Native
+  release in the supported range moves that file, the native bundle needs updating.
 - `griddy-icons` is a story-only devDependency, never imported from `src/`. It never reaches `dist/`.
 - The library injects a small hand-written stylesheet in `BobuttonsProvider`, scoped to its own data
   attributes, for the things no style prop can express. Everything else comes from Tamagui's token system.

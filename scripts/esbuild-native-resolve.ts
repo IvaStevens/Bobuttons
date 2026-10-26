@@ -45,3 +45,39 @@ export const nativeResolvePlugin: Plugin = {
     });
   },
 };
+
+// @tamagui/web's `useMainThreadPressEvents` does
+// `require("react-native").usePressability`, and that fails twice on device:
+//   1. A bare `require("react-native")` is not a static import, so esbuild
+//      emits its `__require` shim, which defers to the runtime `require`;
+//      Metro cannot resolve a name it never saw at build time and throws
+//      `Unknown named module: "react-native"`.
+//   2. Even as a static import, react-native's public index does not export
+//      `usePressability` (RN 0.83), so the call throws "usePressability is
+//      not a function" the first time any Pressable-backed component renders.
+// Rewriting the one expression to a static default import of the internal
+// module makes it a build-time dependency Metro resolves, and gives a real
+// function. RN's package `exports` map allows this deep path
+// ("./*" -> "./*.js"). It is an internal module of react-native, so it is
+// listed as external and called out in the README.
+export const REACT_NATIVE_USE_PRESSABILITY = "react-native/Libraries/Pressability/usePressability";
+const USE_PRESSABILITY_ACCESS = /\brequire\(\s*(["'])react-native\1\s*\)\.usePressability\b/g;
+
+export const staticUsePressabilityPlugin: Plugin = {
+  name: "bobuttons-static-use-pressability",
+  setup(build) {
+    build.onLoad({ filter: /node_modules[\\/]@tamagui[\\/].*\.m?js$/ }, async (args) => {
+      const { readFile } = await import("node:fs/promises");
+      const source = await readFile(args.path, "utf8");
+      if (!USE_PRESSABILITY_ACCESS.test(source)) return undefined;
+      USE_PRESSABILITY_ACCESS.lastIndex = 0;
+      return {
+        contents: `import __bobuttonsUsePressability from "${REACT_NATIVE_USE_PRESSABILITY}";\n${source.replace(
+          USE_PRESSABILITY_ACCESS,
+          "__bobuttonsUsePressability",
+        )}`,
+        loader: "js",
+      };
+    });
+  },
+};

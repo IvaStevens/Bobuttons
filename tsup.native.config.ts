@@ -1,5 +1,5 @@
 import { defineConfig } from "tsup";
-import { nativeResolvePlugin } from "./scripts/esbuild-native-resolve.js";
+import { nativeResolvePlugin, staticUsePressabilityPlugin } from "./scripts/esbuild-native-resolve.js";
 
 // Native build: src/index.ts -> dist/index.native.js. ESM only (D9: no
 // dist/index.native.cjs — metro's default sourceExts are exactly
@@ -33,9 +33,9 @@ export default defineConfig({
   splitting: false,
   // react-native is external (a peer, never bundled); @tamagui/core stays
   // bundled, same as the web build.
-  external: ["react", "react/jsx-runtime", "react-native"],
+  external: ["react", "react/jsx-runtime", "react-native", "react-native/Libraries/Pressability/usePressability"],
   skipNodeModulesBundle: false,
-  esbuildPlugins: [nativeResolvePlugin],
+  esbuildPlugins: [nativeResolvePlugin, staticUsePressabilityPlugin],
   esbuildOptions(options) {
     options.conditions = ["react-native"];
     options.mainFields = ["react-native", "module", "main"];
