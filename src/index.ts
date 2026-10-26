@@ -38,7 +38,7 @@ export { CollapsibleSection } from "./components/shell/CollapsibleSection/Collap
 export type { CollapsibleSectionProps } from "./components/shell/CollapsibleSection/CollapsibleSection.js";
 
 export { AppShell } from "./components/layout/AppShell/AppShell.js";
-export type { AppShellProps } from "./components/layout/AppShell/AppShell.js";
+export type { AppShellProps, AppShellInsets } from "./components/layout/AppShell/AppShell.js";
 export { ViewPane } from "./components/layout/ViewPane/ViewPane.js";
 export type { ViewPaneProps } from "./components/layout/ViewPane/ViewPane.js";
 export { ViewToolbar } from "./components/layout/ViewToolbar/ViewToolbar.js";

@@ -1,5 +1,9 @@
 import * as React from "react";
 import { styled, Text, View } from "@tamagui/core";
+import { INLINE_FLEX, touchHitSlop } from "../../../internal/platformStyles.js";
+import { TextField } from "../../../internal/TextField.js";
+import { CheckGlyph } from "../../../internal/CheckGlyph.js";
+import { useCssColor } from "../../../internal/cssColor.js";
 
 // Sizes the layout is built from. The box is centred on the label's cap height,
 // measured up from its baseline, so these are numbers rather than tokens.
@@ -7,6 +11,24 @@ const LABEL_SIZE = 12;
 const BOX_SIZE = 14;
 // Cap height as a fraction of font size; close to 0.7 across common UI fonts.
 const CAP_HEIGHT = 0.71;
+
+// B2-AC20/D7 touch-target seam (review round 3, finding 4 — see the
+// `hitSlop` prop on Row below). Review finding 5 found that growing the
+// hit area on TextField.native.tsx's own checkbox `Pressable` cannot reach
+// 48dp on Android: that Pressable's immediate ancestor chain (a 14x14 `Box`
+// inside an 8.52px-tall `Slot`) is itself far smaller than 48dp, and
+// Android's touch dispatch (ReactAndroid's `TouchTargetHelper`) rejects a
+// touch point outside a PARENT's own bounds before it ever reaches the
+// child — so a `hitSlop` on that Pressable is clipped to its tiny ancestor
+// chain regardless of how large a value it asks for. `Row` is the ancestor
+// that actually has room (it already carries its own `onPress`, baseline
+// alignment, "$1.5" gap, and spans the checkbox's full clickable width), so
+// the real growth to 48dp happens here instead. Row's painted height is
+// baseline-aligned and dominated by `Label`'s line height at LABEL_SIZE=12
+// (`round(12*1.4) = 17`, the body font's 1.4 line-height multiplier in
+// tamagui.config.ts) — taller than the box/slot, so that is the number to
+// grow from.
+const ROW_HEIGHT = 17;
 
 // Aligns the slot's bottom edge, and so the box, to the label's baseline.
 const Row = styled(View, {
@@ -38,7 +60,6 @@ const Box = styled(View, {
 });
 
 const Check = styled(Text, {
-  display: "inline-flex",
   color: "$background",
 });
 
@@ -47,7 +68,8 @@ const Label = styled(Text, {
   color: "$textDim",
 });
 
-// Fills the box, invisible but still focusable and clickable.
+// Fills the box, invisible but still focusable and clickable (web only;
+// TextField.native's checkbox branch covers its own hit area).
 const HIDDEN_INPUT: React.CSSProperties = {
   position: "absolute",
   top: 0,
@@ -74,9 +96,14 @@ export function Checkbox(props: CheckboxProps): React.ReactElement {
   const { label, checked, onChange, disabled = false } = props;
   const labelId = React.useId();
   const [focusVisible, setFocusVisible] = React.useState(false);
+  const toCss = useCssColor();
 
   return (
-    <Row opacity={disabled ? 0.5 : 1} onPress={() => !disabled && onChange(!checked)}>
+    <Row
+      opacity={disabled ? 0.5 : 1}
+      hitSlop={touchHitSlop(undefined, ROW_HEIGHT)}
+      onPress={() => !disabled && onChange(!checked)}
+    >
       <Slot width={BOX_SIZE} height={CAP_HEIGHT * LABEL_SIZE}>
         <Box
           width={BOX_SIZE}
@@ -85,22 +112,18 @@ export function Checkbox(props: CheckboxProps): React.ReactElement {
           backgroundColor={checked ? "$primary" : "transparent"}
           borderColor={focusVisible ? "$color" : checked ? "$primary" : "$textFaint"}
         >
-          <input
-            type="checkbox"
+          <TextField
+            kind="checkbox"
             checked={checked}
             disabled={disabled}
             aria-labelledby={labelId}
             style={HIDDEN_INPUT}
-            onClick={(e) => e.stopPropagation()}
-            onChange={(e) => onChange(e.target.checked)}
-            onFocus={(e) => setFocusVisible(e.target.matches(":focus-visible"))}
-            onBlur={() => setFocusVisible(false)}
+            onChangeChecked={onChange}
+            onFocusChange={(focused, visible) => setFocusVisible(focused && visible)}
           />
           {checked && (
-            <Check>
-              <svg width="12" height="12" viewBox="0 0 10 10" aria-hidden="true" focusable="false">
-                <path d="M1.8 5.3 4 7.5 8.2 2.7" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
+            <Check {...INLINE_FLEX}>
+              <CheckGlyph color={toCss("$background")} />
             </Check>
           )}
         </Box>

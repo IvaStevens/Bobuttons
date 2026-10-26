@@ -2,11 +2,18 @@
 // The single build; every later audit and the one `npm pack` reuse dist/.
 //
 // 1. tsup bundles src/index.ts into dist/index.mjs + dist/index.cjs.
-// 2. `tsc --emitDeclarationOnly` emits dist/index.d.ts from the hand-written
+// 2. tsup (native config) bundles src/index.ts into dist/index.native.js,
+//    resolving *.native.ts(x) seam siblings via esbuild conditions/resolve
+//    extensions. MUST run after step 1 and with clean:false — the web config
+//    cleans dist/ first; running native first or cleaning twice would delete
+//    index.mjs/index.cjs.
+// 3. `tsc --emitDeclarationOnly` emits dist/index.d.ts from the hand-written
 //    public types (explicit rootDir in tsconfig.build.json; TS 6 fails TS5011
-//    without it).
-// 3. dist/index.d.ts is copied unchanged to dist/index.d.mts.
-// 4. A separate CJS declaration tree is built: every reachable dist/**/*.d.ts
+//    without it). tsconfig.build.json excludes src/**/*.native.ts(x), so no
+//    *.native.d.ts is ever emitted into dist/ (B2-AC4: one shared declaration
+//    emit referenced by every export condition, including "react-native").
+// 4. dist/index.d.ts is copied unchanged to dist/index.d.mts.
+// 5. A separate CJS declaration tree is built: every reachable dist/**/*.d.ts
 //    is copied to a sibling *.d.cts with relative ".js" specifiers rewritten to
 //    ".cjs". Copying index.d.ts byte-for-byte would leave specifiers pointing
 //    at ESM-kind .d.ts files, giving node16 CJS consumers TS1479.
@@ -58,6 +65,7 @@ function buildCjsDeclarationTree(entryDts) {
 }
 
 run("npx", ["tsup", "--config", "tsup.config.ts"]);
+run("npx", ["tsup", "--config", "tsup.native.config.ts"]);
 run("npx", ["tsc", "-p", "tsconfig.build.json"]);
 
 const dts = path.join(distDir, "index.d.ts");

@@ -1,6 +1,19 @@
 import * as React from "react";
 import { styled, Text, View } from "@tamagui/core";
-import { activationKeyHandlers } from "../../../internal/interaction.js";
+import { activationKeyHandlers, useButtonInteraction } from "../../../internal/interaction.js";
+import { DISABLED_CURSOR, INLINE_FLEX } from "../../../internal/platformStyles.js";
+
+// B2-AC20/D7 touch-target seam (review round 3, finding 1, resolved via
+// finding 7's zero-web-byte mechanism — see the `useButtonInteraction` call
+// below, not a `hitSlop` prop here): painted height from ButtonFrame's own
+// tokens — paddingVertical "$2" (8px each side, space.ts) plus
+// ButtonLabel's line height at fontSize "$7" (12px, FONT_SIZE_PX[7] in
+// tamagui.config.ts) rounded at the body font's 1.4 line-height multiplier
+// (round(12*1.4) = 17) plus borderWidth "$0.25" (1px each side) ->
+// 8*2 + 17 + 1*2 = 35. Width is NOT grown: a short label's painted width
+// varies with its text, which this seam can't know statically, and the
+// finding's fix is scoped to the vertical shortfall only.
+const BUTTON_HEIGHT = 35;
 
 // Keep styled() results module-private and the props interface hand-written so
 // the emitted .d.ts never references @tamagui/core.
@@ -15,8 +28,6 @@ const ButtonFrame = styled(View, {
   alignItems: "center",
   justifyContent: "center",
   flexDirection: "row",
-  // Sizes to the label; plain `flex` stretches to a block parent's full width.
-  display: "inline-flex",
 
   variants: {
     variant: {
@@ -31,7 +42,6 @@ const ButtonFrame = styled(View, {
     disabled: {
       true: {
         opacity: 0.5,
-        cursor: "not-allowed",
         pointerEvents: "none",
       },
     },
@@ -84,7 +94,11 @@ export interface ButtonProps {
 /** Presentational-only primitive: props in, callback out. */
 export function Button(props: ButtonProps): React.ReactElement {
   const { label, variant = "primary", disabled = false, onPress, ...rest } = props;
-  const [interaction, setInteraction] = React.useState<"hover" | "press" | "focus" | undefined>(undefined);
+  // Own combined interaction state (press > hover > focus) via
+  // useButtonInteraction, so a mouse leave clears a stale focus ring too (B2-AC11).
+  // The height arg carries the B2-AC20/D7 touch-target growth through `handlers`
+  // on native (see interaction.native.ts); ignored on web, no new web bytes.
+  const { interaction, handlers } = useButtonInteraction({ height: BUTTON_HEIGHT });
 
   const interactionBg = !disabled && interaction && interaction !== "focus" ? INTERACTION_BACKGROUND[variant][interaction] : undefined;
   const interactionBorder = !disabled && interaction ? INTERACTION_BORDER[variant][interaction] : undefined;
@@ -102,16 +116,13 @@ export function Button(props: ButtonProps): React.ReactElement {
 
   return (
     <ButtonFrame
+      {...INLINE_FLEX}
+      {...(disabled ? DISABLED_CURSOR : null)}
       variant={variant === "primary" ? undefined : variant}
       disabled={disabled}
       {...interactionStyle}
       onPress={fire}
-      onMouseEnter={() => !disabled && setInteraction("hover")}
-      onMouseLeave={() => setInteraction(undefined)}
-      onMouseDown={() => !disabled && setInteraction("press")}
-      onMouseUp={() => !disabled && setInteraction("hover")}
-      onFocus={() => !disabled && setInteraction((prev) => prev ?? "focus")}
-      onBlur={() => setInteraction(undefined)}
+      {...handlers}
       {...activationKeyHandlers(fire)}
       aria-label={rest["aria-label"] ?? label}
       aria-disabled={disabled || undefined}

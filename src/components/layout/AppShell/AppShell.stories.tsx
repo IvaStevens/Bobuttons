@@ -59,6 +59,15 @@ export const WithoutSidebar: Story = {
   args: { sidebar: undefined },
 };
 
+// B2-AC19: `insets` is the one platform-neutral prop for a consumer's own
+// measured safe-area insets (e.g. from `react-native-safe-area-context`).
+// Non-zero here so this is a genuinely new story, not a change to an
+// existing one's pixels.
+export const WithInsets: Story = {
+  // eslint-disable-next-line bobuttons/no-raw-style-literals -- plain px numbers for a safe-area inset prop, not a Tamagui style value
+  args: { insets: { top: 24, bottom: 16, left: 0, right: 0 } },
+};
+
 // The layout changes with the viewport: a sidebar column beside the content, and on mobile a
 // horizontally scrolling bar above it. Each story sets its viewport, which applies in the
 // Storybook UI and in the test runs.

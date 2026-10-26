@@ -1,8 +1,11 @@
 #!/usr/bin/env node
-// Measures dist/index.mjs raw + gzip size against the committed budget (ESM
-// entry only; the CJS build is a near-duplicate and isn't double-counted).
-// --write regenerates the README's distsize JSON block from the same
-// measurement so the two can't drift.
+// Measures all three shipped bundles (web ESM, web CJS, native — B2-AC22)
+// against the committed per-bundle budget. A `pinned: true` bundle's limit
+// may not be raised by --write (refuses, rather than silently absorbing
+// growth into a re-baseline while B2-AC11 is claimed); a raise on a pinned
+// bundle needs a manual, reasoned edit to dist-size-budget.json, called out
+// in the PR per B2-AC22. --write regenerates the README's distsize JSON
+// block from the same measurement so the two can't drift.
 import { readFileSync, existsSync, writeFileSync } from "node:fs";
 import { gzipSync } from "node:zlib";
 import { fileURLToPath } from "node:url";
@@ -17,33 +20,70 @@ if (!existsSync(distDir)) {
   process.exit(0);
 }
 
-const entryPath = path.join(distDir, "index.mjs");
-const buf = readFileSync(entryPath);
-const rawBytes = buf.length;
-const gzipBytes = gzipSync(buf).length;
+const budgetPath = path.join(root, "dist-size-budget.json");
+const budget = JSON.parse(readFileSync(budgetPath, "utf8"));
 
-const budget = JSON.parse(readFileSync(path.join(root, "dist-size-budget.json"), "utf8"));
+const BUNDLES = ["index.mjs", "index.cjs", "index.native.js"];
 
-console.log(
-  `[check-dist-size] measured raw=${rawBytes}B gzip=${gzipBytes}B (budget raw<=${budget.rawBytes}B gzip<=${budget.gzipBytes}B)`
-);
+let failed = false;
+let writeRefused = false;
+const measurements = {};
+
+for (const name of BUNDLES) {
+  const entryPath = path.join(distDir, name);
+  if (!existsSync(entryPath)) {
+    console.error(`[check-dist-size] FAIL: expected dist/${name} to exist.`);
+    failed = true;
+    continue;
+  }
+  const buf = readFileSync(entryPath);
+  const rawBytes = buf.length;
+  const gzipBytes = gzipSync(buf).length;
+  measurements[name] = { rawBytes, gzipBytes };
+
+  const limit = budget.bundles[name];
+  if (!limit) {
+    console.error(`[check-dist-size] FAIL: dist-size-budget.json has no entry for "${name}".`);
+    failed = true;
+    continue;
+  }
+
+  console.log(
+    `[check-dist-size] ${name}: measured raw=${rawBytes}B gzip=${gzipBytes}B (budget raw<=${limit.rawBytes}B gzip<=${limit.gzipBytes}B${limit.pinned ? ", pinned" : ""})`
+  );
+
+  if (!write && (rawBytes > limit.rawBytes || gzipBytes > limit.gzipBytes)) {
+    console.error(`[check-dist-size] FAIL: ${name} exceeds the committed budget.`);
+    failed = true;
+  }
+
+  if (write && limit.pinned && (rawBytes > limit.rawBytes || gzipBytes > limit.gzipBytes)) {
+    console.error(
+      `[check-dist-size] FAIL: --write refuses to raise the PINNED budget for ${name} (measured raw=${rawBytes}/gzip=${gzipBytes} exceeds raw=${limit.rawBytes}/gzip=${limit.gzipBytes}). Edit dist-size-budget.json by hand and call the raise out in the PR (B2-AC22).`
+    );
+    writeRefused = true;
+  }
+}
 
 if (write) {
-  updateReadmeBlock(rawBytes, gzipBytes);
+  // `failed` covers a missing bundle file or a missing budget entry — if
+  // either happened, `measurements` is partial, so regenerating the README
+  // block from it would silently drop a bundle from the documented sizes
+  // (review finding: this used to only check `writeRefused`). Refuse in
+  // both cases rather than writing a partial block.
+  if (writeRefused || failed) process.exit(1);
+  updateReadmeBlock(measurements);
   console.log("[check-dist-size] README distsize block updated (--write)");
   process.exit(0);
 }
 
-if (rawBytes > budget.rawBytes || gzipBytes > budget.gzipBytes) {
-  console.error("[check-dist-size] FAIL: dist size exceeds the committed budget.");
-  process.exit(1);
-}
+if (failed) process.exit(1);
 console.log("[check-dist-size] PASS");
 
-function updateReadmeBlock(raw, gzip) {
+function updateReadmeBlock(byBundle) {
   const readmePath = path.join(root, "README.md");
   let readme = readFileSync(readmePath, "utf8");
-  const block = JSON.stringify({ rawBytes: raw, gzipBytes: gzip }, null, 2);
+  const block = JSON.stringify(byBundle, null, 2);
   const marker = /<!-- bobuttons:distsize:start -->[\s\S]*?<!-- bobuttons:distsize:end -->/;
   const replacement = `<!-- bobuttons:distsize:start -->\n\`\`\`json\n${block}\n\`\`\`\n<!-- bobuttons:distsize:end -->`;
   readme = marker.test(readme)

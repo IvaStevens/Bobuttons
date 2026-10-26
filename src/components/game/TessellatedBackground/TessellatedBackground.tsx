@@ -1,7 +1,8 @@
 import * as React from "react";
 import { styled, View } from "@tamagui/core";
 import { useCssColor } from "../../../internal/cssColor.js";
-import { layoutTile, wrapOffsets } from "../../../internal/tessellate.js";
+import { layoutTile } from "../../../internal/tessellate.js";
+import { TessellatedPattern } from "../../../internal/TessellatedPattern.js";
 import type { IconSource } from "../../primitives/Icon/Icon.js";
 import type { SquareColor } from "../SquareGrid/SquareGrid.js";
 
@@ -61,44 +62,16 @@ export function TessellatedBackground(props: TessellatedBackgroundProps): React.
     [sizesKey, seed, tileSize, copies, tilt],
   );
 
-  const tiles = placements.flatMap((p, i) => {
-    const icon = icons[p.icon];
-    if (!icon) return [];
-    const { source: Source, size } = icon;
-    return wrapOffsets(p.x, p.y, size, tileSize).map(([ox, oy]) => (
-      <g
-        key={`${i}:${ox}:${oy}`}
-        transform={`translate(${p.x + ox - size / 2} ${p.y + oy - size / 2}) rotate(${p.rotation} ${size / 2} ${size / 2})`}
-      >
-        <Source size={size} color="currentColor" />
-      </g>
-    ));
-  });
-
   return (
     <Frame>
-      <svg
-        aria-hidden="true"
-        focusable="false"
-        data-bobuttons-pattern=""
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-          pointerEvents: "none",
-          color: toCss(color),
-          opacity,
-        }}
-      >
-        <defs>
-          <pattern id={patternId} width={tileSize} height={tileSize} patternUnits="userSpaceOnUse">
-            <g data-bobuttons-icon="">{tiles}</g>
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill={`url(#${patternId})`} />
-      </svg>
+      <TessellatedPattern
+        placements={placements}
+        icons={icons}
+        tileSize={tileSize}
+        patternId={patternId}
+        color={toCss(color)}
+        opacity={opacity}
+      />
       <Content>{children}</Content>
     </Frame>
   );

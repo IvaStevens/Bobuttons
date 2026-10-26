@@ -13,6 +13,10 @@
   ],
   "exports": {
     ".": {
+      "react-native": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.native.js"
+      },
       "import": {
         "types": "./dist/index.d.mts",
         "default": "./dist/index.mjs"
@@ -26,6 +30,7 @@
   },
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
+  "react-native": "./dist/index.native.js",
   "types": "./dist/index.d.ts",
   "sideEffects": [
     "*.css"
@@ -37,20 +42,33 @@
     "lint": "eslint .",
     "typecheck:bundler": "tsc --noEmit -p tsconfig.typecheck.bundler.json",
     "typecheck:node16": "tsc --noEmit -p tsconfig.typecheck.node16.json",
+    "typecheck:native:bundler": "tsc --noEmit -p tsconfig.typecheck.native.bundler.json",
+    "typecheck:native:node16": "tsc --noEmit -p tsconfig.typecheck.native.node16.json",
     "generate-themes": "node scripts/generate-themes.mjs",
     "generate-themes:write": "node scripts/generate-themes.mjs --write",
     "test": "vitest run",
     "pack": "npm run build && mkdir -p .verify-out && npm pack --ignore-scripts --pack-destination .verify-out --json",
     "prepack": "npm run build",
     "prepublishOnly": "node -e \"console.error('Bobuttons is private and must never be published.'); process.exit(1)\"",
-    "verify": "node scripts/verify.mjs"
+    "verify": "node scripts/verify.mjs",
+    "verify:native": "node scripts/check-native-bundle.mjs"
   },
   "peerDependencies": {
     "react": ">=19",
-    "react-dom": ">=19"
+    "react-dom": ">=19",
+    "react-native": ">=0.79 <1.0"
+  },
+  "peerDependenciesMeta": {
+    "react-dom": {
+      "optional": true
+    },
+    "react-native": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@tamagui/core": "3.0.18",
+    "@react-native/metro-config": "0.79.6",
     "@storybook/addon-a11y": "10.6.2",
     "@storybook/addon-vitest": "10.6.2",
     "@storybook/react-vite": "10.6.2",
@@ -65,9 +83,11 @@
     "fast-glob": "3.3.3",
     "griddy-icons": "0.2.0",
     "jsdom": "27.0.0",
+    "metro": "0.82.5",
     "playwright": "1.64.1",
     "react": "19.3.1",
     "react-dom": "19.3.1",
+    "react-native": "0.79.6",
     "storybook": "10.6.2",
     "tsup": "8.5.0",
     "typescript": "6.0.3",

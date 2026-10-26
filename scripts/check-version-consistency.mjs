@@ -50,22 +50,31 @@ if (versions) {
   if (versions.typescript !== expectedTs) fail(`README typescript=${versions.typescript} != package.json=${expectedTs}`);
 }
 
-// Re-measures the entry check-dist-size.mjs measures. Runs after the build in
-// verify, so dist/ exists.
+// Re-measures the bundles check-dist-size.mjs measures, in its per-bundle
+// shape (B2-AC21: version-consistency checks apply to ALL shipped bundles —
+// a strengthening of this check, called out as such in the PR). Runs after
+// the build in verify, so dist/ exists.
 if (distsize) {
-  const entryPath = path.join(root, "dist/index.mjs");
-  if (existsSync(entryPath)) {
-    const buf = readFileSync(entryPath);
-    const rawBytes = buf.length;
-    const gzipBytes = gzipSync(buf).length;
-    if (distsize.rawBytes !== rawBytes) {
-      fail(`README distsize.rawBytes=${distsize.rawBytes} != measured dist/index.mjs=${rawBytes}B. Run \`node scripts/check-dist-size.mjs --write\`.`);
+  for (const name of ["index.mjs", "index.cjs", "index.native.js"]) {
+    const entryPath = path.join(root, "dist", name);
+    const recorded = distsize[name];
+    if (!recorded) {
+      fail(`README distsize block has no entry for "${name}". Run \`node scripts/check-dist-size.mjs --write\`.`);
+      continue;
     }
-    if (distsize.gzipBytes !== gzipBytes) {
-      fail(`README distsize.gzipBytes=${distsize.gzipBytes} != measured dist/index.mjs gzip=${gzipBytes}B. Run \`node scripts/check-dist-size.mjs --write\`.`);
+    if (existsSync(entryPath)) {
+      const buf = readFileSync(entryPath);
+      const rawBytes = buf.length;
+      const gzipBytes = gzipSync(buf).length;
+      if (recorded.rawBytes !== rawBytes) {
+        fail(`README distsize["${name}"].rawBytes=${recorded.rawBytes} != measured dist/${name}=${rawBytes}B. Run \`node scripts/check-dist-size.mjs --write\`.`);
+      }
+      if (recorded.gzipBytes !== gzipBytes) {
+        fail(`README distsize["${name}"].gzipBytes=${recorded.gzipBytes} != measured dist/${name} gzip=${gzipBytes}B. Run \`node scripts/check-dist-size.mjs --write\`.`);
+      }
+    } else {
+      fail(`dist/${name} not found — check-version-consistency must run after the build step.`);
     }
-  } else {
-    fail("dist/index.mjs not found — check-version-consistency must run after the build step.");
   }
 }
 

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { styled, Text, View } from "@tamagui/core";
-import { useAccentGradient } from "../../../internal/useAccentGradient.js";
+import { useAccentStripeStyle } from "../../../internal/useAccentGradient.js";
 import { fontWeights } from "../../../tokens/fontWeights.js";
 
 const Card = styled(View, {
@@ -51,11 +51,11 @@ export interface SettingsSectionProps {
 
 export function SettingsSection(props: SettingsSectionProps): React.ReactElement {
   const { title, titleAction, children } = props;
-  const gradient = useAccentGradient("90deg", ["0%", "50%", "100%"]);
+  const stripe = useAccentStripeStyle("90deg", ["0%", "50%", "100%"]);
 
   return (
     <Card>
-      <Stripe style={{ background: gradient }} />
+      <Stripe style={stripe.style} backgroundColor={stripe.backgroundColor} />
       <TitleBar>
         <Title role="heading" aria-level={3}>
           {title}

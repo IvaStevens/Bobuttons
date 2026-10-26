@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "moduleResolution": "bundler",
+    "module": "ESNext",
+    "moduleSuffixes": [".native", ""],
+    "lib": ["ES2022"],
+    "noEmit": true
+  },
+  "files": ["src/index.ts"],
+  "include": []
+}

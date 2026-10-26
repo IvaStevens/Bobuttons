@@ -1,6 +1,8 @@
 import * as React from "react";
 import { styled, Text, View } from "@tamagui/core";
-import { activationKeyHandlers, useHover } from "../../../internal/interaction.js";
+import { activationKeyHandlers, useInteractive } from "../../../internal/interaction.js";
+import { touchHitSlop } from "../../../internal/platformStyles.js";
+import { SINGLE_LINE } from "../../../internal/singleLineText.js";
 import { fontWeights } from "../../../tokens/fontWeights.js";
 
 const Bar = styled(View, {
@@ -30,6 +32,18 @@ const TabLabel = styled(Text, {
   whiteSpace: "nowrap",
 });
 
+// B2-AC20/D7 touch-target seam (see the `hitSlop` prop below): painted
+// height estimated from paddingVertical "$1.5" (6px each side, space[1.5]
+// in src/tokens/space.ts) plus TabLabel's line height at fontSize "$7"
+// (12px, FONT_SIZE_PX[7]) rounded at the body font's 1.4 line-height
+// multiplier (buildLineHeights in src/tamagui.config.ts) -> round(12*1.4) =
+// 17, giving 6*2 + 17 = 29. Inlined below (not named) so this stripped
+// comment carries the derivation, not extra runtime bytes — update both
+// if either token changes. Width is deliberately NOT grown: Tab's width is
+// text-driven and tabs sit side by side with only "$0.5" (2px) gap (Bar's
+// `gap`), so enlarging it would risk one tab's hit area swallowing its
+// neighbour's.
+
 export interface BobuttonsTabsItem<Id extends string = string> {
   id: Id;
   label: string;
@@ -51,7 +65,8 @@ interface TabItemProps {
 
 function TabItem(props: TabItemProps): React.ReactElement {
   const { id, label, active, onSelect } = props;
-  const { hovered, hoverHandlers } = useHover();
+  const { hovered, pressed, handlers } = useInteractive();
+  const highlighted = hovered || pressed;
 
   return (
     <Tab
@@ -60,11 +75,14 @@ function TabItem(props: TabItemProps): React.ReactElement {
       tabIndex={0}
       aria-selected={active}
       borderBottomColor={active ? "$primary" : "transparent"}
+      hitSlop={touchHitSlop(0, 29)}
       onPress={onSelect}
-      {...hoverHandlers}
+      {...handlers}
       {...activationKeyHandlers(onSelect)}
     >
-      <TabLabel color={active ? "$primary" : hovered ? "$color" : "$textDim"}>{label}</TabLabel>
+      <TabLabel color={active ? "$primary" : highlighted ? "$color" : "$textDim"} {...SINGLE_LINE}>
+        {label}
+      </TabLabel>
     </Tab>
   );
 }

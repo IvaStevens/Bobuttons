@@ -2,6 +2,8 @@ import { createTamagui, createTokens, createFont } from "@tamagui/core";
 import { palette, themeNames, themes, type BobuttonsThemeName } from "./themes/themes.generated.js";
 import { breakpoints } from "./tokens/breakpoints.js";
 import { fontWeights } from "./tokens/fontWeights.js";
+import { space } from "./tokens/space.js";
+import { fontFamilies } from "./tokens/fontFamilies.js";
 
 export { fontWeights, breakpoints };
 export type { BobuttonsFontWeightName } from "./tokens/fontWeights.js";
@@ -23,36 +25,11 @@ const radius = {
   7: 20,
 } as const;
 
-// Raw px literals are only allowed in this file (see no-raw-style-literals).
-const space = {
-  0: 0,
-  0.25: 1, // hairline border
-  0.5: 2,
-  0.75: 3,
-  1: 4,
-  1.5: 6,
-  2: 8,
-  2.5: 10,
-  3: 12,
-  3.5: 14,
-  4: 16,
-  5: 20,
-  6: 24,
-  7: 28,
-  8: 32,
-  9: 36,
-  10: 40,
-  12: 48,
-  // App shell dimensions from the source apps. In `space` (and so `size`)
-  // because padding props only resolve space tokens.
-  headerHeight: 38,
-  sidebarWidth: 80,
-  bodyBottomInset: 72, // clears floating controls at the end of a scroll area
-  inputWidth: 200,
-  inputWidthCompact: 72,
-  swatch: 13,
-} as const;
-
+// Raw px literals are only allowed in this file and src/tokens/** (see
+// no-raw-style-literals). `space` is sourced from src/tokens/space.ts — the
+// one place its values are written — so Scroll.native.tsx and any other
+// native seam that can't resolve a Tamagui token directly shares the exact
+// same numbers (B2-AC14: one token source, no second native-only one).
 const size = {
   ...space,
 } as const;
@@ -157,8 +134,7 @@ function buildLetterSpacing(): Record<BobuttonsFontSizeKey, number> {
 const DEFAULT_SIZE_KEY: BobuttonsFontSizeKey = 11; // 14px
 
 const bodyFont = createFont({
-  family:
-    '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif',
+  family: fontFamilies.body,
   size: { ...FONT_SIZE_PX, true: FONT_SIZE_PX[DEFAULT_SIZE_KEY] },
   lineHeight: { ...buildLineHeights(1.4), true: Math.round(FONT_SIZE_PX[DEFAULT_SIZE_KEY] * 1.4) },
   weight: { ...buildWeights(), true: "400" },
@@ -166,7 +142,7 @@ const bodyFont = createFont({
 });
 
 const monoFont = createFont({
-  family: 'Menlo, Monaco, Consolas, "SF Mono", "Fira Code", monospace',
+  family: fontFamilies.mono,
   size: { ...FONT_SIZE_PX, true: FONT_SIZE_PX[DEFAULT_SIZE_KEY] },
   lineHeight: { ...buildLineHeights(1.45), true: Math.round(FONT_SIZE_PX[DEFAULT_SIZE_KEY] * 1.45) },
   weight: { ...buildWeights(), true: "400" },

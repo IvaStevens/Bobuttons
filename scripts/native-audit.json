@@ -1,0 +1,244 @@
+{
+  "_comment": "B2-AC29. A fresh in-repo audit of every DOM/CSS/browser-only construct on the shared path, re-run during this ticket's implementation (not inherited from the TaskSpec's quoted count). Each entry is file:line -> construct -> named native substitute -> disposition, classified against the ACTUAL built native bundle (dist/index.native.js) and the pinned react-native/@tamagui typings, not asserted. 'lines' is a parallel array, one number per comma-separated path in 'file', in the SAME order — added this pass (review finding) after `check-native-audit.mjs` grew a line-sanity check. For an entry whose construct has already been extracted out to a named seam (the normal, successful outcome of this ticket's work), the line points at the CURRENT consumption/import site of that seam in the named file, not at a now-removed literal — the construct text itself documents what USED to be there and where it moved to; it is not a promise that grepping for the construct's exact substring at that line will still succeed post-refactor. 'disposition' is one of: handled-by-tamagui (Tamagui's own native prop/style resolution already does the right thing — no seam needed), silently-dropped (Tamagui silently ignores the construct on native — no warning, but also no behaviour, so a seam supplies the real native equivalent when one matters), invalid-needs-seam (would be wrong or crash on native without a seam), visually-wrong-needs-seam (renders something, but not the intended thing, without a seam). Several entries below correct assumptions made before this file existed — see the 'measured' note on each.",
+  "entries": [
+    {
+      "file": "src/internal/useCapOffset.ts",
+      "lines": [25],
+      "construct": "document.createElement/getBoundingClientRect/document.fonts",
+      "substitute": "src/internal/useCapOffset.native.ts (fixed pre-measurement value, B2-AC13)",
+      "disposition": "invalid-needs-seam"
+    },
+    {
+      "file": "src/internal/useScrollEdges.ts",
+      "lines": [18],
+      "construct": "scrollLeft/clientWidth/scrollWidth, window.addEventListener(\"resize\"), ResizeObserver",
+      "substitute": "src/internal/useScrollEdges.native.ts (onLayout/onScroll/onContentSizeChange via Scroll.native.tsx)",
+      "disposition": "invalid-needs-seam"
+    },
+    {
+      "file": "src/components/shell/TabBar/TabBar.tsx",
+      "lines": [167],
+      "construct": "scrollIntoView on a ref cast to HTMLElement",
+      "substitute": "src/internal/Scroll.tsx/.native.tsx's ScrollHandle.scrollChildIntoView",
+      "disposition": "invalid-needs-seam"
+    },
+    {
+      "file": "src/components/shell/TabBar/TabBar.tsx",
+      "lines": [170],
+      "construct": "scrollBy/clientWidth casts to HTMLElement",
+      "substitute": "src/internal/Scroll.tsx/.native.tsx's ScrollHandle.scrollByPage",
+      "disposition": "invalid-needs-seam"
+    },
+    {
+      "file": "src/components/game/SquareGrid/SquareGrid.tsx",
+      "lines": [164],
+      "construct": "color-mix(in srgb, black 65%, transparent) (SHADOW_COLOR)",
+      "substitute": "src/internal/tileDepth.native.ts (shadowColor/shadowOpacity/shadowRadius/elevationAndroid)",
+      "disposition": "invalid-needs-seam"
+    },
+    {
+      "file": "src/components/game/SquareGrid/SquareGrid.tsx",
+      "lines": [164],
+      "construct": "oklch(from <fill> calc(l - .12) c h) (edgeColor)",
+      "substitute": "src/internal/tileDepth.native.ts (RGB-channel darken() approximation; recorded as an allowed rendering difference, not pixel-identical)",
+      "disposition": "visually-wrong-needs-seam"
+    },
+    {
+      "file": "src/components/game/SquareGrid/SquareGrid.tsx",
+      "lines": [164],
+      "construct": "--bobuttons-tile-shadow custom property, consumed by BobuttonsProvider's injected CSS rule",
+      "substitute": "src/internal/tileDepth.ts/.native.ts resolve to platform-appropriate style props directly; the custom property is web-only",
+      "disposition": "invalid-needs-seam"
+    },
+    {
+      "file": "src/provider/BobuttonsProvider.tsx",
+      "lines": [52],
+      "construct": "<style dangerouslySetInnerHTML> (::placeholder, ::-webkit-inner-spin-button + -webkit-mask data URI, -moz-appearance, [data-*] selectors, --bobuttons-tile-shadow rule)",
+      "substitute": "src/provider/BobuttonsProvider.native.tsx (drops the element entirely; each rule's job is done at its own seam instead)",
+      "disposition": "invalid-needs-seam"
+    },
+    {
+      "file": "src/provider/BobuttonsProvider.tsx",
+      "lines": [53],
+      "construct": "minHeight: \"100%\" root sizing",
+      "substitute": "src/provider/BobuttonsProvider.native.tsx (flex: 1 — minHeight:\"100%\" resolves against an unsized parent on native)",
+      "disposition": "invalid-needs-seam"
+    },
+    {
+      "file": "src/components/layout/AppShell/AppShell.tsx",
+      "lines": [66],
+      "construct": "height: \"100vh\"",
+      "substitute": "src/internal/platformStyles.ts/.native.ts's FILL_VIEWPORT (flex: 1)",
+      "disposition": "invalid-needs-seam"
+    },
+    {
+      "file": "src/components/primitives/Button/Button.tsx, src/components/primitives/Checkbox/Checkbox.tsx, src/components/primitives/TextInput/TextInput.tsx, src/components/primitives/Icon/Icon.tsx, src/components/primitives/IconButton/IconButton.tsx, src/components/game/SquareGrid/SquareGrid.tsx",
+      "lines": [105, 103, 55, 43, 44, 185],
+      "construct": "display: \"inline-flex\" (6 sites: Button's ButtonFrame, Checkbox's Check, TextInput's Frame, Icon's IconFrame, IconButton's Frame, SquareGrid's Content)",
+      "substitute": "src/internal/platformStyles.native.ts's INLINE_FLEX (alignSelf: \"flex-start\") — MEASURED CORRECTION: RN's display is 'none'|'flex'|'contents' and its default is already 'flex', so the previously-assumed substitute display:\"flex\" would have stretched all six to their parent's full width with every gate green.",
+      "disposition": "invalid-needs-seam"
+    },
+    {
+      "file": "src/components/primitives/Button/Button.tsx",
+      "lines": [106],
+      "construct": "cursor: \"not-allowed\" (disabled variant)",
+      "substitute": "src/internal/platformStyles.native.ts's DISABLED_CURSOR ({}) — the only cursor site needing a seam; every other cursor value in the tree (\"pointer\"/\"auto\") is inside RN's CursorValue and stays on the shared path.",
+      "disposition": "invalid-needs-seam"
+    },
+    {
+      "file": "src/components/settings/ListRow/ListRow.tsx, src/components/shell/AppHeader/AppHeader.tsx, src/components/primitives/Tabs/Tabs.tsx",
+      "lines": [39, 24, 31],
+      "construct": "whiteSpace: \"nowrap\" / textOverflow: \"ellipsis\" inside a styled(Text, {...}) base style (ListRow's Detail, AppHeader's Title and DateLabel, Tabs' TabLabel)",
+      "substitute": "src/internal/singleLineText.ts/.native.ts's SINGLE_LINE ({ numberOfLines: 1 }) — MEASURED CORRECTION: @tamagui/helpers's nonAnimatableWebTextProps lists whiteSpace/textOverflow/wordWrap as web-only keys Tamagui's native style pipeline SKIPS, not converts to numberOfLines/ellipsizeMode as this ticket originally assumed. Tamagui's native Text host does default ellipsizeMode to \"tail\" on its own, so numberOfLines alone is enough.",
+      "disposition": "silently-dropped"
+    },
+    {
+      "file": "src/components/primitives/Checkbox/Checkbox.tsx, src/components/primitives/Radio/Radio.tsx",
+      "lines": [18, 28],
+      "construct": "alignItems: \"baseline\" (Checkbox's Row, Radio's Content)",
+      "substitute": "none — MEASURED: react-native's FlexAlignType includes 'baseline' (StyleSheetTypes.d.ts), so Yoga implements it on native. No longer a seam; any remaining Yoga-vs-browser text-baseline difference is a B2-AC16 parity item, recorded in the README.",
+      "disposition": "handled-by-tamagui"
+    },
+    {
+      "file": "src/components/shell/TabBar/TabBar.tsx, src/components/settings/ListRow/ListRow.tsx",
+      "lines": [134, 63],
+      "construct": "tabIndex (TabBar's TabButton, ListRow's select control — both styled(View, ...) Tamagui components)",
+      "substitute": "none — MEASURED: Tamagui maps tabIndex to React Native's `focusable` prop (viewProps.focusable = Number(tabIndex) >= 0) directly on its own native style/prop pipeline, so it is an ACTIVE mapped prop, not inert.",
+      "disposition": "handled-by-tamagui"
+    },
+    {
+      "file": "src/components/layout/ViewBody/ViewBody.tsx, src/components/settings/SettingsLayout/SettingsLayout.tsx, src/components/shell/TabBar/TabBar.tsx",
+      "lines": [18, 26, 188],
+      "construct": "tabIndex passed to the Scroll seam (ViewBody, SettingsLayout) and role/aria-label/aria-orientation passed to Scroll for the mobile tab list (TabBar)",
+      "substitute": "src/internal/Scroll.native.tsx — CORRECTED THIS PASS (review finding): a bare RN `ScrollView` is not a Tamagui component, so Tamagui's tabIndex->focusable mapping does not apply to it; Scroll.native.tsx now forwards tabIndex->focusable, role and aria-label itself, directly on the ScrollView. `aria-orientation` has no RN equivalent (ViewAccessibility.d.ts carries no such prop) and stays inert, named in the README's B2-AC5(c) list.",
+      "disposition": "invalid-needs-seam"
+    },
+    {
+      "file": "src/internal/RadioMark.tsx, src/components/primitives/Icon/Icon.tsx, src/components/game/SquareGrid/SquareGrid.tsx, src/internal/TessellatedPattern.tsx, src/components/shell/TabBar/TabBar.tsx",
+      "lines": [25, 44, 181, 40, 213],
+      "construct": "data-bobuttons-* attributes",
+      "substitute": "src/internal/platformStyles.ts/.native.ts's dataAttrs() — MEASURED: Tamagui silently drops unrecognised data-* props on native (no warning), so this is bundle hygiene and a B2-AC12 scan token, not a B2-AC2 defect risk.",
+      "disposition": "silently-dropped"
+    },
+    {
+      "file": "src/components/primitives/Checkbox/Checkbox.tsx",
+      "lines": [94],
+      "construct": "hidden <input type=\"checkbox\"> for native keyboard/screen-reader behaviour",
+      "substitute": "src/internal/TextField.tsx/.native.tsx (kind=\"checkbox\" — a Pressable with accessibilityRole=\"checkbox\" on native)",
+      "disposition": "invalid-needs-seam"
+    },
+    {
+      "file": "src/components/primitives/Checkbox/Checkbox.tsx",
+      "lines": [104],
+      "construct": "inline <svg><path> tick",
+      "substitute": "src/internal/CheckGlyph.tsx/.native.tsx (two rotated Views on native — no react-native-svg peer; griddy-icons cannot render on native under any peer anyway, B2-AC18)",
+      "disposition": "invalid-needs-seam"
+    },
+    {
+      "file": "src/internal/CloseGlyph.tsx",
+      "lines": [15],
+      "construct": "<svg width=\"0.65em\" height=\"0.65em\"> (em units)",
+      "substitute": "src/internal/CloseGlyph.native.tsx (fixed-pixel two-View glyph; em units do not exist on native)",
+      "disposition": "invalid-needs-seam"
+    },
+    {
+      "file": "src/components/primitives/TextInput/TextInput.tsx",
+      "lines": [61],
+      "construct": "bare <input> + BARE_INPUT CSSProperties bag (flex/width/`color: inherit`/`font: inherit`, plus the `[data-bobuttons-input]::placeholder` rule for the placeholder colour)",
+      "substitute": "src/internal/TextField.tsx/.native.tsx (kind=\"text\" — RN TextInput on native, with the B2-AC5(d) keyboard/autoCorrect/autoCapitalize/secureTextEntry mapping). CORRECTED THIS PASS (review finding): RN does not inherit a parent Text's colour/font/size into a child TextInput the way a DOM <input> inherits `color: inherit`/`font: inherit`, so the native half explicitly resolves `$color`/`$textFaint`/body font via useCssColor/fontFamilies.native rather than relying on inheritance; `placeholderTextColor` replaces the `::placeholder` rule. TextInput's `mono` variant stays web/Frame-only (not threaded through this seam, to avoid moving web bundle bytes for a native-only font-family choice) — named as an accepted divergence in the README's B2-AC5(c) list.",
+      "disposition": "invalid-needs-seam"
+    },
+    {
+      "file": "src/components/game/TessellatedBackground/TessellatedBackground.tsx",
+      "lines": [67],
+      "construct": "<svg><defs><pattern><g><rect> tile repeat",
+      "substitute": "src/internal/TessellatedPattern.tsx/.native.tsx (explicit tile replication over a measured area on native, B2-AC13 first-frame: no pattern until the first onLayout)",
+      "disposition": "invalid-needs-seam"
+    },
+    {
+      "file": "src/internal/useAccentGradient.ts",
+      "lines": [31],
+      "construct": "linear-gradient(...) CSS string built from theme.*.variable reads (AppHeader title, ViewPane/SettingsSection stripes, TabBar's two edge fades)",
+      "substitute": "src/internal/useAccentGradient.native.ts — D4 (decided at plan approval): flat-colour fallback everywhere (flat $primary text colour, solid $accent stripe, flat background-coloured fade strip), not RN 0.79's experimental_backgroundImage and not a react-native-linear-gradient/masked-view peer. Recorded in the README's divergence list.",
+      "disposition": "visually-wrong-needs-seam"
+    },
+    {
+      "file": "src/internal/cssColor.ts",
+      "lines": [19],
+      "construct": "theme[name]?.variable (returns \"var(--token)\")",
+      "substitute": "src/internal/cssColor.native.ts (theme[name]?.val, a concrete value; throws loudly if unresolved — B2-AC12's \"fails loudly rather than rendering nothing\")",
+      "disposition": "invalid-needs-seam"
+    },
+    {
+      "file": "src/tamagui.config.ts",
+      "lines": [137],
+      "construct": "fontFamily CSS stacks ('-apple-system, ... sans-serif' / 'Menlo, ... monospace')",
+      "substitute": "src/tokens/fontFamilies.ts/.native.ts (single system face name per platform — RN's fontFamily takes one name, not a CSS stack; B2-AC17)",
+      "disposition": "invalid-needs-seam"
+    },
+    {
+      "file": "src/internal/formatInstant.ts",
+      "lines": [13],
+      "construct": "Intl.DateTimeFormat/Intl.NumberFormat with a locale and timeZone that may not be ICU-available on Hermes",
+      "substitute": "src/internal/formatInstant.native.ts (try/catch fallback to a locale-free format, never throws at render; B2-AC26)",
+      "disposition": "invalid-needs-seam"
+    },
+    {
+      "file": "src/internal/interaction.ts",
+      "lines": [57],
+      "construct": "onMouseEnter/onMouseLeave-only hover, and Button.tsx's bespoke onMouseEnter/Leave/Down/Up interaction state machine",
+      "substitute": "src/internal/interaction.native.ts's useInteractive/useHover (hovered permanently false, B2-AC5(a); pressed from onPressIn/onPressOut; activationKeyHandlers returns {}, B2-AC5(b))",
+      "disposition": "invalid-needs-seam"
+    },
+    {
+      "file": "src/components/game/SquareGrid/SquareGrid.tsx",
+      "lines": [187],
+      "construct": "color=\"currentColor\" passed into the consumer-supplied IconSource (no native equivalent of the CSS currentColor keyword)",
+      "substitute": "none — resolve the same colour explicitly via useCssColor()'s toCss(ink), the identical pattern Icon.tsx already uses for its own Source (toCss(token)); on native toCss resolves to a concrete value instead of a CSS keyword.",
+      "disposition": "invalid-needs-seam"
+    },
+    {
+      "file": "src/internal/Scroll.tsx, src/internal/Scroll.native.tsx",
+      "lines": [36, 124],
+      "construct": "flexGrow/flexBasis passed through to the scroll container (TabBar's mobile HORIZONTAL_FRAME: flexGrow={0} flexBasis=\"auto\", to stop the tab strip stretching to fill its Frame)",
+      "substitute": "src/internal/Scroll.native.tsx — CORRECTED THIS PASS (review finding): the native half previously declared these props on ScrollProps but never read them, hardcoding style={{flex:1}} regardless, so TabBar's mobile tab strip always stretched full-width on native. Now forwarded into the ScrollView's own style (flexGrow ?? 1 / flexShrink: 1 / flexBasis ?? 0) when either is supplied. Yoga caveat recorded for future seams: resolveFlexBasis returns points(0) for flexBasis:\"auto\" ONLY when the resolved flex is > 0 — TabBar's flexGrow={0} case does not hit that, so \"auto\" resolves to content-based sizing as intended.",
+      "disposition": "invalid-needs-seam"
+    },
+    {
+      "file": "src/internal/useContentInset.ts",
+      "lines": [5],
+      "construct": "useMedia() breakpoint read (no document/window access) — named in B2-AC13 as requiring either a native implementation or a documented justification for needing none",
+      "substitute": "none needed — handled-by-tamagui: the hook is 9 lines of useMedia() with zero DOM access, and @tamagui/core's native build backs useMedia() with its own NativeMediaQueryList (Dimensions-driven, see B2-AC28). No .native.ts sibling exists; this entry is the required justification record.",
+      "disposition": "handled-by-tamagui"
+    }
+  ],
+  "_accessibilityAuditComment": "B2-AC20. Per-export enumeration of every role/aria-*/tabIndex prop against React Native's supported accessibility surface (node_modules/react-native/Libraries/Components/View/ViewAccessibility.d.ts, measured this pass), one entry per public export (25 components + BobuttonsProvider = 26). 'disposition' is one of: rn-native (the exact prop name — role value included — exists in RN's Role/AccessibilityProps types and is forwarded verbatim by Tamagui's native prop pipeline, which passes any unrecognised non-style key through to the host component's props as-is), mapped (tabIndex -> RN's `focusable`, either by Tamagui's own native style pipeline on a styled(View/Text,...) component, or by Scroll.native.tsx forwarding it directly — see the tabIndex entries above), inert-no-rn-equivalent (the prop has NO RN counterpart at all — not even an unmapped pass-through target — so it reaches the host component as an unrecognised prop; MEASURED that RN's own `role`/aria-* types list has no `aria-level`/`aria-pressed`/`aria-controls`/`aria-orientation`, and that Tamagui's native getSplitStyles.native.js has no special case for them, so they fall through to its default `viewProps[key] = value` assignment — whether an unrecognised prop on a host View/Text causes a console warning is NOT verified by any committed script per the approved scope change (no device harness committed), so each inert-no-rn-equivalent prop is also a named item for the owner's manual on-device B2-AC2 check), none (no accessibility props on this export at all).",
+  "accessibilityAudit": [
+    { "export": "Button", "props": ["role=\"button\"", "tabIndex", "aria-label", "aria-disabled"], "disposition": "rn-native + mapped", "notes": "role/aria-label/aria-disabled are rn-native; tabIndex is mapped via Tamagui's own native pipeline (ButtonFrame is a styled(View,...))." },
+    { "export": "Icon", "props": ["role=\"img\"", "aria-label", "aria-hidden"], "disposition": "rn-native", "notes": "All three are in RN's supported prop set." },
+    { "export": "AppHeader", "props": ["role=\"banner\"", "role=\"heading\"", "aria-level"], "disposition": "rn-native + inert-no-rn-equivalent", "notes": "role values are rn-native; aria-level has no RN equivalent (no concept of heading depth) — manual check: confirm no console warning." },
+    { "export": "TabBar", "props": ["role=\"tab\"/\"tablist\"", "tabIndex", "aria-selected", "aria-label", "aria-hidden", "aria-orientation"], "disposition": "rn-native + mapped + inert-no-rn-equivalent", "notes": "role/aria-selected/aria-label/aria-hidden are rn-native; tabIndex is mapped (Tamagui on TabButton, Scroll.native forwarding on the mobile tablist); aria-orientation has no RN equivalent — manual check." },
+    { "export": "CollapsibleSection", "props": ["role=\"button\"", "tabIndex", "aria-expanded", "aria-hidden", "aria-controls"], "disposition": "rn-native + mapped + inert-no-rn-equivalent", "notes": "role/aria-expanded/aria-hidden are rn-native (AccessibilityState.expanded backs aria-expanded); tabIndex is mapped (Tamagui); aria-controls has no RN equivalent — manual check." },
+    { "export": "AppShell", "props": [], "disposition": "none", "notes": "No accessibility props." },
+    { "export": "ViewPane", "props": [], "disposition": "none", "notes": "No accessibility props." },
+    { "export": "ViewToolbar", "props": ["role=\"heading\"", "aria-level"], "disposition": "rn-native + inert-no-rn-equivalent", "notes": "Same aria-level caveat as AppHeader — manual check." },
+    { "export": "ViewBody", "props": ["tabIndex"], "disposition": "mapped", "notes": "Forwarded to RN `focusable` by Scroll.native.tsx (fixed this pass — see the Scroll.tsx/.native.tsx tabIndex entry above)." },
+    { "export": "TextInput", "props": ["aria-label"], "disposition": "rn-native", "notes": "Forwarded as accessibilityLabel inside TextField.native.tsx's RNTextInput." },
+    { "export": "Badge", "props": [], "disposition": "none", "notes": "No accessibility props." },
+    { "export": "IconButton", "props": ["role=\"button\"", "tabIndex", "aria-label", "aria-disabled"], "disposition": "rn-native + mapped", "notes": "Same shape as Button." },
+    { "export": "Checkbox", "props": ["aria-labelledby"], "disposition": "rn-native", "notes": "Checked state itself is communicated via TextField.native.tsx's Pressable accessibilityState.checked, not an aria-* prop." },
+    { "export": "Radio", "props": ["tabIndex", "aria-checked"], "disposition": "mapped + rn-native", "notes": "tabIndex is mapped (Tamagui); aria-checked is rn-native." },
+    { "export": "RadioGroup", "props": ["role=\"radiogroup\"", "aria-label"], "disposition": "rn-native", "notes": "Both rn-native." },
+    { "export": "Tabs", "props": ["role=\"tab\"/\"tablist\"", "tabIndex", "aria-selected", "aria-label"], "disposition": "rn-native + mapped", "notes": "role/aria-selected/aria-label rn-native; tabIndex mapped via Tamagui." },
+    { "export": "SettingsLayout", "props": ["tabIndex"], "disposition": "mapped", "notes": "Same as ViewBody — forwarded by Scroll.native.tsx." },
+    { "export": "SettingsSection", "props": ["role=\"heading\"", "aria-level"], "disposition": "rn-native + inert-no-rn-equivalent", "notes": "Same aria-level caveat — manual check." },
+    { "export": "SettingsRow", "props": [], "disposition": "none", "notes": "No accessibility props." },
+    { "export": "SettingsHint", "props": [], "disposition": "none", "notes": "No accessibility props." },
+    { "export": "AddRow", "props": [], "disposition": "none", "notes": "No accessibility props." },
+    { "export": "ListRow", "props": ["role=\"radio\"", "tabIndex", "aria-checked", "aria-label"], "disposition": "rn-native + mapped", "notes": "role/aria-checked/aria-label rn-native; tabIndex mapped via Tamagui." },
+    { "export": "ThemeOption", "props": ["role=\"button\"", "tabIndex", "aria-label", "aria-pressed"], "disposition": "rn-native + mapped + inert-no-rn-equivalent", "notes": "role/aria-label rn-native; tabIndex mapped via Tamagui; aria-pressed has no RN equivalent (closest is AccessibilityState.selected, not wired here) — manual check." },
+    { "export": "SquareGrid", "props": ["role=\"grid\"/\"row\"/\"cell\"", "tabIndex", "aria-label"], "disposition": "rn-native + mapped", "notes": "role values and aria-label rn-native; tabIndex mapped via Tamagui." },
+    { "export": "TessellatedBackground", "props": [], "disposition": "none", "notes": "No accessibility props — purely decorative." },
+    { "export": "BobuttonsProvider", "props": [], "disposition": "none", "notes": "Not a visual a11y surface; no accessibility props of its own." }
+  ]
+}

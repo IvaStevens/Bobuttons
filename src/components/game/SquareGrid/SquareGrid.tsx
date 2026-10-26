@@ -1,7 +1,9 @@
 import * as React from "react";
 import { styled, Text, View } from "@tamagui/core";
 import { useCssColor } from "../../../internal/cssColor.js";
-import { activationKeyHandlers, useHover } from "../../../internal/interaction.js";
+import { activationKeyHandlers, useInteractive } from "../../../internal/interaction.js";
+import { CENTERED_INLINE_FLEX, dataAttrs, touchHitSlop } from "../../../internal/platformStyles.js";
+import { tileDepthStyle } from "../../../internal/tileDepth.js";
 import { fontWeights } from "../../../tokens/fontWeights.js";
 import type { BobuttonsColorToken } from "../../../types/tokens.js";
 import type { IconSource } from "../../primitives/Icon/Icon.js";
@@ -12,17 +14,6 @@ const PLACEHOLDER_COLOR = "white";
 const PLACEHOLDER_INK = "black";
 
 const MAX_TEXT_LENGTH = 3;
-
-// Drop shadow colour: black at high opacity, kept tight rather than soft.
-const SHADOW_COLOR = "color-mix(in srgb, black 65%, transparent)";
-
-// Bottom edge of a raised tile: the fill, always darker. Done in CSS so it
-// works for tokens and any CSS colour. Browsers without relative colour
-// syntax drop the declaration and the tile is simply flat.
-const EDGE_LIGHTNESS_STEP = 0.12;
-function edgeColor(fill: string): string {
-  return `oklch(from ${fill} calc(l - ${EDGE_LIGHTNESS_STEP}) c h)`;
-}
 
 // Rows never wrap or shrink, so the grid keeps its shape when its parent is
 // narrower: the overflow is clipped or scrolled by the parent instead.
@@ -53,7 +44,6 @@ const Square = styled(View, {
 });
 
 const Content = styled(Text, {
-  display: "inline-flex",
   alignItems: "center",
   justifyContent: "center",
   fontFamily: "body",
@@ -142,7 +132,8 @@ interface GridSquareProps {
 
 function GridSquare(props: GridSquareProps): React.ReactElement {
   const { cell, height, aspectRatio, row, column, onPress } = props;
-  const { hovered, hoverHandlers } = useHover();
+  const { hovered, pressed, handlers } = useInteractive();
+  const highlighted = hovered || pressed;
   const toCss = useCssColor();
   const width = Math.round(height * aspectRatio);
   // Content is sized from the shorter side so it fits either way.
@@ -155,8 +146,10 @@ function GridSquare(props: GridSquareProps): React.ReactElement {
 
   const variant = cell?.variant ?? props.variant;
   const color = cell?.color ?? PLACEHOLDER_COLOR;
-  // Hover only applies to filled squares.
-  const hover = variant === "filled" && hovered ? (cell?.hover ?? props.hover) : undefined;
+  // Hover only applies to filled squares; "highlighted" also covers a
+  // native tap (B2-AC5(a): hover is inert on native, never emulated by
+  // press, but a held press still reaches this visual state).
+  const hover = variant === "filled" && highlighted ? (cell?.hover ?? props.hover) : undefined;
   const fill = variant === "filled" ? (hover?.color ?? color) : "transparent";
   const outline = variant === "outlined" ? color : (hover?.outline ?? "transparent");
   const ink = variant === "filled" ? PLACEHOLDER_INK : color;
@@ -166,17 +159,10 @@ function GridSquare(props: GridSquareProps): React.ReactElement {
   const raised = filled && (cell?.raised ?? props.raised);
   const shadow = filled && (cell?.shadow ?? props.shadow);
   const depth = Math.max(2, Math.round(height * 0.08));
-  const layers: string[] = [];
-  if (raised) {
-    layers.push(`0 ${depth}px 0 ${edgeColor(toCss(fill))}`);
-  }
-  if (shadow) {
-    const offset = depth + Math.max(1, Math.round(height * 0.03));
-    layers.push(`0 ${offset}px ${Math.max(2, Math.round(height * 0.06))}px ${SHADOW_COLOR}`);
-  }
-  const tileStyle = layers.length
-    ? ({ "--bobuttons-tile-shadow": layers.join(", ") } as React.CSSProperties)
-    : undefined;
+  const shadowOffset = depth + Math.max(1, Math.round(height * 0.03));
+  const shadowBlur = Math.max(2, Math.round(height * 0.06));
+  const depthStyle = tileDepthStyle(toCss, fill, depth, shadowOffset, shadowBlur, raised, shadow);
+  const hasDepth = raised || shadow;
 
   return (
     <Square
@@ -184,24 +170,36 @@ function GridSquare(props: GridSquareProps): React.ReactElement {
       aria-label={label}
       tabIndex={press ? 0 : undefined}
       cursor={press ? "pointer" : undefined}
+      // B2-AC20/D7: grows the hit area to ~48dp using the square's own
+      // ACTUAL painted width/height (not an estimate). Harmless on a
+      // non-pressable square (no `onPress` means nothing dispatches through
+      // it). Grid/Row's "$1" gap (4px) between squares means the default
+      // squareSize=40 grows exactly into that gap with no overlap into a
+      // neighbouring square's hit area; a much smaller custom `squareSize`
+      // would need more growth than the 4px gap provides and could make
+      // adjacent squares' hit areas overlap — a tile-size choice for the
+      // consumer, not something this seam can fix without changing the
+      // painted grid.
+      hitSlop={touchHitSlop(width, height)}
       onPress={press}
-      {...hoverHandlers}
+      {...handlers}
       {...(press ? activationKeyHandlers(press) : null)}
       width={width}
       height={height}
-      marginBottom={layers.length ? depth : 0}
+      marginBottom={hasDepth ? depth : 0}
       backgroundColor={fill}
       borderColor={outline}
-      data-bobuttons-tile=""
-      style={tileStyle}
+      {...dataAttrs("tile")}
+      {...depthStyle}
     >
       {Icon && (
-        <Content data-bobuttons-icon="" color={ink}>
-          <Icon size={Math.round(unit * 0.55)} color="currentColor" />
+        <Content {...CENTERED_INLINE_FLEX} {...dataAttrs("icon")} color={ink}>
+          {/* currentColor has no native equivalent (B2-AC12/B2-AC29). */}
+          <Icon size={Math.round(unit * 0.55)} color={toCss(ink)} />
         </Content>
       )}
       {text && (
-        <Content color={ink} fontSize={Math.round(unit * 0.4)}>
+        <Content {...CENTERED_INLINE_FLEX} color={ink} fontSize={Math.round(unit * 0.4)}>
           {text}
         </Content>
       )}

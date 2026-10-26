@@ -1,18 +1,12 @@
 import * as React from "react";
 import { styled, View } from "@tamagui/core";
 import { useContentInset } from "../../../internal/useContentInset.js";
+import { Scroll } from "../../../internal/Scroll.js";
 
 const Frame = styled(View, {
   flex: 1,
   flexDirection: "column",
   minHeight: 0,
-});
-
-const Scroller = styled(View, {
-  flex: 1,
-  paddingTop: "$5",
-  paddingHorizontal: "$6",
-  paddingBottom: "$12",
 });
 
 export interface SettingsLayoutProps {
@@ -28,9 +22,10 @@ export function SettingsLayout(props: SettingsLayoutProps): React.ReactElement {
   return (
     <Frame>
       {props.tabs}
-      <Scroller tabIndex={0} paddingHorizontal={inset} style={{ overflowY: "auto" }}>
+      {/* tabIndex stays shared: the Scroll seam forwards it to RN `focusable` (see ViewBody). */}
+      <Scroll tabIndex={0} paddingTop="$5" paddingHorizontal={inset} paddingBottom="$12">
         {props.children}
-      </Scroller>
+      </Scroll>
     </Frame>
   );
 }

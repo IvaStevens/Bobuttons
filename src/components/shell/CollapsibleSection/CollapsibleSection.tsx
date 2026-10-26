@@ -1,6 +1,7 @@
 import * as React from "react";
 import { styled, Text, View } from "@tamagui/core";
-import { activationKeyHandlers, useHover } from "../../../internal/interaction.js";
+import { activationKeyHandlers, useInteractive } from "../../../internal/interaction.js";
+import { touchHitSlop } from "../../../internal/platformStyles.js";
 import { fontWeights } from "../../../tokens/fontWeights.js";
 import type { BobuttonsColorToken } from "../../../types/tokens.js";
 
@@ -49,6 +50,20 @@ const Arrow = styled(Text, {
   flexShrink: 0,
 });
 
+// B2-AC20/D7 touch-target seam (see the `hitSlop` prop below): painted
+// height estimated from Header's paddingTop "$5" (20px) + paddingBottom
+// "$2" (8px) — both space.ts tokens — plus Label's line height at fontSize
+// "$7" (12px, FONT_SIZE_PX[7]) rounded at the body font's 1.4 line-height
+// multiplier (buildLineHeights in src/tamagui.config.ts) -> round(12*1.4) =
+// 17, giving 20 + 8 + 17 = 45. Inlined below (not named) so this stripped
+// comment carries the derivation, not extra runtime bytes — update all
+// three if any token changes. Width is not grown: Header spans the full
+// width of its row (`justifyContent: "space-between"`), already far past
+// 48dp. Growing the hit area is applied to Header, not the Toggle View
+// below it — on native, Toggle carries no `onPress` of its own
+// (`activationKeyHandlers` is inert there, B2-AC5(b)); Header is the
+// element RN actually treats as the press target.
+
 export interface CollapsibleSectionProps {
   label: string;
   /** Number shown next to the label. */
@@ -65,14 +80,20 @@ export interface CollapsibleSectionProps {
 export function CollapsibleSection(props: CollapsibleSectionProps): React.ReactElement {
   const { label, count, children, defaultOpen = true, headerAction, accentToken } = props;
   const [open, setOpen] = React.useState(defaultOpen);
-  const { hovered, hoverHandlers } = useHover();
+  const { hovered, pressed, handlers } = useInteractive();
+  const highlighted = hovered || pressed;
   const contentId = React.useId();
   const labelColor = accentToken ? `$${accentToken}` : "$textDim";
   const toggle = () => setOpen((o) => !o);
 
   return (
     <View>
-      <Header opacity={hovered ? 0.75 : 1} onPress={toggle} {...hoverHandlers}>
+      <Header
+        opacity={highlighted ? 0.75 : 1}
+        hitSlop={touchHitSlop(0, 45)}
+        onPress={toggle}
+        {...handlers}
+      >
         <Toggle
           role="button"
           tabIndex={0}

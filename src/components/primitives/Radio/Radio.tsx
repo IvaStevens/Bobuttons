@@ -1,7 +1,7 @@
 import * as React from "react";
 import { styled, Text, View } from "@tamagui/core";
 import { RadioMark } from "../../../internal/RadioMark.js";
-import { activationKeyHandlers, useHover } from "../../../internal/interaction.js";
+import { activationKeyHandlers, useInteractive } from "../../../internal/interaction.js";
 import { CAP_HEIGHT, useCapOffset } from "../../../internal/useCapOffset.js";
 import { fontWeights } from "../../../tokens/fontWeights.js";
 
@@ -10,6 +10,17 @@ import { fontWeights } from "../../../tokens/fontWeights.js";
 const TITLE_SIZE = 13;
 const RING_SIZE = 20;
 const CARD_PADDING = 12;
+// Card's borderWidth "$0.25" (1px, space.ts), both sides — box-sizing
+// includes the border in the painted height.
+const CARD_BORDER = 2;
+// B2-AC20/D7 touch-target seam (review round 3, finding 6, resolved via
+// finding 7's zero-web-byte mechanism — see the `useInteractive` call
+// below, not a `hitSlop` prop here): the title-only Card's painted height
+// is its own `minHeight` (RING_SIZE + 2*CARD_PADDING = 44) plus
+// CARD_BORDER = 46, 2dp short of Android's ~48dp minimum. The
+// with-description Card below is comfortably taller (two text lines plus a
+// gap) and is left ungrown.
+const TITLE_ONLY_CARD_HEIGHT = RING_SIZE + 2 * CARD_PADDING + CARD_BORDER;
 
 const Card = styled(View, {
   flexDirection: "row",
@@ -67,7 +78,11 @@ export interface RadioProps {
 /** One option card; wrap several in a RadioGroup. */
 export function Radio(props: RadioProps): React.ReactElement {
   const { label, description, checked, onSelect } = props;
-  const { hovered, hoverHandlers } = useHover();
+  // The height arg (only for the title-only card, which alone is short of
+  // 48dp) carries the B2-AC20/D7 touch-target growth through `handlers` on
+  // native (see interaction.native.ts); ignored on web, no new web bytes.
+  const { hovered, pressed, handlers } = useInteractive(description ? undefined : { height: TITLE_ONLY_CARD_HEIGHT });
+  const highlighted = hovered || pressed;
   const titleRef = React.useRef<React.ComponentRef<typeof Title>>(null);
   // With no description the title is the only line, so the card centres it. That centres
   // its line box, which puts the capitals 1-2px off in some fonts; shift to centre them.
@@ -77,9 +92,9 @@ export function Radio(props: RadioProps): React.ReactElement {
     tabIndex: 0,
     "aria-checked": checked,
     borderColor: checked ? "$primary" : "$borderColor",
-    backgroundColor: checked ? "$primaryDim" : hovered ? "$surface3" : "$surface2",
+    backgroundColor: checked ? "$primaryDim" : highlighted ? "$surface3" : "$surface2",
     onPress: onSelect,
-    ...hoverHandlers,
+    ...handlers,
     ...activationKeyHandlers(onSelect),
   } as const;
 

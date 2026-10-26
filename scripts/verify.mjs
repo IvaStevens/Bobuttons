@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// The single verify gate: 17 ordered steps, cheap static checks first, one
+// The single verify gate: 23 ordered steps, cheap static checks first, one
 // build and one pack reused by later steps. Aborts on first failure.
 // Runs with TZ=UTC and LANG=C.UTF-8.
 //
@@ -63,56 +63,77 @@ runStep("check-dependencies", () => node("scripts/check-dependencies.mjs"));
 runStep("check-package-integrity-static", () => node("scripts/check-package-integrity.mjs"));
 // 3
 runStep("check-themes", () => node("scripts/check-themes.mjs"));
-// 4
+// 4 — B2-AC29, static only (no Android/metro/build needed).
+runStep("check-native-audit", () => node("scripts/check-native-audit.mjs"));
+// 5
 runStep("lint", () => {
   const out = sh("npx", ["eslint", "."]);
   console.log(out.trim());
   return out;
 });
-// 5
+// 6
 runStep("typecheck-bundler", () => {
   const out = sh("npx", ["tsc", "--noEmit", "-p", "tsconfig.typecheck.bundler.json"]);
   console.log(out.trim());
   return out;
 });
-// 6
+// 7
 runStep("typecheck-node16", () => {
   const out = sh("npx", ["tsc", "--noEmit", "-p", "tsconfig.typecheck.node16.json"]);
   console.log(out.trim());
   return out;
 });
-// 7
+// 8/9 — entry-rooted, DOM-free: the mechanical backstop for B2-AC12/B2-AC29.
+runStep("typecheck-native-bundler", () => {
+  const out = sh("npx", ["tsc", "--noEmit", "-p", "tsconfig.typecheck.native.bundler.json"]);
+  console.log(out.trim());
+  return out;
+});
+runStep("typecheck-native-node16", () => {
+  const out = sh("npx", ["tsc", "--noEmit", "-p", "tsconfig.typecheck.native.node16.json"]);
+  console.log(out.trim());
+  return out;
+});
+// 10
 runStep("build", () => {
   const out = sh("node", [path.join(root, "scripts/build.mjs")]);
   console.log(out.trim());
   return out;
 });
-// 8
-runStep("check-no-react-native", () => node("scripts/check-no-react-native.mjs"));
-// 9
-runStep("check-dts-encapsulation", () => node("scripts/check-dts-encapsulation.mjs"));
-// 10
-runStep("check-dist-size", () => node("scripts/check-dist-size.mjs"));
 // 11
+runStep("check-no-react-native", () => node("scripts/check-no-react-native.mjs"));
+// 12 — proves the re-scoped scanner from step 11 still bites (B2-AC10).
+runStep("check-no-react-native-self-test", () => node("scripts/check-no-react-native.mjs", ["--self-test"]));
+// 13
+runStep("check-dts-encapsulation", () => node("scripts/check-dts-encapsulation.mjs"));
+// 14
+runStep("check-dist-size", () => node("scripts/check-dist-size.mjs"));
+// 15
 runStep("check-inventory-coverage", () => node("scripts/check-inventory-coverage.mjs"));
-// 12
+// 16 — the static honesty gate: tsconfig coverage + no-iOS-paths (B2-AC24).
+runStep("check-native-coverage", () => node("scripts/check-native-coverage.mjs", ["--self-test"]));
+// 17
 runStep("pack", () => {
   mkdirSync(path.join(root, ".verify-out"), { recursive: true });
   const out = sh("npm", ["pack", "--ignore-scripts", "--pack-destination", ".verify-out", "--json"]);
   writeFileSync(path.join(root, ".verify-out/pack.json"), out, "utf8");
   return out;
 });
-// 13
+// 18 — the environment-independent native gate: Metro build + token scan +
+// native consumer typecheck pair over the packed tarball (B2-AC2/B2-AC3's
+// on-device render check is explicitly NOT here — see README).
+runStep("check-native-bundle", () => node("scripts/check-native-bundle.mjs", ["--self-test"]));
+// 19
 runStep("check-package-integrity-tarball", () => node("scripts/check-package-integrity.mjs", ["--tarball"]));
-// 14
+// 20
 runStep("check-scratch-install", () => node("scripts/check-scratch-install.mjs"));
-// 16a
+// 21
 runStep("build-storybook", () => {
   const out = sh("npx", ["storybook", "build"]);
   console.log(out.trim());
   return out;
 });
-// 16b — every story renders; axe reports no violations on "default", and
+// 22 — every story renders; axe reports no violations on "default", and
 // colour-contrast is additionally gated on jade (see vitest.config.ts).
 runStep("storybook-a11y", () => {
   try {
@@ -126,7 +147,7 @@ runStep("storybook-a11y", () => {
     throw err;
   }
 });
-// 16
+// 23
 runStep("check-version-consistency", () => node("scripts/check-version-consistency.mjs"));
 
 console.log("\n=== [verify] summary ===");
