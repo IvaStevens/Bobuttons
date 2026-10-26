@@ -2,7 +2,7 @@ import * as React from "react";
 import { styled, Text, View } from "@tamagui/core";
 import { useCssColor } from "../../../internal/cssColor.js";
 import { activationKeyHandlers, useInteractive } from "../../../internal/interaction.js";
-import { dataAttrs, INLINE_FLEX, touchHitSlop } from "../../../internal/platformStyles.js";
+import { CENTERED_INLINE_FLEX, dataAttrs, touchHitSlop } from "../../../internal/platformStyles.js";
 import { tileDepthStyle } from "../../../internal/tileDepth.js";
 import { fontWeights } from "../../../tokens/fontWeights.js";
 import type { BobuttonsColorToken } from "../../../types/tokens.js";
@@ -193,13 +193,13 @@ function GridSquare(props: GridSquareProps): React.ReactElement {
       {...depthStyle}
     >
       {Icon && (
-        <Content {...INLINE_FLEX} {...dataAttrs("icon")} color={ink}>
+        <Content {...CENTERED_INLINE_FLEX} {...dataAttrs("icon")} color={ink}>
           {/* currentColor has no native equivalent (B2-AC12/B2-AC29). */}
           <Icon size={Math.round(unit * 0.55)} color={toCss(ink)} />
         </Content>
       )}
       {text && (
-        <Content {...INLINE_FLEX} color={ink} fontSize={Math.round(unit * 0.4)}>
+        <Content {...CENTERED_INLINE_FLEX} color={ink} fontSize={Math.round(unit * 0.4)}>
           {text}
         </Content>
       )}

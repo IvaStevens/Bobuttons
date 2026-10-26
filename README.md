@@ -72,16 +72,16 @@ TypeScript is pinned to 6.0.3, not the published latest (7.0.2): `typescript-esl
 ```json
 {
   "index.mjs": {
-    "rawBytes": 408692,
-    "gzipBytes": 98772
+    "rawBytes": 408750,
+    "gzipBytes": 98796
   },
   "index.cjs": {
-    "rawBytes": 415049,
-    "gzipBytes": 99391
+    "rawBytes": 415107,
+    "gzipBytes": 99418
   },
   "index.native.js": {
-    "rawBytes": 577523,
-    "gzipBytes": 125238
+    "rawBytes": 577593,
+    "gzipBytes": 125261
   }
 }
 ```

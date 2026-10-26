@@ -22,6 +22,13 @@ import { styled, Text } from "@tamagui/core";
 /** Sizes an inline element to its content instead of stretching full width. */
 export const INLINE_FLEX: { display: "inline-flex" } = { display: "inline-flex" };
 
+/**
+ * `INLINE_FLEX` for content that its parent centres (`alignItems: "center"`).
+ * Identical on web; on native `INLINE_FLEX`'s `alignSelf: "flex-start"` would
+ * override that centring and pin the content to the parent's left edge.
+ */
+export const CENTERED_INLINE_FLEX: { display: "inline-flex" } = INLINE_FLEX;
+
 /** Fills the viewport height. React Native has no viewport unit. */
 export const FILL_VIEWPORT: { height: "100vh" } = { height: "100vh" };
 

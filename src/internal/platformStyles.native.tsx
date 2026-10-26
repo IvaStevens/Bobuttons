@@ -15,6 +15,13 @@ import { styled, Text, View, type Role } from "@tamagui/core";
  */
 export const INLINE_FLEX: { alignSelf: "flex-start" } = { alignSelf: "flex-start" };
 
+/**
+ * `INLINE_FLEX` for content that its parent centres. `alignSelf:
+ * "flex-start"` overrides the parent's `alignItems: "center"` and pins the
+ * content to its left edge, so centred content uses `alignSelf: "center"`.
+ */
+export const CENTERED_INLINE_FLEX: { alignSelf: "center" } = { alignSelf: "center" };
+
 /** React Native has no viewport unit; `flex: 1` fills the available space. */
 export const FILL_VIEWPORT: { flex: 1 } = { flex: 1 };
 
