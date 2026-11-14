@@ -131,7 +131,14 @@
       "file": "src/components/primitives/Checkbox/Checkbox.tsx",
       "lines": [104],
       "construct": "inline <svg><path> tick",
-      "substitute": "src/internal/CheckGlyph.tsx/.native.tsx (two rotated Views on native — no react-native-svg peer; griddy-icons cannot render on native under any peer anyway, B2-AC18)",
+      "substitute": "src/internal/CheckGlyph.tsx/.native.tsx (two rotated Views on native — these two hand-drawn glyphs need no react-native-svg; the optional bobuttons/icons/<pack> subpaths do and declare it as an optional native peer, see the Glyph entry below; griddy-icons cannot render on native under any peer anyway, B2-AC18)",
+      "disposition": "invalid-needs-seam"
+    },
+    {
+      "file": "src/icons/Glyph.tsx",
+      "lines": [45],
+      "construct": "inline <svg> with <path>/<circle>/<rect>/<ellipse> children (the opt-in lucide icon packs, bobuttons/icons/<pack>)",
+      "substitute": "src/icons/Glyph.native.tsx (react-native-svg Svg/Path/Circle/Rect/Ellipse; react-native-svg is an optional native-only peer, used only by the four pack subpaths and unreachable from the root entry)",
       "disposition": "invalid-needs-seam"
     },
     {

@@ -182,7 +182,22 @@ async function checkMetroGraph() {
     mkdirSync(nodeModules, { recursive: true });
     symlinkSync(path.join(tmp, "package"), path.join(nodeModules, "bobuttons"), "dir");
     writeFileSync(path.join(tmp, "package.json"), JSON.stringify({ name: "bobuttons-native-bundle-check", version: "0.0.0" }, null, 2));
-    writeFileSync(path.join(tmp, "entry.js"), 'import { BobuttonsProvider, Button } from "bobuttons";\nexport { BobuttonsProvider, Button };\n');
+    // BOBUTTONS-4: also import and USE an icon from one pack subpath
+    // (bobuttons/icons/animal), so this Metro build proves the
+    // "react-native" condition resolves for a pack subpath too, not just
+    // for ".". `export default <Cat/>` forces Metro to actually resolve and
+    // include Cat's module (an unused import could be tree-shaken away by a
+    // later stage and prove nothing).
+    writeFileSync(
+      path.join(tmp, "entry.js"),
+      [
+        'import * as React from "react";',
+        'import { BobuttonsProvider, Button } from "bobuttons";',
+        'import { Cat } from "bobuttons/icons/animal";',
+        "export { BobuttonsProvider, Button };",
+        "export default React.createElement(Cat, { size: 24 });",
+      ].join("\n") + "\n"
+    );
 
     const { getDefaultConfig, mergeConfig } = await import(path.join(root, "node_modules/@react-native/metro-config/dist/index.js"));
     const Metro = await import(path.join(root, "node_modules/metro/src/index.flow.js"));
@@ -237,6 +252,23 @@ async function checkMetroGraph() {
       ok("exactly one @tamagui/core native runtime instance was inlined into dist/index.native.js at build time (B2-AC9; measured via esbuild's preserved banner comment, since Metro never resolves a separate @tamagui/core module for an already-bundled package).");
     }
 
+    // BOBUTTONS-4: the pack subpath import (bobuttons/icons/animal) must
+    // resolve to the NATIVE pack bundle, and no OTHER pack's bundle may be
+    // reachable from this one-pack entry — isolation by absence, proven on
+    // the real Metro graph (not just a scan of the library's own dist/).
+    const animalNativeHits = (code.match(/dist\/icons\/animal\.native\.js/g) || []).length;
+    if (animalNativeHits < 1) {
+      fail("Metro's dependency graph never reached dist/icons/animal.native.js — the pack subpath's react-native export condition did not resolve.");
+    } else {
+      ok(`Metro resolved bobuttons/icons/animal to dist/icons/animal.native.js (${animalNativeHits} module marker(s)).`);
+    }
+    for (const otherPack of ["basic", "food", "shapes"]) {
+      if (code.includes(`dist/icons/${otherPack}`)) {
+        fail(`Metro's graph (built from a bobuttons/icons/animal-only entry) unexpectedly reached dist/icons/${otherPack} — pack isolation leak.`);
+      }
+    }
+    ok("Metro's graph (built from a bobuttons/icons/animal-only entry) reaches no other pack's bundle.");
+
     console.log(`[check-native-bundle] Metro graph: ${code.length}B total.`);
   } finally {
     rmSync(tmp, { recursive: true, force: true });
@@ -256,7 +288,10 @@ function checkConsumerTypecheck() {
     const nodeModules = path.join(tmp, "node_modules");
     mkdirSync(nodeModules, { recursive: true });
     symlinkSync(path.join(tmp, "package"), path.join(nodeModules, "bobuttons"), "dir");
-    writeFileSync(path.join(tmp, "consumer.ts"), 'import { Button } from "bobuttons";\nexport { Button };\n');
+    writeFileSync(
+      path.join(tmp, "consumer.ts"),
+      'import { Button } from "bobuttons";\nimport { Cat } from "bobuttons/icons/animal";\nexport { Button, Cat };\n'
+    );
 
     for (const [label, moduleResolution, module] of [
       ["bundler", "bundler", "esnext"],

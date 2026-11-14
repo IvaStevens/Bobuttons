@@ -53,9 +53,14 @@ if (versions) {
 // Re-measures the bundles check-dist-size.mjs measures, in its per-bundle
 // shape (B2-AC21: version-consistency checks apply to ALL shipped bundles —
 // a strengthening of this check, called out as such in the PR). Runs after
-// the build in verify, so dist/ exists.
+// the build in verify, so dist/ exists. BOBUTTONS-4: the bundle list is no
+// longer hardcoded to three names — it is read from dist-size-budget.json's
+// own keys, the same source check-dist-size.mjs itself now uses, so the two
+// lists cannot drift apart.
 if (distsize) {
-  for (const name of ["index.mjs", "index.cjs", "index.native.js"]) {
+  const budgetPath = path.join(root, "dist-size-budget.json");
+  const budgetNames = existsSync(budgetPath) ? Object.keys(JSON.parse(readFileSync(budgetPath, "utf8")).bundles) : [];
+  for (const name of budgetNames) {
     const entryPath = path.join(root, "dist", name);
     const recorded = distsize[name];
     if (!recorded) {

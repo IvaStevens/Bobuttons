@@ -1,15 +1,20 @@
 #!/usr/bin/env node
-// Measures all three shipped bundles (web ESM, web CJS, native — B2-AC22)
-// against the committed per-bundle budget. A `pinned: true` bundle's limit
-// may not be raised by --write (refuses, rather than silently absorbing
-// growth into a re-baseline while B2-AC11 is claimed); a raise on a pinned
-// bundle needs a manual, reasoned edit to dist-size-budget.json, called out
-// in the PR per B2-AC22. --write regenerates the README's distsize JSON
-// block from the same measurement so the two can't drift.
+// Measures every shipped bundle against the committed per-bundle budget. The
+// bundle list is no longer hardcoded (B2-AC22 named exactly three; BOBUTTONS-4
+// widened this gate, as its own AC requires, to all `dist-size-budget.json`
+// keys, plus a REVERSE check that every emitted dist/**/*.{mjs,cjs,js} file
+// has a budget entry — a missing pack bundle file OR a missing budget entry
+// now fails the gate either way). A `pinned: true` bundle's limit may not be
+// raised by --write (refuses, rather than silently absorbing growth into a
+// re-baseline while B2-AC11 is claimed); a raise on a pinned bundle needs a
+// manual, reasoned edit to dist-size-budget.json, called out in the PR per
+// B2-AC22. --write regenerates the README's distsize JSON block from the
+// same measurement so the two can't drift.
 import { readFileSync, existsSync, writeFileSync } from "node:fs";
 import { gzipSync } from "node:zlib";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import fg from "fast-glob";
 
 const root = path.resolve(fileURLToPath(import.meta.url), "../..");
 const distDir = path.join(root, "dist");
@@ -23,7 +28,7 @@ if (!existsSync(distDir)) {
 const budgetPath = path.join(root, "dist-size-budget.json");
 const budget = JSON.parse(readFileSync(budgetPath, "utf8"));
 
-const BUNDLES = ["index.mjs", "index.cjs", "index.native.js"];
+const BUNDLES = Object.keys(budget.bundles);
 
 let failed = false;
 let writeRefused = false;
@@ -63,6 +68,20 @@ for (const name of BUNDLES) {
     );
     writeRefused = true;
   }
+}
+
+// Reverse direction: every emitted top-level JS bundle must have a budget
+// entry, keyed by its dist-relative path. Declaration files (.d.ts/.d.mts/
+// .d.cts) and anything under dist/icons/glyphs/** (not a bundle, an internal
+// data module with no budget of its own) are not bundles and are excluded.
+const emitted = fg.sync(["**/*.{mjs,cjs,js}"], { cwd: distDir });
+const budgeted = new Set(BUNDLES);
+const unbudgeted = emitted.filter((rel) => !budgeted.has(rel));
+if (unbudgeted.length > 0) {
+  console.error(`[check-dist-size] FAIL: emitted bundle(s) with no dist-size-budget.json entry: ${unbudgeted.join(", ")}`);
+  failed = true;
+} else {
+  console.log(`[check-dist-size] every emitted dist/**/*.{mjs,cjs,js} file (${emitted.length}) has a budget entry.`);
 }
 
 if (write) {

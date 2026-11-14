@@ -20,6 +20,7 @@ export default [
       ".verify-out/**",
       "src/themes/themes.generated.ts",
       "src/themes/themes.source.css",
+      "src/icons/glyphs/*.generated.ts",
       "scripts/scratch-consumer/node_modules/**",
       "scripts/scratch-consumer/dist/**",
     ],
@@ -73,6 +74,20 @@ export default [
     // instead, since the rule itself can't be scoped to include-but-exempt
     // one file).
     files: ["src/internal/**/*.{ts,tsx}", "src/tokens/**/*.{ts,tsx}"],
+    plugins: {
+      bobuttons: bobuttonsRules,
+    },
+    rules: {
+      "bobuttons/no-raw-style-literals": "error",
+    },
+  },
+  {
+    // BOBUTTONS-4: another strengthening — src/icons/** carries its own raw
+    // colour fallback (stroke.native.ts's "#000", the one-line eslint-disable
+    // next to it). Measured against this tree: one disable line, zero other
+    // findings. Generated glyph data (src/icons/glyphs/*.generated.ts) is
+    // excluded above, same precedent as themes.generated.ts.
+    files: ["src/icons/**/*.{ts,tsx}"],
     plugins: {
       bobuttons: bobuttonsRules,
     },
