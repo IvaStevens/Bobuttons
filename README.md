@@ -82,6 +82,54 @@ TypeScript is pinned to 6.0.3, not the published latest (7.0.2): `typescript-esl
   "index.native.js": {
     "rawBytes": 577593,
     "gzipBytes": 125261
+  },
+  "icons/animal.mjs": {
+    "rawBytes": 7632,
+    "gzipBytes": 2539
+  },
+  "icons/animal.cjs": {
+    "rawBytes": 8829,
+    "gzipBytes": 3038
+  },
+  "icons/animal.native.js": {
+    "rawBytes": 7818,
+    "gzipBytes": 2609
+  },
+  "icons/basic.mjs": {
+    "rawBytes": 3987,
+    "gzipBytes": 1295
+  },
+  "icons/basic.cjs": {
+    "rawBytes": 5145,
+    "gzipBytes": 1744
+  },
+  "icons/basic.native.js": {
+    "rawBytes": 4186,
+    "gzipBytes": 1364
+  },
+  "icons/food.mjs": {
+    "rawBytes": 13312,
+    "gzipBytes": 4151
+  },
+  "icons/food.cjs": {
+    "rawBytes": 14687,
+    "gzipBytes": 4724
+  },
+  "icons/food.native.js": {
+    "rawBytes": 13498,
+    "gzipBytes": 4222
+  },
+  "icons/shapes.mjs": {
+    "rawBytes": 6178,
+    "gzipBytes": 1931
+  },
+  "icons/shapes.cjs": {
+    "rawBytes": 7381,
+    "gzipBytes": 2412
+  },
+  "icons/shapes.native.js": {
+    "rawBytes": 6377,
+    "gzipBytes": 2006
   }
 }
 ```
@@ -204,6 +252,9 @@ historical fact about the packaging slice, not a currently-checked invariant.
   `npm run pack`), for faster iteration on the native gate.
 - `npm run typecheck:native:bundler` / `npm run typecheck:native:node16` — the two native,
   entry-rooted, DOM-free typechecks (see below).
+- `npm run generate-icon-packs` / `npm run generate-icon-packs:write` — checks / regenerates the four
+  `src/icons/glyphs/*.generated.ts` modules and the `iconpacks` block below from lucide and
+  `scripts/icon-packs.json`.
 - `npm run generate-themes:write` — regenerates `src/themes/themes.generated.ts` from
   `src/themes/themes.source.css`.
   Colours are defined once, by name, in the `:root` palette of `themes.source.css` (`--color-deep-sea`);
@@ -305,6 +356,11 @@ honours package `exports` (`unstable_enablePackageExports`) by default — see t
   `peerDependencies` entry) — Tamagui 3.0.18's native build has zero web dependencies of its own, so
   bundling it native-side costs nothing extra and keeps exactly one `@tamagui/core` instance on the
   native path (B2-AC9).
+- `react-native-svg` is an **optional native-only peer** (`">=15.0.0 <16.0.0"`), needed only by the
+  opt-in icon pack subpaths on native (BOBUTTONS-4); the root entry never imports it. It is also an
+  exact-pinned devDependency (15.15.5, the newest release RN 0.79's codegen can parse) so the gates
+  can build a pack against it, and `lucide` is an exact-pinned devDependency used only by the
+  generator. Neither is in `dependencies`.
 - `metro`, `@react-native/metro-config` and `react-native` itself are pinned **devDependencies**, used
   only by `check-native-bundle.mjs` to run a real Metro build with no Android SDK/JDK/emulator (see
   below) — `check-dependencies.mjs`'s production-tree assertion still holds because npm marks
@@ -341,6 +397,21 @@ B2-AC10 only requires enumeration of changes that could weaken a guarantee:
    this ticket) and `bobuttons/no-implicit-intl` was deliberately NOT extended (it would flag
    `formatInstant.ts`/`.native.ts`, the module that rule exists to funnel Intl usage into — see
    `scripts/check-native-audit.mjs`, which enforces that rule's intent there instead).
+
+4. **BOBUTTONS-4 (icon packs)**, all additive or tightening, none loosening a pinned budget:
+   - `scripts/check-package-integrity.mjs`: the `exports` allowlist admits exactly four more keys
+     (`./icons/animal`, `./icons/basic`, `./icons/food`, `./icons/shapes`), no wildcard; the
+     `react-native`-first and `types`/`default` assertions now apply to each key; the deep-import
+     probes still reject everything else.
+   - `scripts/check-dist-size.mjs` / `dist-size-budget.json`: 12 new **unpinned** pack bundle budgets
+     with their own limits; the three existing bundles' budgets and `pinned: true` flags are untouched.
+   - `scripts/check-no-react-native.mjs`: the native exclusion is now an exact five-file `.native.js`
+     set rather than one basename, `react-native-svg` is added to the forbidden specifiers for web
+     bundles, and `--self-test` plants it in a web pack bundle (must fail) and a native one (must pass).
+   - `scripts/check-native-bundle.mjs`: the Metro build imports a pack subpath and proves no other
+     pack's bundle is reachable.
+   - New `scripts/check-icon-packs.mjs` (static, `--artifacts`, `--self-test`).
+   - `eslint.config.js`: `no-raw-style-literals` extends to `src/icons/**`.
 
 ### Support matrix (B2-AC6)
 
@@ -383,16 +454,58 @@ This library ships **no font assets** on either platform.
 
 - `griddy-icons` (the web SVG icon set used in stories) **cannot render on native under any peer** —
   its components are DOM `<svg>` elements. There is no version of `griddy-icons`, `react-native-svg`
-  or any other peer that makes them work on React Native.
+  or any other peer that makes them work on React Native. (The opt-in lucide packs below are a
+  different thing: they are drawn from path data, and on native they render through `react-native-svg`.)
 - `Icon`'s public props are unchanged on either platform: `{ source: IconSource; size?: number; color?:
   BobuttonsColorToken; label?: string }`, where `IconSource` is `React.ComponentType<{ size?:
   number | string; color?: string }>`.
 - A React Native consumer supplies its **own** icon components of that same shape (e.g. wrapping
   `react-native-vector-icons`, `@expo/vector-icons`, or custom SVG-via-`react-native-svg` components)
-  — this library does not ship or require any particular native icon implementation.
+  — the root entry does not ship or require any particular native icon implementation. The optional
+  icon packs below are the one exception, and only for a consumer who imports one.
 - The two glyphs this library draws itself (`CheckGlyph`, used by `Checkbox`; `CloseGlyph`, used by
   `IconButton`'s default) have native-rendering `.native.tsx` halves drawn from plain `View`s (no SVG
   peer needed), since they are internal and not SVG-sourced.
+
+#### Optional icon packs (BOBUTTONS-4)
+
+Four opt-in packs of [lucide](https://lucide.dev) icons (lucide 1.72.0, ISC; see
+`THIRD-PARTY-NOTICES.md`): `animal` (15), `basic` (11), `food` (28), `shapes` (15). Nothing is
+included by default and nothing under `src/icons/**` is reachable from the root entry, so
+`dist/index.mjs`, `dist/index.cjs` and `dist/index.native.js` are byte-identical to before.
+
+```tsx
+import { Icon } from "bobuttons";
+import { Cat, animalIcons } from "bobuttons/icons/animal"; // one subpath per pack
+import { CircleCheck } from "bobuttons/icons/basic";
+```
+
+- **One subpath per pack**: `bobuttons/icons/animal`, `/basic`, `/food`, `/shapes`. Each is its own
+  bundle (web ESM, web CJS, native), so importing one pack ships only that pack's glyph data.
+  Passing several packs is just several imports. Each bundle carries its own copy of the small
+  renderer, on purpose (see the comment at the top of `src/icons/Glyph.tsx`).
+- **Exports**: one PascalCase component per lucide name (`circle-check` -> `CircleCheck`), a record
+  keyed by the quoted lucide name (`animalIcons["paw-print"]`), and the name union
+  (`AnimalIconName`). Components take `{ size?, color? }` and drop straight into `Icon`'s `source`.
+- **Overlaps**: `fish` and `shrimp` are in both `animal` and `food`; `circle` and `star` are in both
+  `basic` and `shapes`. They are separate exports with identical glyph data and identical output;
+  there is no merged lookup. Alias locally if you import both.
+- **Unknown names**: a missing named export, or a bad literal record key, is a TypeScript error. A
+  non-literal string (from data) looks up as `undefined`; rendering that unguarded throws React's
+  "Element type is invalid" in your tree. There is no Proxy, placeholder glyph or dev warning, because
+  a placeholder would be an invented icon. Guard with `if (name in animalIcons)` or narrow to the
+  exported union.
+- **Native**: the packs render through **`react-native-svg`**, an *optional* native-only peer
+  (`>=15.0.0 <16.0.0`). Install it only if you import a pack on React Native; web and Electron need
+  nothing extra. Only `react-native-svg` **15.15.5** is exercised by this repo's gates. Note that
+  `react-native-svg` 15.16.0 and later ship TypeScript source using the `CodegenTypes.*` namespace,
+  which React Native 0.79's Metro codegen cannot parse (`Unknown prop type for "opacity"`); on RN
+  0.79 use 15.15.x or older, and on RN 0.80+ pick a release your RN version supports. The
+  `exports` map lists the `react-native` condition first for every pack subpath, but there is **no
+  legacy `"react-native"` top-level field fallback for subpaths**, so a bundler that ignores
+  `exports` cannot resolve them.
+- **Lucide is a devDependency only**: glyph data is generated by `npm run generate-icon-packs:write`
+  from the manifest `scripts/icon-packs.json`; no lucide code ships.
 
 ### Insets / safe area (B2-AC19)
 
@@ -619,6 +732,11 @@ listed here is a defect, not an accepted divergence.
     view in the way `onFocus` observes. The "focus" visual therefore exists on native only for the
     keyboard/remote-attached case named in the `tabIndex`→`focusable` item above, not for a plain touch
     tap; "press" and "hover" (via held press) stay reachable exactly as described in items 1-2.
+16. **Pack icons used standalone on native fall back to `#000` when no `color` prop is passed.** React
+    Native has no `currentColor`, so `src/icons/stroke.native.ts` substitutes `#000` where the web half
+    substitutes `currentColor`. Under `Icon` there is no divergence at all, because `Icon` always passes
+    a resolved concrete colour on both platforms; the fallback is reachable only for a pack component
+    rendered directly, without `Icon` and without `color`.
 
 ### What `check-native-bundle.mjs` proves (no Android SDK/JDK/emulator/device required)
 
@@ -694,3 +812,37 @@ visual); anything else observed during that review is either fixed or added to t
 set the owner should review against includes at least one component per inventory category, every
 theme, and specifically the **mobile** web layout (see "Responsive behaviour" above) as the closest
 point of comparison for an Android phone in portrait.
+
+
+<!-- bobuttons:iconpacks:start -->
+```json
+{
+  "animal": {
+    "count": 15,
+    "absent": []
+  },
+  "basic": {
+    "count": 11,
+    "absent": []
+  },
+  "food": {
+    "count": 28,
+    "absent": []
+  },
+  "shapes": {
+    "count": 15,
+    "absent": []
+  },
+  "featherDerived": [
+    "calendar",
+    "chevron-right",
+    "circle",
+    "ellipsis",
+    "feather",
+    "octagon",
+    "triangle",
+    "triangle-exclamation-point"
+  ]
+}
+```
+<!-- bobuttons:iconpacks:end -->

@@ -6,21 +6,57 @@
       "gzipBytes": 98796,
       "pinned": true,
       "measuredAtSlice": "N2-grid-centering-fix",
-      "n0Reference": { "rawBytes": 402570, "gzipBytes": 97392, "sha256": "5dccbda8dc72f057777541d5d757637861bae2e2696f0133048124327cece7f8" }
+      "n0Reference": { "rawBytes": 402570, "gzipBytes": 97392, "sha256": "5dccbda8dc72f057777541d5d757637861bae2e2696f0133048124327cece7f8" },
+      "preIconPacksReference": {
+        "rawBytes": 408750,
+        "gzipBytes": 98796,
+        "sha256": "5153dd33c9d75dcb83b85a08992b7fae2fd7fab6aa8347000d3d3d8df653f0a3",
+        "measuredAtCommit": "de3fe60",
+        "toolchain": "node v22.20.0, npm 10.9.3, tsup 8.5.0",
+        "note": "PROVENANCE ONLY, same role as n0Reference above (see README.md's 'recorded sha256 values are provenance notes only' note) — no script re-verifies this hash. Captured at the BOBUTTONS-4 branch point, before any source change, specifically so this ticket's byte-identity claim (AC19/AC20: the packs add zero bytes to this bundle) has a baseline. Re-measured identical (rawBytes/gzipBytes/sha256 all unchanged) after installing the lucide/react-native-svg devDependencies and after adding the four icon packs — reported in the PR, not gated here."
+      }
     },
     "index.cjs": {
       "rawBytes": 415107,
       "gzipBytes": 99418,
       "pinned": true,
       "measuredAtSlice": "N2-grid-centering-fix",
-      "n0Reference": { "rawBytes": 408771, "gzipBytes": 98027, "sha256": "51ce7ec6de1b90982cc86f4702b28f78170279a69ef5e97a57f30a1e3f4b3849" }
+      "n0Reference": { "rawBytes": 408771, "gzipBytes": 98027, "sha256": "51ce7ec6de1b90982cc86f4702b28f78170279a69ef5e97a57f30a1e3f4b3849" },
+      "preIconPacksReference": {
+        "rawBytes": 415107,
+        "gzipBytes": 99418,
+        "sha256": "98bbf65a2a726ec81330c1b9a640676c8d789abcd243b3451e28a56627254db7",
+        "measuredAtCommit": "de3fe60",
+        "toolchain": "node v22.20.0, npm 10.9.3, tsup 8.5.0",
+        "note": "PROVENANCE ONLY — see index.mjs's preIconPacksReference note. Re-measured identical after installing the two new devDependencies and after adding the four icon packs."
+      }
     },
     "index.native.js": {
       "rawBytes": 600000,
       "gzipBytes": 128500,
       "pinned": false,
       "measuredAtSlice": "N2",
-      "preSeamReference": { "rawBytes": 568964, "gzipBytes": 124127, "note": "N0, unseamed native build — a sanity anchor, not a budget." }
-    }
+      "preSeamReference": { "rawBytes": 568964, "gzipBytes": 124127, "note": "N0, unseamed native build — a sanity anchor, not a budget." },
+      "preIconPacksReference": {
+        "rawBytes": 577593,
+        "gzipBytes": 125261,
+        "sha256": "537a3dc17af4716e162515d90408243f186d51b17a3cb481bc36c5f8cee12fb7",
+        "measuredAtCommit": "de3fe60",
+        "toolchain": "node v22.20.0, npm 10.9.3, tsup 8.5.0",
+        "note": "PROVENANCE ONLY — see index.mjs's preIconPacksReference note. Re-measured identical (rawBytes/gzipBytes/sha256 unchanged) after the four icon packs were added — no pack module is reachable from src/index.ts. `pinned` stays false, unchanged."
+      }
+    },
+    "icons/animal.mjs": { "rawBytes": 7632, "gzipBytes": 2539, "pinned": false, "measuredAtSlice": "BOBUTTONS-4-first-build" },
+    "icons/animal.cjs": { "rawBytes": 8829, "gzipBytes": 3038, "pinned": false, "measuredAtSlice": "BOBUTTONS-4-first-build" },
+    "icons/animal.native.js": { "rawBytes": 7818, "gzipBytes": 2609, "pinned": false, "measuredAtSlice": "BOBUTTONS-4-first-build" },
+    "icons/basic.mjs": { "rawBytes": 3987, "gzipBytes": 1295, "pinned": false, "measuredAtSlice": "BOBUTTONS-4-first-build" },
+    "icons/basic.cjs": { "rawBytes": 5145, "gzipBytes": 1744, "pinned": false, "measuredAtSlice": "BOBUTTONS-4-first-build" },
+    "icons/basic.native.js": { "rawBytes": 4186, "gzipBytes": 1364, "pinned": false, "measuredAtSlice": "BOBUTTONS-4-first-build" },
+    "icons/food.mjs": { "rawBytes": 13312, "gzipBytes": 4151, "pinned": false, "measuredAtSlice": "BOBUTTONS-4-first-build" },
+    "icons/food.cjs": { "rawBytes": 14687, "gzipBytes": 4724, "pinned": false, "measuredAtSlice": "BOBUTTONS-4-first-build" },
+    "icons/food.native.js": { "rawBytes": 13498, "gzipBytes": 4222, "pinned": false, "measuredAtSlice": "BOBUTTONS-4-first-build" },
+    "icons/shapes.mjs": { "rawBytes": 6178, "gzipBytes": 1931, "pinned": false, "measuredAtSlice": "BOBUTTONS-4-first-build" },
+    "icons/shapes.cjs": { "rawBytes": 7381, "gzipBytes": 2412, "pinned": false, "measuredAtSlice": "BOBUTTONS-4-first-build" },
+    "icons/shapes.native.js": { "rawBytes": 6377, "gzipBytes": 2006, "pinned": false, "measuredAtSlice": "BOBUTTONS-4-first-build" }
   }
 }

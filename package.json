@@ -26,7 +26,63 @@
         "default": "./dist/index.cjs"
       }
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./icons/animal": {
+      "react-native": {
+        "types": "./dist/icons/animal.d.ts",
+        "default": "./dist/icons/animal.native.js"
+      },
+      "import": {
+        "types": "./dist/icons/animal.d.mts",
+        "default": "./dist/icons/animal.mjs"
+      },
+      "require": {
+        "types": "./dist/icons/animal.d.cts",
+        "default": "./dist/icons/animal.cjs"
+      }
+    },
+    "./icons/basic": {
+      "react-native": {
+        "types": "./dist/icons/basic.d.ts",
+        "default": "./dist/icons/basic.native.js"
+      },
+      "import": {
+        "types": "./dist/icons/basic.d.mts",
+        "default": "./dist/icons/basic.mjs"
+      },
+      "require": {
+        "types": "./dist/icons/basic.d.cts",
+        "default": "./dist/icons/basic.cjs"
+      }
+    },
+    "./icons/food": {
+      "react-native": {
+        "types": "./dist/icons/food.d.ts",
+        "default": "./dist/icons/food.native.js"
+      },
+      "import": {
+        "types": "./dist/icons/food.d.mts",
+        "default": "./dist/icons/food.mjs"
+      },
+      "require": {
+        "types": "./dist/icons/food.d.cts",
+        "default": "./dist/icons/food.cjs"
+      }
+    },
+    "./icons/shapes": {
+      "react-native": {
+        "types": "./dist/icons/shapes.d.ts",
+        "default": "./dist/icons/shapes.native.js"
+      },
+      "import": {
+        "types": "./dist/icons/shapes.d.mts",
+        "default": "./dist/icons/shapes.mjs"
+      },
+      "require": {
+        "types": "./dist/icons/shapes.d.cts",
+        "default": "./dist/icons/shapes.cjs"
+      }
+    }
   },
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
@@ -46,6 +102,8 @@
     "typecheck:native:node16": "tsc --noEmit -p tsconfig.typecheck.native.node16.json",
     "generate-themes": "node scripts/generate-themes.mjs",
     "generate-themes:write": "node scripts/generate-themes.mjs --write",
+    "generate-icon-packs": "node scripts/generate-icon-packs.mjs",
+    "generate-icon-packs:write": "node scripts/generate-icon-packs.mjs --write",
     "test": "vitest run",
     "pack": "npm run build && mkdir -p .verify-out && npm pack --ignore-scripts --pack-destination .verify-out --json",
     "prepack": "npm run build",
@@ -56,7 +114,8 @@
   "peerDependencies": {
     "react": ">=19",
     "react-dom": ">=19",
-    "react-native": ">=0.79 <1.0"
+    "react-native": ">=0.79 <1.0",
+    "react-native-svg": ">=15.0.0 <16.0.0"
   },
   "peerDependenciesMeta": {
     "react-dom": {
@@ -64,17 +123,20 @@
     },
     "react-native": {
       "optional": true
+    },
+    "react-native-svg": {
+      "optional": true
     }
   },
   "devDependencies": {
-    "@tamagui/core": "3.0.18",
     "@react-native/metro-config": "0.79.6",
     "@storybook/addon-a11y": "10.6.2",
     "@storybook/addon-vitest": "10.6.2",
     "@storybook/react-vite": "10.6.2",
+    "@tamagui/core": "3.0.18",
+    "@types/node": "22.20.5",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
-    "@types/node": "22.20.5",
     "@typescript-eslint/eslint-plugin": "8.72.0",
     "@typescript-eslint/parser": "8.72.0",
     "@vitest/browser": "5.0.5",
@@ -83,11 +145,13 @@
     "fast-glob": "3.3.3",
     "griddy-icons": "0.2.0",
     "jsdom": "27.0.0",
+    "lucide": "1.72.0",
     "metro": "0.82.5",
     "playwright": "1.64.1",
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "react-native": "0.79.6",
+    "react-native-svg": "15.15.5",
     "storybook": "10.6.2",
     "tsup": "8.5.0",
     "typescript": "6.0.3",

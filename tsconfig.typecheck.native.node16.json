@@ -7,6 +7,12 @@
     "lib": ["ES2022"],
     "noEmit": true
   },
-  "files": ["src/index.ts"],
+  "files": [
+    "src/index.ts",
+    "src/icons/animal.ts",
+    "src/icons/basic.ts",
+    "src/icons/food.ts",
+    "src/icons/shapes.ts"
+  ],
   "include": []
 }

@@ -19,7 +19,17 @@ const FORBIDDEN_SPECIFIER = /(?:from\s+|import\(\s*|require\(\s*)["'](@tamagui\/
 // Relative specifiers are the graph edges; bare specifiers are leaves.
 const RELATIVE_SPECIFIER = /(?:from\s+|import\(\s*|require\(\s*)["'](\.[^"']+)["']/g;
 
-const roots = fg.sync(["index.d.ts", "index.d.mts", "index.d.cts"], { cwd: distDir, absolute: true });
+// BOBUTTONS-4: widened from the single root entry point to the four icon
+// pack entry points too — each is its own independent public entry
+// (bobuttons/icons/<pack>), and FORBIDDEN_SPECIFIER's existing
+// `react-native[^"']*` pattern already matches `react-native-svg`, so this
+// widening is what gives the AC's "check-dts-encapsulation stays green for
+// the new subpath type entry points" real teeth (a pack's .d.ts referencing
+// react-native-svg's types would otherwise go unchecked).
+const roots = fg.sync(
+  ["index.d.ts", "index.d.mts", "index.d.cts", "icons/*.d.ts", "icons/*.d.mts", "icons/*.d.cts"],
+  { cwd: distDir, absolute: true }
+);
 
 if (roots.length === 0) {
   console.log("[check-dts-encapsulation] SKIP: dist/ not found or empty — run `npm run build` first.");
