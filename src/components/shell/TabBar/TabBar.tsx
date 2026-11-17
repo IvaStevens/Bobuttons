@@ -116,7 +116,11 @@ const HORIZONTAL_INDICATOR = {
   borderBottomRightRadius: 0,
 } as const;
 
-const HORIZONTAL_FRAME = { flexGrow: 0, flexBasis: "auto" } as const;
+// `flex: 0` is needed alongside `flexBasis`: on native, Frame's base `flex: 1` is not
+// overridden by `flexGrow`/`flexBasis` alone, so the frame kept a zero basis and collapsed
+// to zero height in an auto-height container (the AppShell sidebar on phones). Web is
+// unchanged: `flex: 0` plus `flexBasis: "auto"` resolves to the same grow, shrink and basis.
+const HORIZONTAL_FRAME = { flex: 0, flexBasis: "auto" } as const;
 
 // In a horizontal bar each tab is as wide as its icon, and never shrinks.
 const HORIZONTAL_TAB = { width: "auto", paddingHorizontal: "$3.5", paddingVertical: "$2", flexShrink: 0 } as const;
